@@ -1,0 +1,93 @@
+@media (min-width: 575px) {
+    .atributes-max-width {
+        max-width: 600px;
+    }
+
+    .no-gutters-edit {
+        margin-right: 0;
+        margin-left: 0;
+        padding: 0;
+    }
+
+}
+
+@media (min-width: 960px) {
+    body {
+        margin: 20px;
+    }
+}
+
+@media (max-width: 960px) {
+    body {
+        padding-bottom: 60px;
+        margin: 0px
+    }
+
+
+
+}
+
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+
+.table-responsive {
+    max-height: 100px;
+}
+
+
+/* Used in testing */
+.no-gutters-edit {
+    margin-right: 0;
+    margin-left: 0;
+    padding: 0;
+}
+
+/* On hover clickable div */
+.clickable_div:hover {
+    background-color: #205081;
+}
+
+.inventory-equip-table tbody[data-uuid] {
+    display: table-row-group;
+    width: 100%;
+}
+
+.inventory-equip-table td.item-name {
+    white-space: normal;
+    /* povolí zalomení textu */
+    word-break: normal;
+    /* zachová slova pohromadě */
+    overflow-wrap: anywhere;
+    /* zalomí jen při potřebě */
+    vertical-align: middle;
+}
+
+.inventory-equip-table {
+    table-layout: fixed;
+    /* zachová rovnoměrné chování tabulky */
+    width: 100%;
+}
+
+.inventory-equip-table td.text-end {
+    white-space: nowrap;
+}
+
+.inventory-equip-table td {
+    vertical-align: middle;
+}
+
+.sheet-features-scroll {
+    max-height: 425px;
+    /* nastav výšku podle potřeby */
+    overflow-y: auto;
+}
+
+/* aby tabulka vypadala pořád pěkně */
+.sheet-features-scroll table {
+    margin-bottom: 0;
+    /* odstraní extra mezery pod tabulkou */
+}

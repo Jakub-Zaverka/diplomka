@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User Info - Edit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <!-- Logo nebo název vlevo -->
+            <p class="navbar-brand" href="#">{{ character.name }}</p>
+
+            <!-- Pravá část navbaru -->
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        PH:Profile
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#">PH:UserName</a></li>
+                        <li><a class="dropdown-item" href="/dashboard">Characters</a></li>
+                        <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <h1>PH DEBUG: Char_id:{{ character.char_id }} Char name:{{ character.name }} User_id:{{ character.user_id }}</h1>
+    <button class="edit-button btn btn-warning p-1" data-url="{{ url_for('dashboard') }}">PH:Dashboard</button>
+    <div class="row">
+        <div class="col-12 col-md-6 row">
+            <!-- Atributes -->
+            <div class="col-12 col-md-7 px-md-3">
+                <div class="bg-info order-md-1">
+                    <!-- Individual Atribute -->
+                    {% for item in data_page_template["atributes"] %}
+                    <div class="row">
+                        <div class="bg-secondary row shadow ">
+                            <div class="col-2 px-4 px-md-2 px-lg-4 px-sm-3 clickable_div">
+                                <div class="row">
+                                    <p class="h3 my-0 mx-1">
+                                        {% set bonus = ((character[item["name"]] - 10) / 2)|int %}
+                                        {% if bonus >= 0 %}
+                                        +{{ bonus }}
+                                        {% else %}
+                                        {{ bonus }}
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="row">
+                                    <p class="h4 px-4 small">{{ character[item["name"]] }}</p>
+                                </div>
+                            </div>
+                            <div class="col-10 align-self-center">
+                                <p class="h3 w-100 word-wrap: break-word px-3">{{ item["name"] }}</p>
+                                <p class="h6 px-3 clickable_div">
+                                    {% set stat_prof_bonus = proficiencies.get(item["name"] | lower, 0) %}
+                                    {% if stat_prof_bonus == 2 %}
+                                    {% set stat_prof_bonus_value = prof_bonus%}
+                                    {%else%}
+                                    {% set stat_prof_bonus_value = 0 %}
+                                    {%endif%}
+                                    {% set bonus = ((character[item["name"]] - 10) / 2) +  stat_prof_bonus_value | int %}
+                                    {% if bonus >= 0 %}
+                                    +{{ bonus }}
+                                    {% else %}
+                                    {{ bonus }}
+                                    {% endif %}
+                                    Saving Throw</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <!-- Rest je řešen pomocí duplikace, která je vidět jen v určitě obrazovce, ato buď md nebo menší jak md. -->
+                <div class="order-md-3 order-last d-none d-md-block pt-2">
+                    <div class="row">
+                        <div class="bg-info row shadow">
+                            <p style="height: 100px;" class="h3 w-100 text-nowrap px-3">Dice Rolls?</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="height: 100px;" class="bg-info col-12 col-md-6 order-md-3 order-last d-sm-block d-md-none">
+                <p>Rest Small Screen</p>
+            </div>
+            <!-- Skills -->
+            <div class="col-12 col-md-5 order-md-2 px-md-3">
+                <!-- Individual Skill -->
+                {% for item in data_page_template["skills"] %}
+                {% for atribute in data_page_template["atributes"] %}
+                {% if atribute["name"] == item["parent"] %}
+                {% set skill_key = item["name"] | lower | replace(' ', '_') %}
+                {% set level = proficiencies.get(skill_key, 1) %}
+                <div class="bg-secondary row shadow px-2">
+                    <div class="col-1 clickable_div px-0">
+                        <div class="row">
+                            <p class="h5 my-0">
+                                {% set bonus = (((character[atribute["name"]] - 10) / 2) + prof_bonus*(level-1))|int %}
+                                {% if bonus >= 0 %}
+                                +{{ bonus }}
+                                {% else %}
+                                {{ bonus }}
+                                {% endif %}</p>
+                        </div>
+                    </div>
+                    <div class="col-9 align-self-center ">
+                        <p class="h5 w-100 text-wrap px-3">{{ item["name"] }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+        <!-- Health -->
+        <div class="no-gutters-edit col-12 col-md-6 px-4 p">
+            <div class="row bg-secondary shadow">
+                <div class="col-12">
+                    <div class="progress position-relative" style="height: 30px;">
+                        <!-- Vyplněná část -->
+                        <div class="progress-bar bg-primary"
+                            style="width: {{ (character['hp'] if character['hp'] < character['max_hp'] else character['max_hp']) / character['max_hp'] * 100 }}%"
+                            id="hp_progress">
+                        </div>
+                        <div class="progress-bar bg-warning"
+                            style="width: {{ (character['temp_hp'] if character['temp_hp'] <= character['max_hp'] else character['max_hp']) / character['max_hp'] * 100 }}%"
+                            id="hp_progress_overhealth">
+                        </div>
+                        <!-- Overlay s textem -->
+                        <div
+                            class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
+                            <div class="d-flex align-items-center">
+                                <input type="number" id="hp" class="form-control text-center"
+                                    style="width: 50px;height: 24px;font-size: 0.9rem;padding: 0;margin: 0 4px 0 0;background-color: transparent;border: none;box-shadow: none;color: black;outline: none;"
+                                    value="{{ character['hp'] }}" onchange="updateHealtbar({{ character['max_hp'] }})">
+                                / {{ character['max_hp'] }}/ <input type="number" id="temp_hp"
+                                    class="form-control text-center"
+                                    style="width: 50px;height: 24px;font-size: 0.9rem;padding: 0;margin: 0 4px 0 0;background-color: transparent;border: none;box-shadow: none;color: black;outline: none;"
+                                    value="{{ character['temp_hp'] }}"
+                                    onchange="updateHealtbar({{ character['max_hp'] }})">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container my-2">
+                        <div class="d-flex justify-content-between text-center gap-2 flex-wrap">
+                            <div class="flex-fill  p-2 ">
+                                <p class="h2 mb-0">{{
+                                    character['initiative']}}</p>
+                                <p class="h5 text-muted">Initiative</p>
+                            </div>
+                            <div class="flex-fill  p-2 ">
+                                <p class="h2 mb-0">{{
+                                    character['ac']}}</p>
+                                <p class="h5 text-muted">AC</p>
+                            </div>
+                            <div class="flex-fill p-2">
+                                <p class="h2 mb-0">{{
+                                    character['char_class']}}</p>
+                                <p class="h5 text-muted">Class</p>
+                            </div>
+                            {% if character['char_subclass'] != "None" %}
+                            <div class="flex-fill p-2">
+                                <p class="h2 mb-0">{{
+                                    character['char_subclass'] }}</p>
+                                <p class="h5 text-muted">Subclass</p>
+                            </div>
+                            {% endif %}
+                            <div class="flex-fill p-2">
+                                <p class="h2 mb-0">30</p>
+                                <p class="h5 text-muted">Speed</p>
+                            </div>
+                            <div class="flex-fill p-2">
+                                <p class="h2 mb-0">{{
+                                    character['level']}}</p>
+                                <p class="h5 text-muted">Level</p>
+                            </div>
+                            <div class="flex-fill p-2 text-center">
+                                <div class="d-flex justify-content-center align-items-center gap-2">
+                                    <input class="form-control border-0 bg-light text-center p-0 auto_update_stats"
+                                        style="width: 40px; height: auto; font-size: 1.5rem; box-shadow: none;"
+                                        value="{{ character.hit_die }}" id="hit_die">
+                                    <p class="h2 mb-0">d8</p>
+                                </div>
+                                <p class="h5 text-muted mb-0">Hit Die</p>
+                            </div>
+                            <div class="flex-fill d-flex align-items-center justify-content-center">
+                                <button class="edit-button btn btn-warning px-2 py-1 h-100"
+                                    data-url="{{ url_for('sheet_edit_mode', char_id=character['char_id']) }}">
+                                    Enter Edit Mode
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row bg-secondary mt-3 shadow sheet-features-scroll">
+                <nav style="position:sticky; top:0; z-index: 2;" class="bg-secondary">
+                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                        <button class="nav-link active " id="nav-features-tab" data-bs-toggle="tab"
+                            data-bs-target="#nav-features" type="button" role="tab" aria-controls="nav-features"
+                            aria-selected="true">Features And Attacks</button>
+                        <button class="nav-link" id="nav-spells-tab" data-bs-toggle="tab" data-bs-target="#nav-spells"
+                            type="button" role="tab" aria-controls="nav-spells" aria-selected="false">Spells</button>
+                        <button class="nav-link" id="nav-inventory-tab" data-bs-toggle="tab"
+                            data-bs-target="#nav-inventory" type="button" role="tab" aria-controls="nav-inventory"
+                            aria-selected="false">Inventory</button>
+                        <button class="nav-link" id="nav-notes-tab" data-bs-toggle="tab" data-bs-target="#nav-notes"
+                            type="button" role="tab" aria-controls="nav-notes" aria-selected="false">Notes</button>
+                    </div>
+                </nav>
+                <div class="tab-content" id="nav-tabContent">
+                    <!-- Features -->
+                    <div class="tab-pane fade show active" id="nav-features" role="tabpanel"
+                        aria-labelledby="nav-features-tab">
+                        <!-- Flex container for all feature cards -->
+                        <div class="d-flex flex-wrap gap-2">
+                            <!-- One Feature -->
+                            {% for feature in data_page_template["features"] %}
+                            {% if feature["known"] %}
+                            <div class="card" style="width: auto;">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title m-1">{{ feature["name"] }}</h5>
+                                        <h6 class="card-title m-1">{{ feature["cost"] | capitalize }}</h6>
+                                        <button class="btn btn-outline-primary m-1" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#Collapse{{ feature['UUID'] }}"
+                                            aria-expanded="false"
+                                            aria-controls="Collapse{{ feature['UUID'] }}">^</button>
+                                    </div>
+                                    <div class="d-flex" id="{{ feature['UUID'] }}_div">
+                                        {% if feature["max_charges"] != 0 %}
+                                        <button class="btn btn-primary m-1"
+                                            id="{{ feature['UUID'] }}">UseAbility</button>
+                                        {% endif %}
+                                        {% if feature["charges"] is not none %}
+                                        {% set current_charger = feature["charges"] %}
+                                        {% else %}
+                                        {% set current_charger = 0 %}
+                                        {% endif %}
+                                        {% for i in range (0, current_charger) %}
+                                        <div class="form-check form-check-inline m-0 p-0 ps-4">
+                                            <input class="form-check-input" type="checkbox"
+                                                id="{{ feature['UUID'] }}_{{ i+1 }}" value="" onchange="charges(this)"
+                                                checked>
+                                        </div>
+                                        {% endfor %}
+                                        {% for i in range (current_charger, feature["max_charges"]) %}
+                                        <div class="form-check form-check-inline m-0 p-0 ps-4">
+                                            <input class="form-check-input" type="checkbox"
+                                                id="{{ feature['UUID'] }}_{{ i+1 }}" value="" onchange="charges(this)">
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="collapse mt-2" id="Collapse{{ feature['UUID'] }}">
+                                        <div class="card card-body">
+                                            {{ feature["description"] }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!-- Spells -->
+                    <div class="tab-pane fade" id="nav-spells" role="tabpanel" aria-labelledby="nav-spells-tab">
+                        <div>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Spell Level</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Range</th>
+                                        <th scope="col">Damage</th>
+                                        <th scope="col">Extra</th </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- One Spell Element -->
+                                    <tr>
+                                        <th scope="row">1</th>
+                                        <td>Fire Bolt</td>
+                                        <td>120ft</td>
+                                        <td>1d6</td>
+                                        <td><button class="btn btn-primary m-1" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#collapseExampleTr" aria-expanded="false"
+                                                aria-controls="collapseExampleTr">
+                                                C
+                                            </button></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5" class="collapse" id="collapseExampleTr">
+                                            Ability Desciption Lorem ipsum dolor sit amet, consectetur adipiscing
+                                            elit.
+                                            Fusce nibh ante, pretium id fringilla vitae, tempor a neque. Etiam ac
+                                            mauris non
+                                            diam consectetur consectetur id a orci. Sed ac sapien eget ante vehicula
+                                            elementum eget nec lacus. Nulla vitae sagittis justo, et porttitor odio.
+                                            Morbi
+                                            faucibus ex sit amet arcu hendrerit lacinia.
+                                        </td>
+                                    </tr>
+
+
+                                    <!-- Edit Spells -->
+                                    <td colspan="5" class="text-center">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                            data-bs-target="#spellModal">
+                                            Edit Spells
+                                        </button>
+                                    </td>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Inventory -->
+                    <div class="tab-pane fade" id="nav-inventory" role="tabpanel" aria-labelledby="nav-inventory-tab">
+                        <div class="row mt-1">
+
+                            <!-- EQUIPPED ITEMS -->
+                            <div class="col-5">
+                                <div class="inventory-scroll">
+                                    <table id="equipped-table" class="table inventory-equip-table"
+                                        style="table-layout: fixed; width: 100%;">
+                                        <colgroup>
+                                            <col style="width:40px"> <!-- checkbox -->
+                                            <col style="width:55px"> <!-- count -->
+                                            <col style="width:auto"> <!-- name -->
+                                            <col style="width:90px"> <!-- info button -->
+                                        </colgroup>
+
+                                        {% for item in data_page_template["items"] if item['checked'] and
+                                        item['equipped']
+                                        == 1 %}
+                                        <tbody data-uuid="{{ item['UUID'] }}">
+                                            <tr>
+                                                <td>
+                                                    <input class="form-check-input equip-checkbox" type="checkbox"
+                                                        data-uuid="{{ item['UUID'] }}">
+                                                </td>
+                                                <td>
+                                                    <p class="mb-0">{{ item['count'] }}</p>
+                                                </td>
+                                                <td data-id="{{ item['UUID'] }}" class="item-name">{{ item['name'] }}
+                                                </td>
+                                                <td class="text-end">
+                                                    <button class="btn btn-primary m-1" type="button"
+                                                        data-bs-toggle="collapse"
+                                                        data-bs-target="#Collapse{{ item['UUID'] }}"
+                                                        aria-expanded="false"
+                                                        aria-controls="Collapse{{ item['UUID'] }}">
+                                                        Info
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="collapse" id="Collapse{{ item['UUID'] }}">
+                                                    {{ item["description"] }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        {% endfor %}
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- EQUIP/UNEQUIP BUTTONS -->
+                            <div class="col-2 align-self-center">
+                                <button id="equip-selected" class="btn btn-primary">Vybavit označené</button>
+                                <button id="unequip-selected" class="btn btn-primary">Sundat označené</button>
+                            </div>
+
+                            <!-- INVENTORY ITEMS -->
+                            <div class="col-5">
+                                <div class="inventory-scroll">
+                                    <table id="inventory-table" class="table inventory-equip-table"
+                                        style="table-layout: fixed; width: 100%;">
+                                        <colgroup>
+                                            <col style="width:40px"> <!-- checkbox -->
+                                            <col style="width:55px"> <!-- count -->
+                                            <col style="width:auto"> <!-- name -->
+                                            <col style="width:90px"> <!-- info button -->
+                                        </colgroup>
+
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="4" class="text-center">
+                                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                                        data-bs-target="#inventoryModal">
+                                                        Edit Inventory
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+
+                                        {% for item in data_page_template["items"] if item['checked'] and
+                                        item['equipped']
+                                        == 0 %}
+                                        <tbody data-uuid="{{ item['UUID'] }}">
+                                            <tr>
+                                                <td>
+                                                    <input class="form-check-input equip-checkbox" type="checkbox"
+                                                        data-uuid="{{ item['UUID'] }}">
+                                                </td>
+                                                <td>
+                                                    <p class="mb-0">{{ item['count'] }}</p>
+                                                </td>
+                                                <td data-id="{{ item['UUID'] }}" class="item-name">{{ item['name'] }}
+                                                </td>
+                                                <td class="text-end">
+                                                    <button class="btn btn-primary m-1" type="button"
+                                                        data-bs-toggle="collapse"
+                                                        data-bs-target="#Collapse{{ item['UUID'] }}"
+                                                        aria-expanded="false"
+                                                        aria-controls="Collapse{{ item['UUID'] }}">
+                                                        Info
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="collapse" id="Collapse{{ item['UUID'] }}">
+                                                    {{ item["description"] }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        {% endfor %}
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Notes -->
+                    <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
+                        <div>
+                            <textarea class="form-control" id="notes" rows="15"
+                                onblur="updateFromInput(this)">{{ character.notes }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spell Modal -->
+    <div class="modal fade" id="spellModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Change Spells</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body container">
+                    <div class="row"><input placeholder="Search..."></div>
+                    <div class="row">
+                        <div class="col-6 bg-primary">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Spell Level</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Learned</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">1</th>
+                                        <td>Fire ball but with long name</td>
+                                        <td><input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-6 bg-secondary">
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce egestas elit a ante
+                                aliquam dapibus. Quisque non interdum est, vel congue quam. Etiam varius bibendum
+                                tortor, ut posuere lacus fringilla at. Nullam quis vestibulum arcu. Pellentesque ut
+                                imperdiet augue. Integer volutpat magna a ultricies ullamcorper. Etiam cursus a nunc in
+                                molestie. Fusce urna augue, rhoncus sit amet lobortis eu, rutrum at mi. Phasellus felis
+                                turpis, dapibus quis risus vel, pharetra lobortis tellus. In ipsum justo, congue id
+                                tincidunt eu, semper vitae nisi. Aenean efficitur purus quis nisi pretium, ut lobortis
+                                lacus mollis. Suspendisse nulla metus, gravida quis est id, dictum commodo nunc.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Modal -->
+    <div class="modal fade" id="inventoryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg " role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Edit Inventory</h5>
+                    <!-- <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button> -->
+                </div>
+                <div class="modal-body container">
+                    <div class="row"><input placeholder="Search..."></div>
+                    <div class="row">
+                        <div class="bg-primary" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table" id="edit-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Ammount</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">In inventory</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in data_page_template["items"] %}
+                                    <tr>
+                                        <th scope="row"><input style="max-width: 50px;" value="{{ item['count'] }}">
+                                        </th>
+                                        <td data-id="{{ item['UUID'] }}">{{ item['name'] }}</td>
+                                        <td><input class="form-check-input" type="checkbox" id="{{ item['UUID'] }}" {%
+                                                if item["checked"] %} checked {% endif %}>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary m-1" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#Collapse{{ item['UUID'] }}" aria-expanded="false"
+                                                aria-controls="Collapse{{ item['UUID'] }}">
+                                                Info
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5" class="collapse" id="Collapse{{ item['UUID'] }}">
+                                            {{ item["description"] }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- <div class="col-6 bg-secondary">
+                            <p> {{ data_page_template }}</p>
+                        </div> -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="getInventoryChanges()"
+                        data-bs-dismiss="modal">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

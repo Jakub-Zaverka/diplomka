@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User Info - Edit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+
+</head>
+
+<body>
+    <h1>Char_id:{{ character.char_id }} Char name:{{ character.name }} User_id:{{ character.user_id }}</h1>
+
+    <div class="row">
+        <div class="col-12 col-md-6 row">
+            <!-- Atributes -->
+            <div class="col-12 col-md-7 px-md-3">
+                <div class="order-md-1">
+                    <div class="row">
+                        <div class="bg-secondary row shadow mx-0 py-1">
+                            <div class="col-2 ">
+                                <div class="row">
+                                    <!-- <p class="h3 my-0">+5</p> -->
+                                </div>
+                                <div class="row ">
+                                    <h3>Value</h3>
+                                </div>
+                            </div>
+                            <div class="col-10 align-self-center">
+                                <p class="h3 w-100 word-wrap: break-word px-4">Atribute Name</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Individual Atribute -->
+                    {% for item in data_page_template["atributes"] %}
+                    <div class="row">
+                        <div class="bg-secondary row shadow mx-0 py-1">
+                            <div class="col-2 ">
+                                <div class="row">
+                                    <!-- <p class="h3 my-0">+5</p> -->
+                                </div>
+                                <div class="row ">
+                                    <input class="form-control border-0 bg-light text-center p-0 auto_update_stats"
+                                        style="width: 40px; height: auto; font-size: 1.5rem; box-shadow: none;"
+                                        id='{{ item["name"].lower() }}' value='{{ character[item["name"]] }}'>
+                                    
+                                </div>
+                            </div>
+                            <div class="col-10 align-self-center">
+                                <p class="h3 w-100 word-wrap: break-word px-4">{{ item["name"] }}</p>
+                                {% set skill_key = item["name"] | lower | replace(' ', '_') %}
+                                    {% set level = proficiencies.get(skill_key, 1) %}
+                                    <div class="bg-secondary row px-2">
+                                        <div class="col-4 px-0">
+                                            <select class="form-select form-select-sm"
+                                                onchange="updateSkill('{{ item['name'].lower() }}', this.value)">
+                                                <option value="1" {% if level==1 %}selected{% endif %}>None</option>
+                                                <option value="2" {% if level==2 %}selected{% endif %}>Proficient
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+
+                </div>
+            </div>
+            <!-- TODO: Proficiency with skills -->
+            <!-- Skills -->
+            <div class="col-12 col-md-5 order-md-2 px-md-3">
+                <!-- Individual Skill -->
+                <div class="bg-secondary row shadow px-2">
+                    <div class="col-3 px-0">
+                        <div class="row">
+                            <h5>Proficiency</h5>
+                        </div>
+                    </div>
+                    <div class="col-8 align-self-center ">
+                        <p class="h5 w-100 text-wrap px-3">Skill Name</p>
+                    </div>
+                </div>
+                {% for item in data_page_template["skills"] %}
+                {% set skill_key = item["name"] | lower | replace(' ', '_') %}
+                {% set level = proficiencies.get(skill_key, 1) %}
+                <div class="bg-secondary row shadow px-2">
+                    <div class="col-4 px-0">
+                        <select class="form-select form-select-sm"
+                            onchange="updateSkill('{{ skill_key }}', this.value)">
+                            <option value="1" {% if level==1 %}selected{% endif %}>None</option>
+                            <option value="2" {% if level==2 %}selected{% endif %}>Proficient</option>
+                            <option value="3" {% if level==3 %}selected{% endif %}>Expertise</option>
+                        </select>
+                    </div>
+                    <div class="col-8 align-self-center">
+                        <p class="h5 w-100 text-wrap px-3">{{ item["name"] }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <!-- Health -->
+        <div class="no-gutters-edit col-12 col-md-6 px-4 p">
+            <div class="row bg-secondary shadow">
+                <div class="col-12">
+                    <div class="row m-1">
+                        <form class="col-10">
+                            <div class="row g-3">
+                                <div class="col">
+                                    <label for="level" class="form-label">Level</label>
+                                    <input id="level" type="text" class="form-control auto_update_stats"
+                                        value="{{ character.level }}">
+                                </div>
+                                <div class="col">
+                                    <label for="char_race" class="form-label">Race</label>
+                                    <input id="char_race" type="text" class="form-control auto_update_stats"
+                                        value="{{ character.char_race }}">
+                                </div>
+                                <div class="col">
+                                    <label for="ac" class="form-label">AC</label>
+                                    <input id="ac" type="text" class="form-control auto_update_stats"
+                                        value="{{ character.ac }}">
+                                </div>
+                                <div class="col">
+                                    <label for="ac" class="form-label">Max HP</label>
+                                    <input id="max_hp" type="text" class="form-control auto_update_stats"
+                                        value="{{ character.max_hp }}">
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mt-1">
+                                <div class="col">
+                                    <label for="char_class" class="form-label">Class</label>
+                                    <!-- <input id="char_class" type="text" class="form-control auto_update_stats"
+                                        value="{{ character.char_class }}"> -->
+                                    <select id="char_class" class="form-select auto_update_stats"
+                                        aria-label="Class select">
+                                        <option selected>Select Class</option>
+                                        {% for item in player_classes %}
+                                        {% if item == character.char_class %}
+                                        <option selected value="{{ item }}">{{ item | capitalize}}</option>
+                                        {%else%}
+                                        <option value="{{ item }}">{{ item | capitalize}}</option>
+                                        {%endif%}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <label for="char_subclass" class="form-label">Subclass</label>
+                                    <input id="char_subclass" type="text" class="form-control auto_update_stats"
+                                        value="{{ character.char_subclass }}">
+                                </div>
+                                <div class="col">
+                                    <label for="speed" class="form-label">TODO:Move Speed</label>
+                                    <input id="speed" type="text" class="form-control" placeholder="Speed">
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="col-2 align-content-center">
+                            <button class="edit-button btn btn-warning p-1"
+                                data-url="{{ url_for('sheet', char_id=character['char_id']) }}">Exit Edit Mode</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+            crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
+</body>
+
+</html>

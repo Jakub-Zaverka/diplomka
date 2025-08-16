@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User Info - Edit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+</head>
+
+<body>
+    <!-- PC NAV Bar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <!-- Pravá část navbaru -->
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        PH:Profile
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/user_info">PH:UserName</a></li>
+                        <li><a class="dropdown-item" href="/dashboard">Characters</a></li>
+                        <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <!-- Mobile NavBar -->
+    <nav class="navbar fixed-bottom bg-primary d-block d-lg-none px-5">
+        <div class="container-fluid justify-content-between">
+            <a class="navbar-text" href="">Stats</a>
+            <a class="navbar-text" href="">Features</a>
+            <a class="navbar-text" href="">Spells</a>
+            <a class="navbar-text" href="">Inventory</a>
+            <a class="navbar-text" href="">Notes</a>
+            <a class="navbar-text" href="">Edit mode</a>
+        </div>
+    </nav>
+    <div class="d-flex justify-content-center align-items-center ">
+        <div class="col-lg-6">
+            <input placeholder="Search..." class="w-100 form-control" onkeyup="search_table()" id="search_input">
+            <button class="btn btn-primary float-end mt-1" data-bs-toggle="modal"
+                data-bs-target="#ModalCreateNew">Create
+                new Character</button>
+        </div>
+
+    </div>
+    <div class="d-flex justify-content-center align-items-center">
+        <div class="col-lg-6 ">
+            {% if data %}
+            <table class="table" id="table" style="table-layout:fixed; width:100%;">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width: 300px;">Character Name</th>
+                        <th scope="col">Level</th>
+                        <th scope="col">Character Class</th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for char in data %}
+                    <tr id="{{ char['char_id'] }}_tr">
+                        <td style="word-wrap: break-word;">{{ char['name'] }}</td>
+                        <td>{{ char['level'] }}</td>
+                        <td>{{ char['char_class'] }}</td>
+                        <td><a href="{{ url_for('sheet', char_id=char['char_id']) }}">PH:Play</a></td>
+                        <td> <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Edit
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#" id="{{ char['char_id'] }}" onclick="deleteChar(this)">Delete</a></li>
+                            </ul>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>Nemáš zatím žádné postavy.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Create New Modal -->
+    <div class="modal fade" id="ModalCreateNew">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Create New Character</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div class="row container p-1 my-1 ">
+                        <p class="h3">Character Name</p>
+                        <div class="input-group">
+                            <input id="create_new_name_input" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row container p-1 my-1 ">
+                        <p class="h3">PH:Choose System</p>
+                        <div class="input-group">
+                            <input class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="submitName()">Create New Character</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script>
+        // musí být tady, nefunguje pokud je ve script.js
+        function submitName() {
+            const name = document.getElementById('create_new_name_input').value;
+            const url = "{{ url_for('create_new') }}";
+
+            // Vytvoř dynamický formulář
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = url;
+
+            // Vytvoř input a přidej ho do formuláře
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.name = 'name';
+            nameInput.value = name;
+            form.appendChild(nameInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+    </script>
+</body>
+
+</html>

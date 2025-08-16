@@ -1,0 +1,31 @@
+[
+    {
+        "UUID": "348c73e0-21d8-476a-b027-cefa271ddab2",
+        "name": "Ritual Adept",
+        "description": "You can cast any spell as a Ritual if that spell has the Ritual tag and the spell is in your spellbook. You needn't have the spell prepared, but you must read from the book to cast a spell in this way."
+    },
+    {
+        "UUID": "bfc6d1a2-a00f-473e-87ca-1de934085478",
+        "name": "Chronal Shift",
+        "description": "You can magically exert limited control over the flow of time around a creature. As a reaction, after you or a creature you can see within 30 feet of you makes an attack roll, an ability check, or a saving throw, you can force the creature to reroll. You make this decision after you see whether the roll succeeds or fails. The target must use the result of the second roll. You can use this ability twice, and you regain any expended uses when you finish a long rest.",
+        "max_charges": "2",
+        "recharge": "long",
+        "cost": "reaction"
+    },
+    {
+        "UUID": "cddb409a-165d-4039-95cc-0cd7571b81c1",
+        "name": "Momentary Stasis",
+        "description": "As an action, you can magically force a Large or smaller creature you can see within 60 feet of you to make a Constitution saving throw against your spell save DC. Unless the saving throw is a success, the creature is encased in a field of magical energy until the end of your next turn or until the creature takes any damage. While encased in this way, the creature is incapacitated and has a speed of 0. You can use this feature a number of times equal to your Intelligence modifier (a minimum of once). You regain all expended uses when you finish a long rest.",
+        "max_charges": "intelligence",
+        "recharge": "long",
+        "cost": "action"
+    },
+    {
+        "UUID": "bfc6d1a2-a00f-473e-87ca-1de934085479",
+        "name": "Spell Casting 1",
+        "description": "You can magically exert limited control over the flow of time around a creature. As a reaction, after you or a creature you can see within 30 feet of you makes an attack roll, an ability check, or a saving throw, you can force the creature to reroll. You make this decision after you see whether the roll succeeds or fails. The target must use the result of the second roll. You can use this ability twice, and you regain any expended uses when you finish a long rest.",
+        "max_charges": "4",
+        "recharge": "long",
+        "cost": "action"
+    }
+]

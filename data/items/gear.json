@@ -1,0 +1,56 @@
+[
+    {
+        "UUID": "92f4e36c-05b2-4ead-837a-abb3f0ef4488",
+        "name": "Iron sword",
+        "description": "A cool looking sword. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada eleifend lorem eget ultrices. Sed vel nulla condimentum, porttitor nibh tempus, venenatis dolor.",
+        "damage": "1d6",
+        "damage_type": "slashing",
+        "damage_modifier": [
+            "strength",
+            "dexterity"
+        ]
+    },
+    {
+        "UUID": "ff35c7e9-2fdb-4039-8963-0f03000c9e95",
+        "name": "Diamond sword",
+        "description": "A cooler looking sword. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada eleifend lorem eget ultrices. Sed vel nulla condimentum, porttitor nibh tempus, venenatis dolor.",
+        "damage": "1d8",
+        "damage_type": "slashing",
+        "damage_modifier": [
+            "strength",
+            "dexterity"
+        ]
+    },
+    {
+        "UUID": "89bdfbbd-456d-4113-91b6-5dba01521284",
+        "name": "Iron shield",
+        "description": "A cool looking shield. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada eleifend lorem eget ultrices. Sed vel nulla condimentum, porttitor nibh tempus, venenatis dolor.",
+        "bonus": {
+            "ac": "+2"
+        }
+    },
+    {
+        "UUID": "4630a01d-8253-4ad2-b030-98faace20f03",
+        "name": "+2 Light Repeating Crossbow",
+        "description": "A cool looking shield. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada eleifend lorem eget ultrices. Sed vel nulla condimentum, porttitor nibh tempus, venenatis dolor.",
+        "bonus": {
+            "ac": "+2"
+        }
+    },
+    {
+        "UUID": "9d7ec85e-41ee-4bab-8adf-1b6194ded4d8",
+        "name": "+3 Studded Leather Armor",
+        "description": "A cool looking shield. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada eleifend lorem eget ultrices. Sed vel nulla condimentum, porttitor nibh tempus, venenatis dolor.",
+        "bonus": {
+            "ac": "+2"
+        }
+    },
+    {
+        "UUID": "f317a95c-31ed-457f-adf0-e21f08c05a12",
+        "name": "Adamantine Bolt",
+        "description": "A cool looking shield. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada eleifend lorem eget ultrices. Sed vel nulla condimentum, porttitor nibh tempus, venenatis dolor.",
+        "bonus": {
+            "ac": "+2"
+        }
+    }
+]

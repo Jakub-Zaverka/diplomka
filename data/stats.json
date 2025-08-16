@@ -1,0 +1,96 @@
+{
+    "atributes": [
+        {
+            "name": "Strength"
+        },
+        {
+            "name": "Dexterity"
+        },
+        {
+            "name": "Constitution"
+        },
+        {
+            "name": "Intelligence"
+        },
+        {
+            "name": "Wisdom"
+        },
+        {
+            "name": "Charisma"
+        }
+    ],
+    "skills": [
+        {
+            "name": "Athletics",
+            "parent": "Strength"
+        },
+        {
+            "name": "Acrobatics",
+            "parent": "Dexterity"
+        },
+        {
+            "name": "Sleight of Hand",
+            "parent": "Dexterity"
+        },
+        {
+            "name": "Stealth",
+            "parent": "Dexterity"
+        },
+        {
+            "name": "Arcana",
+            "parent": "Intelligence"
+        },
+        {
+            "name": "History",
+            "parent": "Intelligence"
+        },
+        {
+            "name": "Investigation",
+            "parent": "Intelligence"
+        },
+        {
+            "name": "Nature",
+            "parent": "Intelligence"
+        },
+        {
+            "name": "Religion",
+            "parent": "Intelligence"
+        },
+        {
+            "name": "Animal Handling",
+            "parent": "Wisdom"
+        },
+        {
+            "name": "Insight",
+            "parent": "Wisdom"
+        },
+        {
+            "name": "Medicine",
+            "parent": "Wisdom"
+        },
+        {
+            "name": "Perception",
+            "parent": "Wisdom"
+        },
+        {
+            "name": "Survival",
+            "parent": "Wisdom"
+        },
+        {
+            "name": "Deception",
+            "parent": "Charisma"
+        },
+        {
+            "name": "Intimidation",
+            "parent": "Charisma"
+        },
+        {
+            "name": "Performance",
+            "parent": "Charisma"
+        },
+        {
+            "name": "Persuasion",
+            "parent": "Charisma"
+        }
+    ]
+}
