@@ -48,7 +48,7 @@ body {
 
 /* On hover clickable div */
 .clickable_div:hover {
-    background-color: #205081;
+    background-color: var(--bs-secondary)
 }
 
 .inventory-equip-table tbody[data-uuid] {
