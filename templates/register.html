@@ -5,8 +5,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>User Info - Edit</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous"> -->
+  <link rel="stylesheet" href="{{ url_for('static',filename='custom.css') }}">
+  
   <link rel="stylesheet" href="{{ url_for('static',filename='styles.css') }}">
   <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </head>
@@ -15,11 +17,11 @@
   <div class="d-flex justify-content-center align-items-center vh-100">
     <form method="post" class="bg-secondary p-5 shadow">
       <div class="row m-2">
-        <label for="username_input" class="ps-0">Username</label>
+        <label for="username_input" class="ps-0 text-white">Username</label>
         <input id="username_input" type="text" name="username" placeholder="John" required>
       </div>
       <div class="row m-2">
-        <label for="password_input" class="ps-0">Password</label>
+        <label for="password_input" class="ps-0 text-white">Password</label>
         <input id="password_input" type="password" name="password" placeholder="****" required>
       </div>
       <!-- TODO: Make Repeat Password do something -->
