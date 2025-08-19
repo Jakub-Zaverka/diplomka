@@ -147,10 +147,26 @@
                                     <input id="level" type="text" class="form-control auto_update_stats bg-primary"
                                         value="{{ character.level }}">
                                 </div>
-                                <div class="col">
+                                <!-- <div class="col">
                                     <label for="char_race" class="form-label">Race</label>
                                     <input id="char_race" type="text" class="form-control auto_update_stats bg-primary"
                                         value="{{ character.char_race }}">
+                                </div> -->
+                                <div class="col">
+                                    <label for="char_race" class="form-label">Race</label>
+                                    <!-- <input id="char_class" type="text" class="form-control auto_update_stats"
+                                        value="{{ character.char_class }}"> -->
+                                    <select id="char_race" class="form-select auto_update_stats bg-primary"
+                                        aria-label="Race select">
+                                        <option selected>Select Race</option>
+                                        {% for item in player_races %}
+                                        {% if item == character.char_race %}
+                                        <option selected value="{{ item }}">{{ item | capitalize}}</option>
+                                        {%else%}
+                                        <option value="{{ item }}">{{ item | capitalize}}</option>
+                                        {%endif%}
+                                        {% endfor %}
+                                    </select>
                                 </div>
                                 <div class="col">
                                     <label for="ac" class="form-label">AC</label>

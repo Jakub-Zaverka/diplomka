@@ -388,7 +388,8 @@ def sheet_edit_mode(char_id):
     if char is None:
         return "Postava nebyla nalezena nebo ti nepatří"
 
-    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders)
+    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders_class, player_races = folders_race)
+
 
 # ---------- Create new Character ----------
 
@@ -416,7 +417,8 @@ def create_new():
     for row in prof
     }
     
-    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders)
+    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders_class, player_races = folders_race)
+
 
 
 
@@ -630,10 +632,13 @@ with open("data/items/gear.json","r") as f:
     data_page_template["items"] = gear_items
 
 
-# dostupné classes
+# dostupné classes a races
 # Předpokládá se, že každá dostupná class/povolání bude mít vlastní složku, ve které bude levelmap, kdy postava dostane jednotlivé schopnosti a features, obsahující 
-# bližší info o jednotlivých schopnostech
-folders = os.listdir(path="data/class")
+# bližší info o jednotlivých možnostech
+folders_class = os.listdir(path="data/class")
+folders_race = os.listdir(path="data/race")
+
+
 
 
 
