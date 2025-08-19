@@ -8,6 +8,7 @@ import json
 import copy
 #import uuid
 import ttrpg
+import data_loader
 import datetime
 
 global debug
@@ -275,77 +276,82 @@ def sheet(char_id):
 
     
     #Features
-    player_class_name = char["char_class"]
-    features_path = f"data/class/{player_class_name}/features.json"
-    levelmap_path = f"data/class/{player_class_name}/levelmap.json"
-    if os.path.exists(features_path):
-        with open(features_path,"r") as f:
-            data_json = f.read()
-            features = json.loads(data_json)
-            # print(gear_items)
-            page_template["features"] = features
-    else:
-        page_template["features"] = []
+    page_template = data_loader.load_category("class", "features", char["char_class"], char, page_template, feature_data_dict)
+
+    # player_class_name = char["char_class"]
+    # features_path = f"data/class/{player_class_name}/features.json"
+    # levelmap_path = f"data/class/{player_class_name}/levelmap.json"
+    # if os.path.exists(features_path):
+    #     with open(features_path,"r") as f:
+    #         data_json = f.read()
+    #         features = json.loads(data_json)
+    #         # print(gear_items)
+    #         page_template["features"] = features
+    # else:
+    #     page_template["features"] = []
     
-    # --- Aktualizace features --------------------------------------------
-    # předpoklad: každý feature v JSON má pole "name" a "max_charges" (string nebo attribute name)
-    #  Filtr zda postava danou feature má a zda má dostatečnou úroveň
-    if os.path.exists(levelmap_path):
-        with open(levelmap_path,"r") as f:
-            data_json = f.read()
-            known_features = json.loads(data_json)
-            # print(gear_items)
-            known_features_dict = {}
-            for i in known_features:
-                known_features_dict.update(i)
-    else:
-        known_features={}
-        known_features_dict={}
+    # # --- Aktualizace features --------------------------------------------
+    # # předpoklad: každý feature v JSON má pole "name" a "max_charges" (string nebo attribute name)
+    # #  Filtr zda postava danou feature má a zda má dostatečnou úroveň
+    # if os.path.exists(levelmap_path):
+    #     with open(levelmap_path,"r") as f:
+    #         data_json = f.read()
+    #         known_features = json.loads(data_json)
+    #         # print(gear_items)
+    #         known_features_dict = {}
+    #         for i in known_features:
+    #             known_features_dict.update(i)
+    # else:
+    #     known_features={}
+    #     known_features_dict={}
 
-    pass    
-    for feature in page_template.get("features", []):
-        #  Zda postava danou feature má 
-        if feature.get("UUID") in known_features_dict.keys():
-            # A zda má dostatečnou úroveň
-            required_level = known_features_dict.get(feature.get("UUID"))
-            if char["level"] >= required_level:
-                # print(f"{feature['name']} - splňuje (lvl {char["level"]} / požadavek {required_level})")
-                feature["known"] = True
-                # 1) dopočti max_charges podle atributů
-                max_charges = feature.get("max_charges")
-                if isinstance(max_charges, str) and max_charges.lower() in ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"]:
-                    # char je sqlite3.Row, přístup podle názvu sloupce funguje: char["intelligence"]
-                    try:
-                        mod = ttrpg.calc_mod(int(char[max_charges.lower()]))
-                    except Exception:
-                        # bezpečně fallbacknout pokud char[max_charges] není dostupné nebo neint
-                        mod = 1
+    # pass    
+    # for feature in page_template.get("features", []):
+    #     #  Zda postava danou feature má 
+    #     if feature.get("UUID") in known_features_dict.keys():
+    #         # A zda má dostatečnou úroveň
+    #         required_level = known_features_dict.get(feature.get("UUID"))
+    #         if char["level"] >= required_level:
+    #             # print(f"{feature['name']} - splňuje (lvl {char["level"]} / požadavek {required_level})")
+    #             feature["known"] = True
+    #             # 1) dopočti max_charges podle atributů
+    #             max_charges = feature.get("max_charges")
+    #             if isinstance(max_charges, str) and max_charges.lower() in ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"]:
+    #                 # char je sqlite3.Row, přístup podle názvu sloupce funguje: char["intelligence"]
+    #                 try:
+    #                     mod = ttrpg.calc_mod(int(char[max_charges.lower()]))
+    #                 except Exception:
+    #                     # bezpečně fallbacknout pokud char[max_charges] není dostupné nebo neint
+    #                     mod = 1
 
-                    if mod < 1:
-                        mod = 1
-                    feature["max_charges"] = int(mod)
-                #Pokud je feature proficiency krát
-                elif isinstance(max_charges, str) and max_charges.lower() == "proficiency":
-                    try:
-                        mod = ttrpg.get_proficiency_bonus(char["level"])
-                    except Exception:
-                        mod = 1
-                    feature["max_charges"] = int(mod)
-                else:
-                    # pokud je to číslo uložené jako string v JSONu
-                    try:
-                        feature["max_charges"] = int(max_charges)
-                    except Exception:
-                        # fallback na 0 pokud neparsovatelné
-                        feature["max_charges"] = 0
+    #                 if mod < 1:
+    #                     mod = 1
+    #                 feature["max_charges"] = int(mod)
+    #             #Pokud je feature proficiency krát
+    #             elif isinstance(max_charges, str) and max_charges.lower() == "proficiency":
+    #                 try:
+    #                     mod = ttrpg.get_proficiency_bonus(char["level"])
+    #                 except Exception:
+    #                     mod = 1
+    #                 feature["max_charges"] = int(mod)
+    #             else:
+    #                 # pokud je to číslo uložené jako string v JSONu
+    #                 try:
+    #                     feature["max_charges"] = int(max_charges)
+    #                 except Exception:
+    #                     # fallback na 0 pokud neparsovatelné
+    #                     feature["max_charges"] = 0
 
-                # 2) nastav aktuální charges z DB pokud existuje, jinak použij max_charges jako výchozí
-                # mapujeme podle jména feature (JSON "name")
-                feature_id = feature.get("UUID")
-                if feature_id is not None:
-                    feature["charges"] = feature_data_dict.get(feature_id)
-                else:
-                    feature["charges"] = feature["max_charges"]
+    #             # 2) nastav aktuální charges z DB pokud existuje, jinak použij max_charges jako výchozí
+    #             # mapujeme podle jména feature (JSON "name")
+    #             feature_id = feature.get("UUID")
+    #             if feature_id is not None:
+    #                 feature["charges"] = feature_data_dict.get(feature_id)
+    #             else:
+    #                 feature["charges"] = feature["max_charges"]
+
+    #Race
+    page_template = data_loader.load_category("race", "traits", char["char_race"], char, page_template)
 
     # --- Výpočet ostatních hodnot ---
     bonus = ttrpg.get_proficiency_bonus(char["level"])
@@ -359,7 +365,8 @@ def sheet(char_id):
         saved_items=items,
         proficiencies=proficiencies_dict,
         prof_bonus=bonus,
-        features=page_template.get("features", [])
+        features=page_template.get("features", []),
+        traits=page_template.get("traits", [])
     )
 
 # ---------- Sheet Edit Mode ----------

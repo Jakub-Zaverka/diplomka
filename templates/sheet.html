@@ -69,7 +69,7 @@
                                     {%else%}
                                     {% set stat_prof_bonus_value = 0 %}
                                     {%endif%}
-                                    {% set bonus = ((character[item["name"]] - 10) / 2) +  stat_prof_bonus_value | int %}
+                                    {% set bonus = ((character[item["name"]] - 10) / 2) + stat_prof_bonus_value | int %}
                                     {% if bonus >= 0 %}
                                     +{{ bonus }}
                                     {% else %}
@@ -265,6 +265,46 @@
                                     <div class="collapse mt-2" id="Collapse{{ feature['UUID'] }}">
                                         <div class="card card-body">
                                             {{ feature["description"] }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                            {% for trait in traits %}
+                            {% if trait["known"] %}
+                            <div class="card" style="width: auto;">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title m-1">{{ trait["name"] }}</h5>
+                                        <h6 class="card-title m-1">{{ trait.get("cost","") | capitalize }}</h6>
+                                        <button class="btn btn-outline-primary m-1" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#Collapse{{ trait['UUID'] }}"
+                                            aria-expanded="false" aria-controls="Collapse{{ trait['UUID'] }}">^</button>
+                                    </div>
+                                    <div class="d-flex" id="{{ trait['UUID'] }}_div">
+                                        {% if trait["max_charges"] != 0 %}
+                                        <button class="btn btn-primary m-1" id="{{ trait['UUID'] }}">UseAbility</button>
+                                        {% endif %}
+                                        {% set current_charger = trait["charges"] if trait["charges"] is not none else 0
+                                        %}
+                                        {% for i in range(0, current_charger) %}
+                                        <div class="form-check form-check-inline m-0 p-0 ps-4">
+                                            <input class="form-check-input" type="checkbox"
+                                                id="{{ trait['UUID'] }}_{{ i+1 }}" value="" onchange="charges(this)"
+                                                checked>
+                                        </div>
+                                        {% endfor %}
+                                        {% for i in range(current_charger, trait["max_charges"]) %}
+                                        <div class="form-check form-check-inline m-0 p-0 ps-4">
+                                            <input class="form-check-input" type="checkbox"
+                                                id="{{ trait['UUID'] }}_{{ i+1 }}" value="" onchange="charges(this)">
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="collapse mt-2" id="Collapse{{ trait['UUID'] }}">
+                                        <div class="card card-body">
+                                            {{ trait["description"] }}
                                         </div>
                                     </div>
                                 </div>
