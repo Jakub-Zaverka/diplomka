@@ -582,6 +582,7 @@ def inventory_api():
             "name": gear_item.get("name", row["item_id"]),
             "description": gear_item.get("description", ""),
             "damage": gear_item.get("damage"),
+            "damage_modifier":gear_item.get("damage_modifier"),
             "damage_type": gear_item.get("damage_type")
         })
 

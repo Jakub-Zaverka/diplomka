@@ -139,6 +139,8 @@ function refreshInventory(result) {
                     <button class="btn btn-primary m-1" type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#Collapse${item.UUID}"
+                        data-damage="${item.damage}"
+                        data-modifier="${item.damage_modifier}"
                         aria-expanded="false"
                         aria-controls="Collapse${item.UUID}">
                         Info

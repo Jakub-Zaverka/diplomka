@@ -389,9 +389,15 @@
                                                         data-uuid="{{ item['UUID'] }}">
                                                 </td>
                                                 <td>
-                                                    <p class="mb-0">{{ item['count'] }}</p>
+                                                    {# Zajištuje formátování aby čísla neměla za sebou .0, ale zároveň nebyla int #}
+                                                    <p class="mb-0">{{ ("%.2f"|format( item['count'])).rstrip('0').rstrip('.')}}</p>
                                                 </td>
-                                                <td data-id="{{ item['UUID'] }}" class="item-name">{{ item['name'] }}
+                                                <td data-id="{{ item['UUID'] }}" 
+                                                {% if damage is not none %}
+                                                data-damage="{{ item['damage']}}"
+                                                data-modifier="{{ item['damage_modifier']}}"
+                                                {%endif%}
+                                                class="item-name">{{ item['name'] }}
                                                 </td>
                                                 <td class="text-end">
                                                     <button class="btn btn-primary m-1" type="button"
@@ -453,9 +459,14 @@
                                                         data-uuid="{{ item['UUID'] }}">
                                                 </td>
                                                 <td>
-                                                    <p class="mb-0">{{ item['count'] }}</p>
+                                                    <p class="mb-0">{{ ("%.2f"|format( item['count'])).rstrip('0').rstrip('.')}}</p>
                                                 </td>
-                                                <td data-id="{{ item['UUID'] }}" class="item-name">{{ item['name'] }}
+                                                <td data-id="{{ item['UUID'] }}"  
+                                                {% if damage is not none %}
+                                                data-damage="{{ item['damage']}}"
+                                                data-modifier="{{ item['damage_modifier']}}"
+                                                {%endif%}
+                                                class="item-name">{{ item['name'] }}
                                                 </td>
                                                 <td class="text-end">
                                                     <button class="btn btn-primary m-1" type="button"
