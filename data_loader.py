@@ -15,7 +15,7 @@ def load_category(source_type: str, category: str, source_name: str, char, page_
         saved_data (dict): uložené charges (např. {UUID: current_charges})
     """
     base_path = f"data/{source_type}/{source_name}"
-    data_path = os.path.join(base_path, f"features.json")
+    data_path = os.path.join(base_path, "features.json")
     levelmap_path = os.path.join(base_path, "levelmap.json")
 
     # --- 1) Načtení kategorie ---

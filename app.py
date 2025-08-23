@@ -278,6 +278,8 @@ def sheet(char_id):
     #Features
     page_template = data_loader.load_category("class", "features", char["char_class"], char, page_template, feature_data_dict)
 
+
+    #Přesunuto do modulu data_loader.py
     # player_class_name = char["char_class"]
     # features_path = f"data/class/{player_class_name}/features.json"
     # levelmap_path = f"data/class/{player_class_name}/levelmap.json"
@@ -557,8 +559,35 @@ def inventory_api():
     for item in data["changes"]["changed"]:
         db.execute('UPDATE inventory SET count = ? WHERE char_id = ? AND item_id = ?',(item["amount"], session.get("current_character_id"),item["UUID"]))
 
+    print(data["changes"]["checked"])
+
     db.commit()
-    return {"status": "OK", "received": data}
+    
+    # načti nový inventář
+    rows = db.execute(
+        "SELECT item_id, count, equipped FROM inventory WHERE char_id = ?",
+        (session.get("current_character_id"),)
+    ).fetchall()
+
+    # gear_dict = { item["UUID"]: item for item in data_page_template["items"] }
+    gear_dict = {item["UUID"]: item for item in data_page_template["items"]}
+
+    inventory_list = []
+    for row in rows:
+        gear_item = gear_dict.get(row["item_id"], {})
+        inventory_list.append({
+            "UUID": row["item_id"],
+            "count": row["count"],
+            "equipped": row["equipped"],
+            "name": gear_item.get("name", row["item_id"]),
+            "description": gear_item.get("description", ""),
+            "damage": gear_item.get("damage"),
+            "damage_type": gear_item.get("damage_type")
+        })
+
+        #TODO: OPravit situaci, kdy nefunguje změna počtu, když uživatel má equiped item
+
+    return {"status": "OK", "inventory": inventory_list}
 
 # ---------- API Inventory Equipped Status ----------
 
@@ -624,12 +653,18 @@ with open("data/stats.json","r") as f:
     data_json = f.read()
     data_page_template = json.loads(data_json)
 
-#Skills
+#Items
 with open("data/items/gear.json","r") as f:
     data_json = f.read()
     gear_items = json.loads(data_json)
     # print(gear_items)
     data_page_template["items"] = gear_items
+    pass
+
+#Lepší podoba gear pro inventory
+#TODO: Implementovat tento přístup v jiných místech
+gear_list = data_page_template["items"]
+gear_dict = {item["UUID"]: item for item in gear_list}
 
 
 # dostupné classes a races

@@ -110,10 +110,59 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+// Řeší aktualizaci inventáře bez načtení stránky
+function refreshInventory(result) {
+    const equippedTable = document.getElementById("equipped-table");
+    const inventoryTable = document.getElementById("inventory-table");
+
+    // smažeme staré položky, ale necháme první řádek s tlačítkem "Edit Inventory"
+    equippedTable.querySelectorAll("tbody").forEach(tbody => tbody.remove());
+    inventoryTable.querySelectorAll("tbody").forEach((tbody, i) => {
+        if (i > 0) tbody.remove();
+    });
+
+    // znovu projdeme položky z backendu
+    result.inventory.forEach(item => {
+        const tbody = document.createElement("tbody");
+        tbody.setAttribute("data-uuid", item.UUID);
+
+        tbody.innerHTML = `
+            <tr>
+                <td>
+                    <input class="form-check-input equip-checkbox" type="checkbox" data-uuid="${item.UUID}">
+                </td>
+                <td>
+                    <p class="mb-0">${item.count}</p>
+                </td>
+                <td data-id="${item.UUID}" class="item-name">${item.name}</td>
+                <td class="text-end">
+                    <button class="btn btn-primary m-1" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#Collapse${item.UUID}"
+                        aria-expanded="false"
+                        aria-controls="Collapse${item.UUID}">
+                        Info
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="collapse" id="Collapse${item.UUID}">
+                    ${item.description}
+                </td>
+            </tr>
+        `;
+
+        if (item.equipped == 1) {
+            equippedTable.appendChild(tbody);
+        } else {
+            inventoryTable.appendChild(tbody);
+        }
+    });
+}
+
 
 // Finální Volaná Funkce pro Změnu Inventory
-// Řeší i aktualizaci bez načtení stránky
-// Pokud uživatel zadá něco a pak znovu načte stránku, tak při dalším vstupu uživatel přijde o uložené vstupy
+
 function getInventoryChanges() {
     const changes = getChanges();
     console.log("Added:", changes.checked);
@@ -136,6 +185,10 @@ function getInventoryChanges() {
         })
         .then(result => {
             console.log("Úspěšně odesláno:", result);
+
+            if (result.status === "OK") {
+                refreshInventory(result)
+            }
         })
         .catch(error => {
             console.error("Chyba při odesílání dat:", error);
