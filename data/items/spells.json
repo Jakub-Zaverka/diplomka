@@ -1,0 +1,31 @@
+[
+    {
+        "UUID": "3119226a-b092-4d83-9f8d-ef00a11ba471",
+        "name": "Acid Arrow",
+        "description": "A shimmering green arrow streaks toward a targe within range and bursts in a spray of acid. Make  ranged spell attack against the target. On a hit, th target takes 4d4 Acid damage and 2d4 Acid damage at the end of its next turn. On a miss, the arro splashes the target with acid for half as much of th initial damage only",
+        "level":2,
+        "damage": "4d4",
+        "damage_type": "acid",
+        "casting_time":"action",
+        "range":"90",
+        "components":["Verbal","Somatic","Powdered rhubarb leaf"],
+        "Duration":0,
+        "Upcast":"1d4",
+        "School":"Evocation",
+        "Classes":["wizard"],
+        "ritural":0
+    },
+    {
+        "UUID": "6bc1291e-5fd8-44ba-a8e8-43eee559b101",
+        "name": "Alarm",
+        "description": "You set an alarm against intrusion. Choose a door, a window, or an area within range that is no larger than a 20-foot Cube. Until the spell ends, an alarm alerts you whenever a creature touches or enters the warded area. When you cast the spell, you can designate creatures that won’t set off the alarm. You also choose whether the alarm is audible or mental: Audible Alarm. The alarm produces the sound of a handbell for 10 seconds within 60 feet of the warded area. Mental Alarm. You are alerted by a mental ping if you are within 1 mile of the warded area. This ping awakens you if you’re asleep.",
+        "level":1,
+        "casting_time":"1 minute",
+        "range":"90",
+        "components":["Verbal","Somatic","A bell and silver wire"],
+        "Duration":"8 hours",
+        "School":"Abjuration",
+        "Classes":["wizard","ranger"],
+        "ritural":1
+    }
+]

@@ -136,6 +136,15 @@ def init_db():
         ''')
 
         db.execute('''
+            CREATE TABLE spells (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                char_id INTEGER NOT NULL,
+                spell_id INTEGER NOT NULL,
+                FOREIGN KEY (char_id) REFERENCES characters(char_id)
+            )
+        ''')
+
+        db.execute('''
             CREATE TABLE character_skills (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 char_id INTEGER NOT NULL,
@@ -660,13 +669,23 @@ with open("data/items/gear.json","r") as f:
     gear_items = json.loads(data_json)
     # print(gear_items)
     data_page_template["items"] = gear_items
-    pass
+
 
 #Lepší podoba gear pro inventory
 #TODO: Implementovat tento přístup v jiných místech
 gear_list = data_page_template["items"]
 gear_dict = {item["UUID"]: item for item in gear_list}
 
+#Spells
+with open("data/items/spells.json","r") as f:
+    data_json = f.read()
+    spells = json.loads(data_json)
+    # print(gear_items)
+    spells_dict = {item["UUID"]: item for item in spells}
+    data_page_template["spells"] = spells_dict
+    pass
+print(data_page_template["spells"]["3119226a-b092-4d83-9f8d-ef00a11ba471"])
+print(data_page_template["spells"]["6bc1291e-5fd8-44ba-a8e8-43eee559b101"])
 
 # dostupné classes a races
 # Předpokládá se, že každá dostupná class/povolání bude mít vlastní složku, ve které bude levelmap, kdy postava dostane jednotlivé schopnosti a features, obsahující 
