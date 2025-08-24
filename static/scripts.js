@@ -509,8 +509,144 @@ function search_table() {
 
 
 
+// Spells
+// Uloží stav spells zvlášť od inventáře
+let lastSpellState = {};
 
+document.addEventListener("DOMContentLoaded", () => {
+    saveSpellChanges();
+});
 
+function saveSpellChanges() {
+    lastSpellState = {};
+    document.querySelectorAll('#spell-edit-table tbody > tr:not(.collapse)').forEach(row => {
+        const uuidCell = row.querySelector("td[data-id]");
+        const checkbox = row.querySelector('input[type="checkbox"]');
+        const amountInput = row.querySelector('input[type="text"], input:not([type="checkbox"])');
+
+        if (!uuidCell || !checkbox) return;
+
+        const uuid = uuidCell.dataset.id;
+        const amount = amountInput?.value?.trim() || '';
+
+        lastSpellState[uuid] = {
+            checked: checkbox.checked,
+            amount: amount
+        };
+    });
+}
+
+function getSpellChanges() {
+    const checked = [];
+    const unchecked = [];
+    const changed = [];
+
+    document.querySelectorAll('#spell-edit-table tbody > tr:not(.collapse)').forEach(row => {
+        const uuidCell = row.querySelector("td[data-id]");
+        const checkbox = row.querySelector('input[type="checkbox"]');
+        const amountInput = row.querySelector('input[type="text"], input:not([type="checkbox"])');
+
+        if (!uuidCell || !checkbox) return;
+
+        const uuid = uuidCell.dataset.id;
+        const amount = amountInput?.value?.trim() || '';
+
+        const previous = lastSpellState[uuid] || { checked: false, amount: '' };
+        const currentChecked = checkbox.checked;
+
+        if (!previous.checked && currentChecked) {
+            checked.push({ UUID: uuid, amount });
+        } else if (previous.checked && !currentChecked) {
+            unchecked.push({ UUID: uuid });
+        } else if (previous.checked && currentChecked && previous.amount !== amount) {
+            changed.push({ UUID: uuid, amount });
+        }
+    });
+
+    return { checked, unchecked, changed };
+}
+
+function sendSpellChanges() {
+    const changes = getSpellChanges();
+    console.log("Added Spells:", changes.checked);
+    console.log("Removed Spells:", changes.unchecked);
+    console.log("Changed Spells:", changes.changed);
+
+    const url = "/api/spells";
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ changes })
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(result => {
+            console.log("Úspěšně odesláno (Spells):", result);
+
+            if (result.status === "OK") {
+                refreshSpells(result);
+            }
+        })
+        .catch(error => {
+            console.error("Chyba při odesílání dat (Spells):", error);
+        });
+
+    saveSpellChanges(); // uloží aktuální stav jako nový výchozí
+}
+
+// Refresh spell tabulky
+function refreshSpells(result) {
+    const spellTable = document.querySelector("#nav-spells table tbody");
+    if (!spellTable) return; // bezpečnostní pojistka
+
+    // smažeme všechny řádky
+    spellTable.querySelectorAll("tr").forEach(row => row.remove());
+
+    // přidáme kouzla z backendu
+    result.spells.forEach(spell => {
+        spellTable.insertAdjacentHTML("beforeend", `
+            <tr>
+                <td>${spell.level}</td>
+                <td>${spell.name}</td>
+                <td>${spell.range}</td>
+                <td>${spell.damage || ""} ${spell.damage_type || ""}</td>
+                <td>
+                    <button class="btn btn-primary m-1" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#Collapse${spell.UUID}"
+                        aria-expanded="false"
+                        aria-controls="Collapse${spell.UUID}">
+                        C
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" class="collapse" id="Collapse${spell.UUID}">
+                    ${spell.description || ""}
+                    ${spell.components || ""}
+                    ${spell.duration || ""}
+                </td>
+            </tr>
+        `);
+    });
+
+    // nakonec tlačítko Edit Spells
+    spellTable.insertAdjacentHTML("beforeend", `
+        <tr>
+            <td colspan="5" class="text-center">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#spellModal">
+                    Edit Spells
+                </button>
+            </td>
+        </tr>
+    `);
+}
 
 
 

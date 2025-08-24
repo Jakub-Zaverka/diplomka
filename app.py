@@ -287,79 +287,18 @@ def sheet(char_id):
     #Features
     page_template = data_loader.load_category("class", "features", char["char_class"], char, page_template, feature_data_dict)
 
+    #Spells
+    row_character_spells = db.execute("SELECT spell_id FROM spells WHERE char_id = ?",(char_id,)).fetchall()
 
-    #Přesunuto do modulu data_loader.py
-    # player_class_name = char["char_class"]
-    # features_path = f"data/class/{player_class_name}/features.json"
-    # levelmap_path = f"data/class/{player_class_name}/levelmap.json"
-    # if os.path.exists(features_path):
-    #     with open(features_path,"r") as f:
-    #         data_json = f.read()
-    #         features = json.loads(data_json)
-    #         # print(gear_items)
-    #         page_template["features"] = features
-    # else:
-    #     page_template["features"] = []
-    
-    # # --- Aktualizace features --------------------------------------------
-    # # předpoklad: každý feature v JSON má pole "name" a "max_charges" (string nebo attribute name)
-    # #  Filtr zda postava danou feature má a zda má dostatečnou úroveň
-    # if os.path.exists(levelmap_path):
-    #     with open(levelmap_path,"r") as f:
-    #         data_json = f.read()
-    #         known_features = json.loads(data_json)
-    #         # print(gear_items)
-    #         known_features_dict = {}
-    #         for i in known_features:
-    #             known_features_dict.update(i)
-    # else:
-    #     known_features={}
-    #     known_features_dict={}
+    # vyrobíme list samotných spell_id hodnot
+    character_spells = [row["spell_id"] for row in row_character_spells]
 
-    # pass    
-    # for feature in page_template.get("features", []):
-    #     #  Zda postava danou feature má 
-    #     if feature.get("UUID") in known_features_dict.keys():
-    #         # A zda má dostatečnou úroveň
-    #         required_level = known_features_dict.get(feature.get("UUID"))
-    #         if char["level"] >= required_level:
-    #             # print(f"{feature['name']} - splňuje (lvl {char["level"]} / požadavek {required_level})")
-    #             feature["known"] = True
-    #             # 1) dopočti max_charges podle atributů
-    #             max_charges = feature.get("max_charges")
-    #             if isinstance(max_charges, str) and max_charges.lower() in ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"]:
-    #                 # char je sqlite3.Row, přístup podle názvu sloupce funguje: char["intelligence"]
-    #                 try:
-    #                     mod = ttrpg.calc_mod(int(char[max_charges.lower()]))
-    #                 except Exception:
-    #                     # bezpečně fallbacknout pokud char[max_charges] není dostupné nebo neint
-    #                     mod = 1
-
-    #                 if mod < 1:
-    #                     mod = 1
-    #                 feature["max_charges"] = int(mod)
-    #             #Pokud je feature proficiency krát
-    #             elif isinstance(max_charges, str) and max_charges.lower() == "proficiency":
-    #                 try:
-    #                     mod = ttrpg.get_proficiency_bonus(char["level"])
-    #                 except Exception:
-    #                     mod = 1
-    #                 feature["max_charges"] = int(mod)
-    #             else:
-    #                 # pokud je to číslo uložené jako string v JSONu
-    #                 try:
-    #                     feature["max_charges"] = int(max_charges)
-    #                 except Exception:
-    #                     # fallback na 0 pokud neparsovatelné
-    #                     feature["max_charges"] = 0
-
-    #             # 2) nastav aktuální charges z DB pokud existuje, jinak použij max_charges jako výchozí
-    #             # mapujeme podle jména feature (JSON "name")
-    #             feature_id = feature.get("UUID")
-    #             if feature_id is not None:
-    #                 feature["charges"] = feature_data_dict.get(feature_id)
-    #             else:
-    #                 feature["charges"] = feature["max_charges"]
+    for spell_id, spell_data in page_template.get("spells", {}).items():
+        if spell_id in character_spells:
+            spell_data["checked"] = True
+        else:
+            spell_data["checked"] = False
+    pass
 
     #Race
     page_template = data_loader.load_category("race", "traits", char["char_race"], char, page_template)
@@ -656,6 +595,54 @@ def charges():
 
 #     return {"status": "OK", "received": result}
 
+# ---------- API Spells ----------
+
+@login_required
+@app.route('/api/spells', methods=['POST'])
+def spell_api():
+    data = request.get_json()
+    print(data)
+    db = get_db()
+
+    for item in data["changes"]["checked"]:
+        db.execute("INSERT INTO spells (char_id, spell_id) VALUES (?, ?)", (session.get("current_character_id"), item["UUID"]))
+        
+    for item in data["changes"]["unchecked"]:
+        db.execute("DELETE FROM spells WHERE char_id = ? AND spell_id = ?", (session.get("current_character_id"), item["UUID"]))
+
+    # for item in data["changes"]["changed"]:
+    #     db.execute('UPDATE spells SET count = ? WHERE char_id = ? AND item_id = ?',(item["amount"], session.get("current_character_id"),item["UUID"]))
+
+    # print(data["changes"]["checked"])
+
+    db.commit()
+    
+    # načti nový inventář
+    rows = db.execute(
+        "SELECT spell_id FROM spells WHERE char_id = ?",
+        (session.get("current_character_id"),)
+    ).fetchall()
+
+    gear_dict = { item["UUID"]: item for item in data_page_template["items"] }
+    gear_dict = {item["UUID"]: item for item in data_page_template["items"]}
+
+    inventory_list = []
+    for row in rows:
+        gear_item = gear_dict.get(row["item_id"], {})
+        inventory_list.append({
+            "UUID": row["item_id"],
+            "count": row["count"],
+            "equipped": row["equipped"],
+            "name": gear_item.get("name", row["item_id"]),
+            "description": gear_item.get("description", ""),
+            "damage": gear_item.get("damage"),
+            "damage_modifier":gear_item.get("damage_modifier"),
+            "damage_type": gear_item.get("damage_type")
+        })
+
+        #TODO: OPravit situaci, kdy nefunguje změna počtu, když uživatel má equiped item
+
+    return {"status": "OK"}
 
 # ---------- Vytvoření dynamické stránky ----------
 #Atributes and skills
@@ -684,8 +671,8 @@ with open("data/items/spells.json","r") as f:
     spells_dict = {item["UUID"]: item for item in spells}
     data_page_template["spells"] = spells_dict
     pass
-print(data_page_template["spells"]["3119226a-b092-4d83-9f8d-ef00a11ba471"])
-print(data_page_template["spells"]["6bc1291e-5fd8-44ba-a8e8-43eee559b101"])
+# print(data_page_template["spells"]["3119226a-b092-4d83-9f8d-ef00a11ba471"])
+# print(data_page_template["spells"]["6bc1291e-5fd8-44ba-a8e8-43eee559b101"])
 
 # dostupné classes a races
 # Předpokládá se, že každá dostupná class/povolání bude mít vlastní složku, ve které bude levelmap, kdy postava dostane jednotlivé schopnosti a features, obsahující 

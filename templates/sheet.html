@@ -327,29 +327,26 @@
                                 </thead>
                                 <tbody>
                                     <!-- One Spell Element -->
+                                    {% for spell in data_page_template["spells"].values() if spell['checked'] %}
                                     <tr>
-                                        <th scope="row">1</th>
-                                        <td>Fire Bolt</td>
-                                        <td>120ft</td>
-                                        <td>1d6</td>
+                                        <td>{{ spell["level"] }}</td>
+                                        <td>{{ spell["name"] }}</td>
+                                        <td>{{ spell["range"] }}</td>
+                                        <td>{{ spell["damage"] }} {{ spell["damage_type"] }}</td>
                                         <td><button class="btn btn-primary m-1" type="button" data-bs-toggle="collapse"
-                                                data-bs-target="#collapseExampleTr" aria-expanded="false"
-                                                aria-controls="collapseExampleTr">
+                                                data-bs-target="#Collapse{{ spell['UUID'] }}" aria-expanded="false"
+                                                aria-controls="#Collapse{{ spell['UUID'] }}">
                                                 C
                                             </button></td>
                                     </tr>
                                     <tr>
-                                        <td colspan="5" class="collapse" id="collapseExampleTr">
-                                            Ability Desciption Lorem ipsum dolor sit amet, consectetur adipiscing
-                                            elit.
-                                            Fusce nibh ante, pretium id fringilla vitae, tempor a neque. Etiam ac
-                                            mauris non
-                                            diam consectetur consectetur id a orci. Sed ac sapien eget ante vehicula
-                                            elementum eget nec lacus. Nulla vitae sagittis justo, et porttitor odio.
-                                            Morbi
-                                            faucibus ex sit amet arcu hendrerit lacinia.
+                                        <td colspan="5" class="collapse" id="Collapse{{ spell['UUID'] }}">
+                                            {{ spell["description"]}}
+                                            {{ spell["components"]}}
+                                            {{ spell["duration"]}}
                                         </td>
                                     </tr>
+                                    {%endfor%}
 
 
                                     <!-- Edit Spells -->
@@ -508,64 +505,15 @@
     <div class="modal fade" id="spellModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <!-- <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Change Spells</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body container">
-                    <div class="row"><input placeholder="Search..."></div>
-                    <div class="row">
-                        <div class="col-6 bg-primary">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Spell Level</th>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">Learned</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <th scope="row">1</th>
-                                        <td>Fire ball but with long name</td>
-                                        <td><input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="col-6 bg-light">
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce egestas elit a ante
-                                aliquam dapibus. Quisque non interdum est, vel congue quam. Etiam varius bibendum
-                                tortor, ut posuere lacus fringilla at. Nullam quis vestibulum arcu. Pellentesque ut
-                                imperdiet augue. Integer volutpat magna a ultricies ullamcorper. Etiam cursus a nunc in
-                                molestie. Fusce urna augue, rhoncus sit amet lobortis eu, rutrum at mi. Phasellus felis
-                                turpis, dapibus quis risus vel, pharetra lobortis tellus. In ipsum justo, congue id
-                                tincidunt eu, semper vitae nisi. Aenean efficitur purus quis nisi pretium, ut lobortis
-                                lacus mollis. Suspendisse nulla metus, gravida quis est id, dictum commodo nunc.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-lightbg-light" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
-            </div> -->
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Edit Inventory</h5>
-                    <!-- <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button> -->
+                    <h5 class="modal-title">Edit Inventory</h5>
                 </div>
                 <div class="modal-body container">
                     <div class="row"><input placeholder="Search..."></div>
                     <div class="row">
                         <div class="bg-primary" style="max-height: 400px; overflow-y: auto;">
-                            <table class="table" id="edit-table">
+                            <table class="table" id="spell-edit-table">
                                 <thead>
                                     <tr>
                                         <th scope="col">Spell Level</th>
@@ -580,7 +528,8 @@
                                     <tr>
                                         <td scope="row">{{ item['level'] }}</td>
                                         <td data-id="{{ item['UUID'] }}">{{ item['name'] }}</td>
-                                        <td><input class="form-check-input" type="checkbox" id="{{ item['UUID'] }}"></td>                                        </td>
+                                        <td><input class="form-check-input" type="checkbox" id="{{ item['UUID'] }}" {%
+                                                if item["checked"] %} checked {% endif %}></td>                                        </td>
                                         <td>
                                             <button class="btn btn-primary m-1" type="button" data-bs-toggle="collapse"
                                                 data-bs-target="#Collapse{{ item['UUID'] }}" aria-expanded="false"
@@ -605,7 +554,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-lightbg-light" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="getInventoryChanges()"
+                    <button type="button" class="btn btn-primary" onclick="sendSpellChanges()"
                         data-bs-dismiss="modal">Save changes</button>
                 </div>
             </div>

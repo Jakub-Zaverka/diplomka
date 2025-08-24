@@ -9,10 +9,10 @@
         "casting_time":"action",
         "range":"90",
         "components":["Verbal","Somatic","Powdered rhubarb leaf"],
-        "Duration":0,
-        "Upcast":"1d4",
-        "School":"Evocation",
-        "Classes":["wizard"],
+        "duration":0,
+        "upcast":"1d4",
+        "school":"Evocation",
+        "classes":["wizard"],
         "ritural":0
     },
     {
@@ -23,9 +23,9 @@
         "casting_time":"1 minute",
         "range":"90",
         "components":["Verbal","Somatic","A bell and silver wire"],
-        "Duration":"8 hours",
-        "School":"Abjuration",
-        "Classes":["wizard","ranger"],
+        "duration":"8 hours",
+        "school":"Abjuration",
+        "classes":["wizard","ranger"],
         "ritural":1
     }
 ]
