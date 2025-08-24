@@ -332,7 +332,7 @@
                                         <td>{{ spell["level"] }}</td>
                                         <td>{{ spell["name"] }}</td>
                                         <td>{{ spell["range"] }}</td>
-                                        <td>{{ spell["damage"] }} {{ spell["damage_type"] }}</td>
+                                        <td>{{ spell["damage"] }} {{ spell["damage_type"] | capitalize}}</td>
                                         <td><button class="btn btn-primary m-1" type="button" data-bs-toggle="collapse"
                                                 data-bs-target="#Collapse{{ spell['UUID'] }}" aria-expanded="false"
                                                 aria-controls="#Collapse{{ spell['UUID'] }}">
