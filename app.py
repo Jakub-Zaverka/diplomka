@@ -617,32 +617,32 @@ def spell_api():
 
     db.commit()
     
-    # načti nový inventář
-    rows = db.execute(
-        "SELECT spell_id FROM spells WHERE char_id = ?",
-        (session.get("current_character_id"),)
-    ).fetchall()
+    # načteš kouzla hráče z DB
+    rows = db.execute("SELECT spell_id FROM spells WHERE char_id = ?", (session.get("current_character_id"),)).fetchall()
 
-    gear_dict = { item["UUID"]: item for item in data_page_template["items"] }
-    gear_dict = {item["UUID"]: item for item in data_page_template["items"]}
-
-    inventory_list = []
+    spells_list = []
     for row in rows:
-        gear_item = gear_dict.get(row["item_id"], {})
-        inventory_list.append({
-            "UUID": row["item_id"],
-            "count": row["count"],
-            "equipped": row["equipped"],
-            "name": gear_item.get("name", row["item_id"]),
-            "description": gear_item.get("description", ""),
-            "damage": gear_item.get("damage"),
-            "damage_modifier":gear_item.get("damage_modifier"),
-            "damage_type": gear_item.get("damage_type")
-        })
+        spell_item = spells_dict.get(row["spell_id"], {})
+        if spell_item:  # pokud kouzlo existuje v json definici
+            spells_list.append({
+                "UUID": spell_item.get("UUID", row["spell_id"]),
+                "name": spell_item.get("name", row["spell_id"]),
+                "description": spell_item.get("description", ""),
+                "level": spell_item.get("level"),
+                "damage": spell_item.get("damage"),
+                "damage_type": spell_item.get("damage_type"),
+                "casting_time": spell_item.get("casting_time"),
+                "range": spell_item.get("range"),
+                "components": spell_item.get("components", []),
+                "duration": spell_item.get("duration"),
+                "upcast": spell_item.get("upcast"),
+                "school": spell_item.get("school"),
+                "classes": spell_item.get("classes", []),
+                "ritual": spell_item.get("ritual", 0),
+            })
 
-        #TODO: OPravit situaci, kdy nefunguje změna počtu, když uživatel má equiped item
 
-    return {"status": "OK"}
+    return {"status": "OK", "spells": spells_list}
 
 # ---------- Vytvoření dynamické stránky ----------
 #Atributes and skills
