@@ -45,10 +45,12 @@
                     {% for item in data_page_template["atributes"] %}
                     <div class="row">
                         <div class="bg-light row shadow ">
-                            <div class="col-2 px-4 px-md-2 px-lg-4 px-sm-3 clickable_div">
+                            {% set bonus = ((character[item["name"]] - 10) / 2)|int %}
+                            <div class="col-2 px-4 px-md-2 px-lg-4 px-sm-3 clickable_div" data-modifier="{{ bonus }}"
+                                onclick="showToast(this)">
                                 <div class="row">
                                     <p class="h3 my-0 mx-1">
-                                        {% set bonus = ((character[item["name"]] - 10) / 2)|int %}
+
                                         {% if bonus >= 0 %}
                                         +{{ bonus }}
                                         {% else %}
@@ -102,10 +104,10 @@
                 {% set skill_key = item["name"] | lower | replace(' ', '_') %}
                 {% set level = proficiencies.get(skill_key, 1) %}
                 <div class="bg-light row shadow px-2">
-                    <div class="col-1 clickable_div px-0">
+                    {% set bonus = (((character[atribute["name"]] - 10) / 2) + prof_bonus*(level-1))|int %}
+                    <div class="col-1 clickable_div px-0" data-modifier="{{ bonus }}" onclick="showToast(this)">
                         <div class="row">
                             <p class="h5 my-0">
-                                {% set bonus = (((character[atribute["name"]] - 10) / 2) + prof_bonus*(level-1))|int %}
                                 {% if bonus >= 0 %}
                                 +{{ bonus }}
                                 {% else %}
@@ -154,7 +156,8 @@
                     <div class="container my-2">
                         <div class="d-flex justify-content-between text-center gap-2 flex-wrap">
                             <div class="flex-fill  p-2 ">
-                                <p class="h2 mb-0">{{
+                                <p class="h2 mb-0 clickable_div" data-modifier="{{
+                                    character['initiative']}}" onclick="showToast(this)">{{
                                     character['initiative']}}</p>
                                 <p class="h5">Initiative</p>
                             </div>
@@ -386,15 +389,15 @@
                                                         data-uuid="{{ item['UUID'] }}">
                                                 </td>
                                                 <td>
-                                                    {# Zajištuje formátování aby čísla neměla za sebou .0, ale zároveň nebyla int #}
-                                                    <p class="mb-0">{{ ("%.2f"|format( item['count'])).rstrip('0').rstrip('.')}}</p>
+                                                    {# Zajištuje formátování aby čísla neměla za sebou .0, ale zároveň
+                                                    nebyla int #}
+                                                    <p class="mb-0">{{ ("%.2f"|format(
+                                                        item['count'])).rstrip('0').rstrip('.')}}</p>
                                                 </td>
-                                                <td data-id="{{ item['UUID'] }}" 
-                                                {% if damage is not none %}
-                                                data-damage="{{ item['damage']}}"
-                                                data-modifier="{{ item['damage_modifier']}}"
-                                                {%endif%}
-                                                class="item-name">{{ item['name'] }}
+                                                <td data-id="{{ item['UUID'] }}" {% if damage is not none %}
+                                                    data-damage="{{ item['damage']}}"
+                                                    data-modifier="{{ item['damage_modifier']}}" {%endif%}
+                                                    class="item-name">{{ item['name'] }}
                                                 </td>
                                                 <td class="text-end">
                                                     <button class="btn btn-primary m-1" type="button"
@@ -456,14 +459,13 @@
                                                         data-uuid="{{ item['UUID'] }}">
                                                 </td>
                                                 <td>
-                                                    <p class="mb-0">{{ ("%.2f"|format( item['count'])).rstrip('0').rstrip('.')}}</p>
+                                                    <p class="mb-0">{{ ("%.2f"|format(
+                                                        item['count'])).rstrip('0').rstrip('.')}}</p>
                                                 </td>
-                                                <td data-id="{{ item['UUID'] }}"  
-                                                {% if damage is not none %}
-                                                data-damage="{{ item['damage']}}"
-                                                data-modifier="{{ item['damage_modifier']}}"
-                                                {%endif%}
-                                                class="item-name">{{ item['name'] }}
+                                                <td data-id="{{ item['UUID'] }}" {% if damage is not none %}
+                                                    data-damage="{{ item['damage']}}"
+                                                    data-modifier="{{ item['damage_modifier']}}" {%endif%}
+                                                    class="item-name">{{ item['name'] }}
                                                 </td>
                                                 <td class="text-end">
                                                     <button class="btn btn-primary m-1" type="button"
@@ -523,13 +525,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    
+
                                     {% for item in data_page_template["spells"].values() %}
                                     <tr>
                                         <td scope="row">{{ item['level'] }}</td>
                                         <td data-id="{{ item['UUID'] }}">{{ item['name'] }}</td>
                                         <td><input class="form-check-input" type="checkbox" id="{{ item['UUID'] }}" {%
-                                                if item["checked"] %} checked {% endif %}></td>                                        </td>
+                                                if item["checked"] %} checked {% endif %}></td>
+                                        </td>
                                         <td>
                                             <button class="btn btn-primary m-1" type="button" data-bs-toggle="collapse"
                                                 data-bs-target="#Collapse{{ item['UUID'] }}" aria-expanded="false"
@@ -624,6 +627,11 @@
             </div>
         </div>
     </div>
+
+    <!-- Kontejner pro stackované toasty -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"

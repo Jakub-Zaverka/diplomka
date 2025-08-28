@@ -648,5 +648,45 @@ function refreshSpells(result) {
     `);
 }
 
+// javascript nemá normální Random funkci
+function generateRandomInteger(min, max) {
+    return Math.floor(min + Math.random()*(max - min + 1))
+}
+// Dice Roll
+function randomRoll(number,die=20,modifier = 0){
+    rand = generateRandomInteger(number,die)
+    modInt = parseInt(modifier)
+    sum = rand+modInt
+    return sum
+}
+
+// Toast funkce pro Dice Rolls
+function showToast(element, title = 'Bootstrap') {
+            const toastContainer = document.getElementById('toastContainer');
+            modifier = element.getAttribute('data-modifier')
+            // vytvoření toastu
+            const toastEl = document.createElement('div');
+            toastEl.className = 'toast align-items-center';
+            toastEl.role = 'alert';
+            toastEl.ariaLive = 'assertive';
+            toastEl.ariaAtomic = 'true';
+            toastEl.innerHTML = `
+        <div class="toast-header">
+            <strong class="me-auto">${title}</strong>
+            <small class="text-body-secondary">just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            Random Roll: ${randomRoll(1,20,modifier)} (1d20+${modifier})
+        </div>
+        `;
+
+            toastContainer.appendChild(toastEl);
+
+            // inicializace a zobrazení
+            const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastEl);
+            toastBootstrap.show();
+        }
+
 
 
