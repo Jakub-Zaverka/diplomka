@@ -660,6 +660,35 @@ function randomRoll(number,die=20,modifier = 0){
     return sum
 }
 
+//Dice Roll From String
+//4d4+1d6+1
+function stringDiceRoll(string){
+    resultRolls = []
+    plusSplit = string.split("+")
+    for(let i = 0; i < plusSplit.length; i++){
+        dSplit = plusSplit[i].split("d")
+        console.log(dSplit)
+        if(dSplit.length == 1){
+            resultRolls.push(parseInt(dSplit[0]))
+        }
+        else if(dSplit.length == 2){
+            for(let i = 0; i < dSplit[0]; i++){
+                resultRolls.push(generateRandomInteger(1,dSplit[1]))
+            }
+        }
+        else{
+            console.log("error")
+        }
+    }
+    console.log(resultRolls)
+    result = 0
+    for(let i = 0; i < resultRolls.length; i++){
+        result += resultRolls[i]
+    }
+    console.log(result)
+    return result
+}
+
 // Toast funkce pro Dice Rolls
 function showToast(element, title = 'Bootstrap') {
             const toastContainer = document.getElementById('toastContainer');
