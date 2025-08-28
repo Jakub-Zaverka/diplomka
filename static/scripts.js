@@ -652,7 +652,7 @@ function refreshSpells(result) {
 function generateRandomInteger(min, max) {
     return Math.floor(min + Math.random()*(max - min + 1))
 }
-// Dice Roll
+// Dice Roll - old and not used
 function randomRoll(number,die=20,modifier = 0){
     rand = generateRandomInteger(number,die)
     modInt = parseInt(modifier)
@@ -690,7 +690,7 @@ function stringDiceRoll(string){
 }
 
 // Toast funkce pro Dice Rolls
-function showToast(element, title = 'Bootstrap') {
+function showToast(element, title = 'Heading') {
             const toastContainer = document.getElementById('toastContainer');
             modifier = element.getAttribute('data-modifier')
             // vytvoření toastu
@@ -702,11 +702,11 @@ function showToast(element, title = 'Bootstrap') {
             toastEl.innerHTML = `
         <div class="toast-header">
             <strong class="me-auto">${title}</strong>
-            <small class="text-body-secondary">just now</small>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body">
-            Random Roll: ${randomRoll(1,20,modifier)} (1d20+${modifier})
+            
+            Random Roll: ${stringDiceRoll('1d20+'+modifier)} (1d20+${modifier})
         </div>
         `;
 
