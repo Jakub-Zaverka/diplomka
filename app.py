@@ -177,10 +177,11 @@ def register():
         username = request.form['username']
         password = request.form['password']
         pw_hash = generate_password_hash(password)
+        email = request.form['email']
 
         db = get_db()
         try:
-            db.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)", (username, pw_hash))
+            db.execute("INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)", (username, pw_hash, email))
             db.commit()
             return redirect('/login')
         except sqlite3.IntegrityError:
