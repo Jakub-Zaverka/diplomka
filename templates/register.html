@@ -8,35 +8,86 @@
   <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous"> -->
   <link rel="stylesheet" href="{{ url_for('static',filename='custom.css') }}">
-  
+
   <link rel="stylesheet" href="{{ url_for('static',filename='styles.css') }}">
   <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </head>
 
 <body>
+
   <div class="d-flex justify-content-center align-items-center vh-100">
-    <form method="post" class="bg-secondary p-5 shadow">
-      <div class="row m-2">
-        <label for="username_input" class="ps-0 text-white">Username</label>
-        <input id="username_input" type="text" name="username" placeholder="John" required>
+    <div class="col-md-4">
+      <!-- Flash zprávy -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
-      <div class="row m-2">
-        <label for="password_input" class="ps-0 text-white">Password</label>
-        <input id="password_input" type="password" name="password" placeholder="****" required>
-      </div>
-      <div class="row m-2">
-        <label for="password_input" class="ps-0 text-white">Password</label>
-        <input id="password_input_repeat" type="password" name="password" placeholder="****" required>
-      </div>
-      <!-- TODO: Make Repeat Password do something -->
-      <!-- <div class="row m-2">
-        <label for="password_input_repeat" class="ps-0">Repeat Password</label>
-        <input id="password_input_repeat" type="password" name="password" placeholder="****" required>
-      </div> -->
-      <input class="row m-2" type="submit" value="Sign up">
-      <a href="/login" class="row m-2 text-white">Already have account? Sign in here.</a>
-    </form>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+      <form method="post" class="bg-secondary p-5 shadow needs-validation" novalidate>
+        <div class="row m-2">
+          <label for="username_input" class="ps-0 text-white">Username</label>
+          <input id="username_input" type="text" class="form-control" name="username" placeholder="John" required>
+          <div class="invalid-feedback">Please enter username.</div>
+        </div>
+        <div class="row m-2">
+          <label for="email_input" class="ps-0 text-white">Email address</label>
+          <input id="email_input" type="email" class="form-control" name="username" placeholder="john@example.com"
+            required>
+          <div class="invalid-feedback">Please enter email in correct format.</div>
+        </div>
+        <div class="row m-2">
+          <label for="password_input" class="ps-0 text-white">Password</label>
+          <input id="password_input" type="password" class="form-control" name="password" placeholder="****" required>
+          <div class="invalid-feedback">Please enter password.</div>
+        </div>
+        <div class="row m-2">
+          <label for="password_input_repeat" class="ps-0 text-white">Repeat Password</label>
+          <input id="password_input_repeat" type="password" class="form-control" name="password_repeat"
+            placeholder="****" required>
+          <div class="invalid-feedback">Please repeat password.</div>
+        </div>
+        <input class="btn btn-light row m-2" type="submit" value="Sign up">
+        <a href="/login" class="row m-2 text-white">Already have account? Sign in here.</a>
+      </form>
+    </div>
   </div>
+
+  <script>
+    (() => {
+      'use strict'
+      const forms = document.querySelectorAll('.needs-validation')
+
+      Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+          const username = form.querySelector('#username_input')
+          const password = form.querySelector('#password_input')
+          const passwordRepeat = form.querySelector('#password_input_repeat')
+
+          // Reset custom validity vždy na začátku
+          username.setCustomValidity('')
+          passwordRepeat.setCustomValidity('')
+
+          // Custom check: hesla se musí rovnat
+          if (password.value !== passwordRepeat.value) {
+            passwordRepeat.setCustomValidity('Passwords do not match.')
+          }
+
+          // Pokud nevalidní zastavit submit
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+
+          form.classList.add('was-validated')
+        }, false)
+      })
+    })()
+  </script>
 
   <!-- <form method="post">
     <input type="text" name="username" placeholder="Uživatelské jméno" required>

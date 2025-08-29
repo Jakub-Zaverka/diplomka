@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, g, session
+from flask import Flask, render_template, request, redirect, g, session, flash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
@@ -93,7 +93,8 @@ def init_db():
             CREATE TABLE users (
                 user_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
-                password_hash TEXT NOT NULL
+                password_hash TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL
             )
         ''')
 
@@ -183,21 +184,29 @@ def register():
             db.commit()
             return redirect('/login')
         except sqlite3.IntegrityError:
-            return "Uživatel již existuje!"
+            flash("Uživatelské jméno či email je již používáno", "danger")
     return render_template('register.html')
 
 # ---------- Přihlášení ----------
-@app.route('/',methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         db = get_db()
-        user = db.execute("SELECT * FROM users WHERE username = ?", (request.form['username'],)).fetchone()
+        user = db.execute(
+            "SELECT * FROM users WHERE username = ?", 
+            (request.form['username'],)
+        ).fetchone()
+
         if user and check_password_hash(user['password_hash'], request.form['password']):
             user_obj = User(id_=user['user_id'], username=user['username'])
             login_user(user_obj)
             return redirect('/dashboard')
-        return "Neplatné přihlašovací údaje"
+
+        # místo return textu → flash message
+        flash("Neplatné přihlašovací údaje!", "danger")
+        return redirect('/login')
+
     return render_template('login.html')
 
 # ---------- Odhlášení ----------
