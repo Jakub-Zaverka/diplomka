@@ -13,22 +13,44 @@
 </head>
 
 <body>
-  <div class="d-flex justify-content-center align-items-center vh-100">
-    <form method="post" class="bg-secondary p-5 shadow">
+  <div class="d-flex justify-content-center align-items-center vh-100 ">
+    <form method="post" class="bg-secondary p-5 shadow needs-validation" novalidate>
       <div class="row m-2">
         <label for="username_input" class="ps-0 text-white">Username</label>
-        <input id="username_input" type="text" name="username" placeholder="John" required>
+        <input id="username_input" type="text" class="form-control" name="username" placeholder="John" required>
+        <div class="invalid-feedback">
+          Please enter username.
+        </div>
       </div>
       <div class="row m-2">
         <label for="password_input" class="ps-0 text-white">Password</label>
-        <input id="password_input" type="password" name="password" placeholder="****" required>
+        <input id="password_input" type="password" class="form-control" name="password" placeholder="****" required>
+        <div class="invalid-feedback">
+          Please enter password.
+        </div>
       </div>
-      <input class="row m-2" type="submit" value="Sign in">
-      <a href="/register" class="row m-2 text-white">Dont have account? Sign up here.</a>
+      <input class="btn btn-light row m-2" type="submit" value="Sign in">
+      <a href="/register" class="row m-2 text-white">Don't have account? Sign up here.</a>
     </form>
   </div>
 
+  <script>
+    // Bootstrap form validation 
+    (() => {
+      'use strict'
+      const forms = document.querySelectorAll('.needs-validation')
 
+      Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+          form.classList.add('was-validated')
+        }, false)
+      })
+    })()
+  </script>
 
 
 

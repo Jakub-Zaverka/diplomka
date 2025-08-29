@@ -650,39 +650,39 @@ function refreshSpells(result) {
 
 // javascript nemá normální Random funkci
 function generateRandomInteger(min, max) {
-    return Math.floor(min + Math.random()*(max - min + 1))
+    return Math.floor(min + Math.random() * (max - min + 1))
 }
 // Dice Roll - old and not used
-function randomRoll(number,die=20,modifier = 0){
-    rand = generateRandomInteger(number,die)
+function randomRoll(number, die = 20, modifier = 0) {
+    rand = generateRandomInteger(number, die)
     modInt = parseInt(modifier)
-    sum = rand+modInt
+    sum = rand + modInt
     return sum
 }
 
 //Dice Roll From String
 //4d4+1d6+1
-function stringDiceRoll(string){
+function stringDiceRoll(string) {
     resultRolls = []
     plusSplit = string.split("+")
-    for(let i = 0; i < plusSplit.length; i++){
+    for (let i = 0; i < plusSplit.length; i++) {
         dSplit = plusSplit[i].split("d")
         console.log(dSplit)
-        if(dSplit.length == 1){
+        if (dSplit.length == 1) {
             resultRolls.push(parseInt(dSplit[0]))
         }
-        else if(dSplit.length == 2){
-            for(let i = 0; i < dSplit[0]; i++){
-                resultRolls.push(generateRandomInteger(1,dSplit[1]))
+        else if (dSplit.length == 2) {
+            for (let i = 0; i < dSplit[0]; i++) {
+                resultRolls.push(generateRandomInteger(1, dSplit[1]))
             }
         }
-        else{
+        else {
             console.log("error")
         }
     }
     console.log(resultRolls)
     result = 0
-    for(let i = 0; i < resultRolls.length; i++){
+    for (let i = 0; i < resultRolls.length; i++) {
         result += resultRolls[i]
     }
     console.log(result)
@@ -691,31 +691,38 @@ function stringDiceRoll(string){
 
 // Toast funkce pro Dice Rolls
 function showToast(element, title = 'Heading') {
-            const toastContainer = document.getElementById('toastContainer');
-            modifier = element.getAttribute('data-modifier')
-            // vytvoření toastu
-            const toastEl = document.createElement('div');
-            toastEl.className = 'toast align-items-center';
-            toastEl.role = 'alert';
-            toastEl.ariaLive = 'assertive';
-            toastEl.ariaAtomic = 'true';
-            toastEl.innerHTML = `
+    const toastContainer = document.getElementById('toastContainer');
+    modifier = element.getAttribute('data-modifier')
+    // vytvoření toastu
+    const toastEl = document.createElement('div');
+    toastEl.className = 'toast align-items-center';
+    toastEl.role = 'alert';
+    toastEl.ariaLive = 'assertive';
+    toastEl.ariaAtomic = 'true';
+    toastEl.innerHTML = `
         <div class="toast-header">
             <strong class="me-auto">${title}</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body">
             
-            Random Roll: ${stringDiceRoll('1d20+'+modifier)} (1d20+${modifier})
+            Random Roll: ${stringDiceRoll('1d20+' + modifier)} (1d20+${modifier})
         </div>
         `;
 
-            toastContainer.appendChild(toastEl);
+    toastContainer.appendChild(toastEl);
 
-            // inicializace a zobrazení
-            const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastEl);
-            toastBootstrap.show();
-        }
+    // inicializace a zobrazení
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastEl);
+    toastBootstrap.show();
+}
 
 
 
+function validateForm() {
+    let username = document.forms["login-form"]["uname"];
+    if (x == "") {
+        alert("Name must be filled out");
+        return false;
+    }
+}

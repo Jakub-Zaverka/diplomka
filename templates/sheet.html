@@ -395,9 +395,11 @@
                                                         item['count'])).rstrip('0').rstrip('.')}}</p>
                                                 </td>
                                                 <td data-id="{{ item['UUID'] }}" {% if damage is not none %}
-                                                    data-damage="{{ item['damage']}}"
-                                                    data-modifier="{{ item['damage_modifier']}}" {%endif%}
-                                                    class="item-name">{{ item['name'] }}
+                                                    data-damage="{{ item['damage'] }}"
+                                                    data-damage_modifier="{{ item['damage_modifier'] }}"
+                                                    data-modifier="{{ item['damage'] }}"
+                                                    {%endif%}
+                                                    class="item-name clickable-div" onclick="showToast(this,'Dice Roll')">{{ item['name'] }}
                                                 </td>
                                                 <td class="text-end">
                                                     <button class="btn btn-primary m-1" type="button"
