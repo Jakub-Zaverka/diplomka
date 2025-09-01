@@ -47,7 +47,7 @@
                         <div class="bg-light row shadow ">
                             {% set bonus = ((character[item["name"]] - 10) / 2)|int %}
                             <div class="col-2 px-4 px-md-2 px-lg-4 px-sm-3 clickable_div" data-modifier="{{ bonus }}"
-                                onclick="showToast(this,'Dice Roll')">
+                                onclick="showToast(this,'Dice Roll {{ item[" name"] }}')">
                                 <div class="row">
                                     <p class="h3 my-0 mx-1">
 
@@ -64,14 +64,16 @@
                             </div>
                             <div class="col-10 align-self-center">
                                 <p class="h3 w-100 word-wrap: break-word px-3">{{ item["name"] }}</p>
-                                <p class="h6 px-3 clickable_div">
-                                    {% set stat_prof_bonus = proficiencies.get(item["name"] | lower, 0) %}
-                                    {% if stat_prof_bonus == 2 %}
-                                    {% set stat_prof_bonus_value = prof_bonus%}
-                                    {%else%}
-                                    {% set stat_prof_bonus_value = 0 %}
-                                    {%endif%}
-                                    {% set bonus = ((character[item["name"]] - 10) / 2) + stat_prof_bonus_value | int %}
+                                {% set stat_prof_bonus = proficiencies.get(item["name"] | lower, 0) %}
+                                {% if stat_prof_bonus == 2 %}
+                                {% set stat_prof_bonus_value = prof_bonus%}
+                                {%else%}
+                                {% set stat_prof_bonus_value = 0 %}
+                                {%endif%}
+                                {% set bonus = (((character[item["name"]] - 10) / 2) + stat_prof_bonus_value) | int %}
+
+                                <p class="h6 px-3 clickable_div" data-modifier="{{ bonus }}"" onclick="
+                                    showToast(this,'Dice Roll {{ item["name"] }} Saving Throw')">
                                     {% if bonus >= 0 %}
                                     +{{ bonus }}
                                     {% else %}
@@ -88,6 +90,7 @@
                     <div class="row">
                         <div class="bg-light row shadow">
                             <p style="height: 100px;" class="h3 w-100 text-nowrap px-3">Dice Rolls?</p>
+                            <input onblur="stringDiceRoll(this.value)">
                         </div>
                     </div>
                 </div>
@@ -105,7 +108,8 @@
                 {% set level = proficiencies.get(skill_key, 1) %}
                 <div class="bg-light row shadow px-2">
                     {% set bonus = (((character[atribute["name"]] - 10) / 2) + prof_bonus*(level-1))|int %}
-                    <div class="col-1 clickable_div px-0" data-modifier="{{ bonus }}" onclick="showToast(this,'Dice Roll')">
+                    <div class="col-1 clickable_div px-0" data-modifier="{{ bonus }}"
+                        onclick="showToast(this,'Dice Roll {{ item[" name"] }}')">
                         <div class="row">
                             <p class="h5 my-0">
                                 {% if bonus >= 0 %}
@@ -157,7 +161,7 @@
                         <div class="d-flex justify-content-between text-center gap-2 flex-wrap">
                             <div class="flex-fill  p-2 ">
                                 <p class="h2 mb-0 clickable_div" data-modifier="{{
-                                    character['initiative']}}" onclick="showToast(this,'Dice Roll')">{{
+                                    character['initiative']}}" onclick="showToast(this,'Dice Roll initiative')">{{
                                     character['initiative']}}</p>
                                 <p class="h5">Initiative</p>
                             </div>
@@ -246,19 +250,19 @@
                                         <button class="btn btn-primary m-1"
                                             id="{{ feature['UUID'] }}">UseAbility</button>
                                         {% endif %}
-                                        {% if feature["charges"] is not none %}
-                                        {% set current_charger = feature["charges"] %}
-                                        {% else %}
-                                        {% set current_charger = 0 %}
-                                        {% endif %}
-                                        {% for i in range (0, current_charger) %}
+
+                                        {% set current_charger = feature["charges"] | int if feature["charges"] is not
+                                        none else 0 %}
+
+                                        {% for i in range(0, current_charger) %}
                                         <div class="form-check form-check-inline m-0 p-0 ps-4">
                                             <input class="form-check-input" type="checkbox"
                                                 id="{{ feature['UUID'] }}_{{ i+1 }}" value="" onchange="charges(this)"
                                                 checked>
                                         </div>
                                         {% endfor %}
-                                        {% for i in range (current_charger, feature["max_charges"]) %}
+
+                                        {% for i in range(current_charger, feature["max_charges"] | int) %}
                                         <div class="form-check form-check-inline m-0 p-0 ps-4">
                                             <input class="form-check-input" type="checkbox"
                                                 id="{{ feature['UUID'] }}_{{ i+1 }}" value="" onchange="charges(this)">
@@ -335,7 +339,7 @@
                                         <td>{{ spell["level"] }}</td>
                                         <td>{{ spell["name"] }}</td>
                                         <td>{{ spell["range"] }}</td>
-                                        <td>{{ spell["damage"] }} {{ spell["damage_type"] | capitalize}}</td>
+                                        <td data-damage="{{ spell['damage'] }}" onclick="showToast(this,'Dice Roll {{ spell['name'] }}')">{{ spell["damage"] }} {{ spell["damage_type"] | capitalize}}</td>
                                         <td><button class="btn btn-primary m-1" type="button" data-bs-toggle="collapse"
                                                 data-bs-target="#Collapse{{ spell['UUID'] }}" aria-expanded="false"
                                                 aria-controls="#Collapse{{ spell['UUID'] }}">
@@ -394,12 +398,16 @@
                                                     <p class="mb-0">{{ ("%.2f"|format(
                                                         item['count'])).rstrip('0').rstrip('.')}}</p>
                                                 </td>
-                                                <td data-id="{{ item['UUID'] }}" {% if damage is not none %}
-                                                    data-damage="{{ item['damage'] }}"
+                                                <td data-id="{{ item['UUID'] }}" {% if item.get('damage') %}
+                                                    data-damage="{{ item['damage'] }}" {% set damage_mods=[] %} {% for
+                                                    mod in item['damage_modifier'] %} {% set
+                                                    _=damage_mods.append(character[mod]) %} {% endfor %} {% set
+                                                    bonus=((damage_mods|max - 10) / 2) | int %}
                                                     data-damage_modifier="{{ item['damage_modifier'] }}"
-                                                    data-modifier="{{ item['damage'] }}"
-                                                    {%endif%}
-                                                    class="item-name clickable-div" onclick="showToast(this,'Dice Roll')">{{ item['name'] }}
+                                                    data-modifier="{{ bonus }}" {% endif %}
+                                                    class="item-name clickable-div"
+                                                    onclick="showToast(this,'Dice Roll {{ item['name'] }}')">
+                                                    {{ item['name'] }}
                                                 </td>
                                                 <td class="text-end">
                                                     <button class="btn btn-primary m-1" type="button"
@@ -464,11 +472,18 @@
                                                     <p class="mb-0">{{ ("%.2f"|format(
                                                         item['count'])).rstrip('0').rstrip('.')}}</p>
                                                 </td>
-                                                <td data-id="{{ item['UUID'] }}" {% if damage is not none %}
-                                                    data-damage="{{ item['damage']}}"
-                                                    data-modifier="{{ item['damage_modifier']}}" {%endif%}
-                                                    class="item-name">{{ item['name'] }}
+                                                <td data-id="{{ item['UUID'] }}" {% if item.get('damage') %}
+                                                    data-damage="{{ item['damage'] }}" {% set damage_mods=[] %} {% for
+                                                    mod in item['damage_modifier'] %} {% set
+                                                    _=damage_mods.append(character[mod]) %} {% endfor %} {% set
+                                                    bonus=((damage_mods|max - 10) / 2) | int %}
+                                                    data-damage_modifier="{{ item['damage_modifier'] }}"
+                                                    data-modifier="{{ bonus }}" {% endif %}
+                                                    class="item-name clickable-div"
+                                                    onclick="showToast(this,'Dice Roll {{ item['name'] }}')">
+                                                    {{ item['name'] }}
                                                 </td>
+
                                                 <td class="text-end">
                                                     <button class="btn btn-primary m-1" type="button"
                                                         data-bs-toggle="collapse"
@@ -634,7 +649,7 @@
     <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
 
 
-    <input onblur="stringDiceRoll(this.value)">
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"

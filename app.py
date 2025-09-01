@@ -245,7 +245,7 @@ def sheet(char_id):
 
     # Načti postavu - pokud neexistuje nebo jí nepatří, vrať chybu
     char = db.execute("SELECT * FROM characters WHERE char_id = ? AND user_id = ?",(char_id, current_user.id)).fetchone()
-    print(char["char_class"])
+    
     if char is None:
         return "Postava nebyla nalezena nebo ti nepatří", 404
 
@@ -529,8 +529,21 @@ def inventory_api():
 
     # gear_dict = { item["UUID"]: item for item in data_page_template["items"] }
     gear_dict = {item["UUID"]: item for item in data_page_template["items"]}
+    
+    
+    char_stats = db.execute("SELECT strength,dexterity,constitution,intelligence,wisdom,charisma FROM characters WHERE char_id = ? AND user_id = ?",(session.get("current_character_id"), current_user.id)).fetchone()
 
     inventory_list = []
+    for row in rows:
+        gear_item = gear_dict.get(row["item_id"], {})
+
+        # výpočet bonusu pro vybavení
+        bonus = None
+        if gear_item.get("damage") and gear_item.get("damage_modifier"):
+            damage_mods = [char_stats[mod] for mod in gear_item["damage_modifier"] if mod in char_stats.keys()]
+            if damage_mods:  # aby nespadlo, když je prázdný list
+                bonus = int((max(damage_mods) - 10) / 2)
+
     for row in rows:
         gear_item = gear_dict.get(row["item_id"], {})
         inventory_list.append({
@@ -541,7 +554,8 @@ def inventory_api():
             "description": gear_item.get("description", ""),
             "damage": gear_item.get("damage"),
             "damage_modifier":gear_item.get("damage_modifier"),
-            "damage_type": gear_item.get("damage_type")
+            "damage_type": gear_item.get("damage_type"),
+            "bonus": bonus
         })
 
         #TODO: OPravit situaci, kdy nefunguje změna počtu, když uživatel má equiped item

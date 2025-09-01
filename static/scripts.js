@@ -134,13 +134,14 @@ function refreshInventory(result) {
                 <td>
                     <p class="mb-0">${item.count}</p>
                 </td>
-                <td data-id="${item.UUID}" class="item-name">${item.name}</td>
+                <td data-id="${item.UUID}" ${item.damage ? `data-damage="${item.damage}" data-modifier="${item.bonus}"` : ""} class="item-name clickable-div"
+                    onclick="showToast(this,'Dice Roll ${item.name}')">
+                    ${item.name}
+                </td>
                 <td class="text-end">
                     <button class="btn btn-primary m-1" type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#Collapse${item.UUID}"
-                        data-damage="${item.damage}"
-                        data-modifier="${item.damage_modifier}"
                         aria-expanded="false"
                         aria-controls="Collapse${item.UUID}">
                         Info
@@ -615,7 +616,7 @@ function refreshSpells(result) {
                 <td>${spell.level}</td>
                 <td>${spell.name}</td>
                 <td>${spell.range}</td>
-                <td>${spell.damage || ""} ${spell.damage_type || ""}</td>
+                <td data-damage=${spell.damage} onclick="showToast(this,'Dice Roll ${spell.name}')">${spell.damage || ""} ${spell.damage_type || ""}</td>
                 <td>
                     <button class="btn btn-primary m-1" type="button"
                         data-bs-toggle="collapse"
@@ -692,7 +693,8 @@ function stringDiceRoll(string) {
 // Toast funkce pro Dice Rolls
 function showToast(element, title = 'Heading') {
     const toastContainer = document.getElementById('toastContainer');
-    modifier = element.getAttribute('data-modifier')
+    modifier = element.getAttribute('data-modifier') || '0'
+    dice = element.getAttribute('data-damage') || '1d20'
     // vytvoření toastu
     const toastEl = document.createElement('div');
     toastEl.className = 'toast align-items-center';
@@ -705,8 +707,7 @@ function showToast(element, title = 'Heading') {
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body">
-            
-            Random Roll: ${stringDiceRoll('1d20+' + modifier)} (1d20+${modifier})
+            Random Roll: ${modifier == "0" ? `${stringDiceRoll(dice)} (${dice})` : `${stringDiceRoll(dice + '+' + modifier)} (${dice}+${modifier})`}
         </div>
         `;
 
