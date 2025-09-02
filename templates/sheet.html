@@ -246,13 +246,20 @@
                                             aria-controls="Collapse{{ feature['UUID'] }}">^</button>
                                     </div>
                                     <div class="d-flex" id="{{ feature['UUID'] }}_div">
-                                        {% if feature["max_charges"] != 0 %}
-                                        <button class="btn btn-primary m-1"
-                                            id="{{ feature['UUID'] }}">UseAbility</button>
-                                        {% endif %}
-
                                         {% set current_charger = feature["charges"] | int if feature["charges"] is not
                                         none else 0 %}
+                                        
+                                        {% if feature["max_charges"] != 0 and current_charger != 0 %}
+                                        <button class="btn btn-primary m-1"
+                                            id="{{ feature['UUID'] }}" onclick="useFeature(this)">UseAbility</button>
+                                        {% endif %}
+                                        {% if feature["max_charges"] != 0 and current_charger == 0 %}
+                                        <button class="btn btn-primary m-1"
+                                            id="{{ feature['UUID'] }}" disabled onclick="useFeature(this)">UseAbility</button>
+                                        {% endif %}
+                                        
+
+                                        
 
                                         {% for i in range(0, current_charger) %}
                                         <div class="form-check form-check-inline m-0 p-0 ps-4">

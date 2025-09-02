@@ -382,68 +382,7 @@ function deleteChar(button) {
 }
 
 
-// Tracking charges jednotlivých features
-function charges(input) {
-    // id formátu: "<UUID>_<index>"
-    const parts = input.id.split("_");
-    const baseId = parts[0];
-    // -1 kvůli opravě po přidání i+1 do html u ID
-    const index = parseInt(parts[1], 10) - 1;
 
-    const container = document.getElementById(baseId + "_div");
-    if (!container) return;
-
-    const checkboxes = Array.from(container.querySelectorAll('input[type="checkbox"]'));
-
-    if (!input.checked) {
-        // klik na zaškrtnutý → zjisti, jestli za ním jsou další zaškrtnuté
-        const hasCheckedAfter = checkboxes.slice(index + 1).some(cb => cb.checked);
-
-        if (hasCheckedAfter) {
-            // odklikni všechny za ním
-            checkboxes.forEach((cb, i) => {
-                if (i > index) cb.checked = false;
-            });
-            input.checked = true; // kliknutý zůstane zapnutý
-        } else {
-            // byl poslední → vypni i ten
-            input.checked = false;
-        }
-    } else {
-        // klik na nezaškrtnutý → zapni vše do indexu
-        checkboxes.forEach((cb, i) => {
-            if (i <= index) cb.checked = true;
-        });
-    }
-
-    console.log(parts[1])
-    console.log(!input.checked)
-    if (parts[1] == "1" && !input.checked) {
-        parts[1] = "0"
-    }
-
-    console.log(parts)
-    fetch("/api/charges", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            id: parts[0],
-            value: parts[1]
-        })
-    })
-        .then(resp => resp.json())
-        .then(result => {
-            if (result.status !== "OK") {
-                alert("Chyba při ukládání dovednosti");
-            }
-        })
-        .catch(error => {
-            console.error(error);
-            alert("Chyba připojení");
-        });
-}
 
 
 // Testing class
@@ -726,4 +665,75 @@ function validateForm() {
         alert("Name must be filled out");
         return false;
     }
+}
+
+
+// nastaví UI podle nextCount
+function applyCharges(container, nextCount) {
+  const checkboxes = Array.from(container.querySelectorAll('input[type="checkbox"]'));
+  checkboxes.forEach((cb, i) => { cb.checked = i < nextCount; });
+
+  // Najdi tlačítko v parent containeru a disable, pokud není charge
+  const button = container.querySelector("button");
+  if (button) {
+    button.disabled = nextCount === 0;
+  }
+
+  return nextCount;
+}
+
+// pošli na backend
+function postCharges(baseId, nextCount) {
+  return fetch("/api/charges", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: baseId, value: nextCount }) // číslo, ne string
+  });
+}
+
+// ruční klik na checkbox
+function charges(input) {
+  const [baseId, idx1] = input.id.split("_");
+  const container = document.getElementById(baseId + "_div");
+  if (!container) return;
+
+  const index = parseInt(idx1, 10) - 1;
+  const nextCount = input.checked ? (index + 1) : index;
+
+  applyCharges(container, nextCount);
+
+  postCharges(baseId, nextCount)
+    .then(r => r.json())
+    .then(result => {
+      if (result.status !== "OK") alert("Chyba při ukládání dovednosti");
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Chyba připojení");
+    });
+}
+
+// Odebrání 1 charge přes tlačítko "UseAbility"
+function useFeature(button) {
+  const parent = button.parentNode;
+  const checkboxes = parent.querySelectorAll('input[type="checkbox"]');
+  if (!checkboxes.length) return;
+
+  const baseId = checkboxes[0].id.split("_")[0];
+  const container = document.getElementById(baseId + "_div");
+
+  const remaining = Array.from(checkboxes).filter(cb => cb.checked).length;
+  const nextCount = Math.max(0, remaining - 1);
+
+  applyCharges(container, nextCount);
+
+  postCharges(baseId, nextCount)
+    .then(r => r.json())
+    .then(result => {
+      if (result.status !== "OK") alert("Chyba při ukládání dovednosti");
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Chyba připojení");
+    });
 }

@@ -594,7 +594,9 @@ def charges():
         "SELECT 1 FROM features WHERE char_id = ? AND feature_id = ?",(session.get("current_character_id"), data["id"])).fetchone()
 
     if existing:
-        if value == "0":
+        #TODO: Fix
+        # ducktape fix pro mizející záznamy, když uživatel odebere všechny charges, systém mu pak dá po resetu stránky všechny zpět
+        if value == "0" and (True == False):
             db.execute("DELETE FROM features WHERE char_id = ? AND feature_id = ?", (session.get("current_character_id"), data["id"]))
         else:
             db.execute("UPDATE features SET current_charges = ? WHERE char_id = ? AND feature_id = ?",
