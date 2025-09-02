@@ -10,6 +10,9 @@ import copy
 import ttrpg
 import data_loader
 import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 global debug
 debug = False
@@ -19,7 +22,7 @@ debug = False
 #https://chatgpt.com/share/687f540c-97a0-8000-854e-98c5d7e180ff
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'tajny-klic'
+app.config['SECRET_KEY'] = os.getenv("FLASK_CONFIG_SECRET")
 DATABASE = 'main.db'
 
 # ---------- Flask-Login Setup ----------
