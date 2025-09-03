@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, g, session, flash
+from flask import Flask, render_template, request, redirect, g, session, flash, jsonify
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
@@ -11,19 +11,21 @@ import ttrpg
 import data_loader
 import datetime
 from dotenv import load_dotenv
+from openai import OpenAI
 
 load_dotenv()
 
 global debug
 debug = False
 
-#test
-
-#https://chatgpt.com/share/687f540c-97a0-8000-854e-98c5d7e180ff
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv("FLASK_CONFIG_SECRET")
 DATABASE = 'main.db'
+
+# Inicializace klienta OPENAI
+client = OpenAI()
+
 
 # ---------- Flask-Login Setup ----------
 login_manager = LoginManager()
@@ -211,6 +213,7 @@ def login():
         flash("Neplatné přihlašovací údaje!", "danger")
         return redirect('/login')
 
+    
     return render_template('login.html')
 
 # ---------- Odhlášení ----------
@@ -383,7 +386,10 @@ def create_new():
     return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders_class, player_races = folders_race)
 
 
-
+@app.route('/chat')
+@login_required
+def chat_test():
+    return render_template('chat.html')
 
 # ---------- API Endpoints ----------
 # ---------- test ----------
@@ -673,7 +679,69 @@ def spell_api():
 
     return {"status": "OK", "spells": spells_list}
 
-# ---------- Vytvoření dynamické stránky ----------
+
+# ---------- API chat s AI ----------
+@login_required
+@app.route("/send_message", methods=["POST"])
+def send_message():
+    user_message = request.json.get("message", "")
+
+    # 1) Pošleme dotaz uživatele do AI s definovanými tools
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": f"Aktuálně je přihlášen uživatel s ID={current_user.id}."},
+            {"role": "user", "content": user_message}
+        ],
+        tools=tools
+    )
+
+    tool_calls = response.choices[0].message.tool_calls
+
+    # 2) Zkontrolujeme, jestli AI chce volat funkci
+    if tool_calls:
+        for call in tool_calls:
+            if call.function.name == "get_characters":
+                args = json.loads(call.function.arguments)
+                user_id = args.get("user_id", 1)
+
+                # Zavoláme naši Python funkci
+                with app.app_context():
+                    characters = get_characters(user_id)
+
+                # Připravíme výsledek pro AI
+                result_message = {
+                    "role": "tool",
+                    "tool_call_id": call.id,
+                    "content": json.dumps({"characters": characters})
+                }
+
+                # 3) Druhé volání AI s výsledkem funkce
+                final_response = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": f"Aktuálně je přihlášen uživatel s ID={current_user.id}."},
+                        {"role": "user", "content": user_message},
+                        response.choices[0].message,
+                        result_message
+                    ],
+                    tools=tools
+                )
+
+                ai_reply = final_response.choices[0].message.content
+                return jsonify({"reply": ai_reply})
+
+    # Pokud AI žádnou funkci nevolá, vrátíme normální odpověď
+    ai_reply = response.choices[0].message.content
+    return jsonify({"reply": ai_reply})
+
+
+
+
+
+# -----------------------------
+#  Tvorba dynamické stránky
+# -----------------------------
 #Atributes and skills
 with open("data/stats.json","r") as f:
     data_json = f.read()
@@ -714,6 +782,112 @@ folders_race = os.listdir(path="data/race")
 
 
 
+
+
+# -----------------------------
+#  Definice funkcí pro AI
+# -----------------------------
+def get_characters(user_id: int = 1):
+    """
+    Načte ze SQLite databáze všechny živé postavy konkrétního uživatele.
+    Vrací seznam jmen postav.
+    """
+    db = get_db()  # získáme připojení k databázi (funkce get_db už máš hotovou)
+    rows = db.execute(
+        "SELECT * FROM characters WHERE user_id = ? AND status = 'Alive'",
+        (user_id,)
+    ).fetchall()
+    
+    # Vrátíme jen jména (AI nepotřebuje celou tabulku)
+    return [row["name"] for row in rows]
+
+# -----------------------------
+#  Definice tools pro AI
+# -----------------------------
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_characters",  # název musí sedět s Python funkcí
+            "description": "Vrátí všechny živé postavy aktuálního uživatele (pokud user_id není uveden, použije se 1).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "integer",
+                        "description": "ID uživatele (pokud není zadáno, použije se 1)"
+                    }
+                }
+            }
+        }
+    }
+]
+
+# if call_AI:
+# # -----------------------------
+# # 3) První volání AI - Zde se uživatel ptá co potřebuje
+# # -----------------------------
+#     response = client.chat.completions.create(
+#         model="gpt-4o-mini",
+#         messages=[
+#             {"role": "system", "content": "Aktuálně je přihlášen uživatel s ID=1."},
+#             {"role": "user", "content": "Jaké mám postavy?"}
+#         ],
+#         tools=tools
+#     )
+
+#     # Debug: vypiš, co AI poslala
+#     print("=== První odpověď AI ===")
+#     print(response.choices[0].message)
+
+#     # Z odpovědi AI získáme tool_calls
+#     tool_calls = response.choices[0].message.tool_calls
+
+#     # -----------------------------
+#     # 4) Pokud AI zavolalo funkci
+#     # -----------------------------
+#     if tool_calls:
+#         for call in tool_calls:
+#             if call.function.name == "get_characters":
+#                 # AI navrhla zavolat naši funkci → vezmeme argumenty
+#                 args = json.loads(call.function.arguments)
+
+#                 # Použijeme user_id pokud je k dispozici, jinak default = 1
+#                 user_id = args.get("user_id", 1)
+
+#                 # Spustíme naši Python funkci → získáme seznam postav z DB
+#                 with app.app_context():
+#                     characters = get_characters(user_id)
+
+#                 # Výsledek musíme poslat zpět do modelu jako "tool" zprávu
+#                 result_message = {
+#                     "role": "tool",
+#                     "tool_call_id": call.id,  # propojí odpověď s voláním funkce
+#                     "content": json.dumps({"characters": characters})
+#                 }
+
+#                 # -----------------------------
+#                 # 5) Druhé volání AI s výsledkem
+#                 # -----------------------------
+#                 final_response = client.chat.completions.create(
+#                     model="gpt-4o-mini",
+#                     messages=[
+#                         {"role": "system", "content": "Aktuálně je přihlášen uživatel s ID=1."},
+#                         {"role": "user", "content": "Jaké mám postavy?"},
+#                         response.choices[0].message,  # odpověď AI s návrhem zavolat funkci
+#                         result_message                # výsledek naší funkce
+#                     ],
+#                     tools=tools
+#                 )
+
+#                 # Debug: finální odpověď
+#                 print("=== Finální odpověď AI ===")
+#                 print(final_response.choices[0].message.content)
+#     else:
+#         print("AI nezavolala žádnou funkci.")
+
+
+
 # print(data_page_template)
 
 
@@ -721,6 +895,3 @@ folders_race = os.listdir(path="data/race")
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
-
-
-

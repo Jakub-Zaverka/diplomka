@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chat s AI</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='custom.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- pro AJAX -->
+    <style>
+        /* tady můžeš ponechat svůj CSS styl z template */
+    </style>
+</head>
+
+<body>
+    <div class="d-flex justify-content-center container mt-5">
+        <div class="wrapper">
+            <div class="main">
+                <div class="px-2 scroll" id="chat-box">
+                    <!-- Zprávy se budou přidávat sem -->
+                </div>
+                <nav class="navbar bg-white navbar-expand-sm d-flex justify-content-between">
+                    <input type="text" id="user-input" class="form-control" placeholder="Type a message...">
+                    <div class="icondiv d-flex justify-content-end align-content-center text-center ml-2">
+                        <i class="fa fa-paperclip icon1"></i>
+                        <i class="fa fa-arrow-circle-right icon2" id="send-btn"></i>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+<script>
+$(document).ready(function() {
+    function addMessage(text, sender) {
+        let html = '';
+        if(sender === 'user') {
+            html = `
+            <div class="d-flex align-items-center text-right justify-content-end ">
+                <div class="pr-2"> <span class="name">You</span>
+                    <p class="msg">${text}</p>
+                </div>
+                <div><img src="https://i.imgur.com/HpF4BFG.jpg" width="30" class="img1" /></div>
+            </div>`;
+        } else {
+            html = `
+            <div class="d-flex align-items-center">
+                <div class="text-left pr-1"><img src="https://img.icons8.com/color/40/000000/guest-female.png" width="30" class="img1" /></div>
+                <div class="pr-2 pl-1"> <span class="name">AI</span>
+                    <p class="msg">${text}</p>
+                </div>
+            </div>`;
+        }
+        $('#chat-box').append(html);
+        $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
+    }
+
+    function sendMessage() {
+        let message = $('#user-input').val().trim();
+        if(message === '') return;
+
+        addMessage(message, 'user');
+        $('#user-input').val('');
+
+        $.ajax({
+            url: "/send_message",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({message: message}),
+            success: function(data) {
+                addMessage(data.reply, 'ai');
+            },
+            error: function() {
+                addMessage("Error contacting AI.", 'ai');
+            }
+        });
+    }
+
+    $('#send-btn').click(sendMessage);
+    $('#user-input').keypress(function(e) {
+        if(e.which === 13) sendMessage(); // enter key
+    });
+});
+</script>
+
+</body>
+</html>
