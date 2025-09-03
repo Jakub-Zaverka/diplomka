@@ -686,7 +686,7 @@ def spell_api():
 def send_message():
     user_message = request.json.get("message", "")
 
-    # 1) Pošleme dotaz uživatele do AI s definovanými tools
+    # 1) Pošle dotaz uživatele do AI s definovanými tools
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -698,25 +698,25 @@ def send_message():
 
     tool_calls = response.choices[0].message.tool_calls
 
-    # 2) Zkontrolujeme, jestli AI chce volat funkci
+    # 2) Zkontroluje, jestli AI chce volat funkci
     if tool_calls:
         for call in tool_calls:
             if call.function.name == "get_characters":
-                args = json.loads(call.function.arguments)
-                user_id = args.get("user_id", 1)
+                # args = json.loads(call.function.arguments)
+                # user_id = args.get("user_id", 1)
 
-                # Zavoláme naši Python funkci
+                # Zavoláme  Python funkci
                 with app.app_context():
-                    characters = get_characters(user_id)
+                    characters = get_characters(current_user.id)
 
-                # Připravíme výsledek pro AI
+                # Připraví výsledek pro AI
                 result_message = {
                     "role": "tool",
                     "tool_call_id": call.id,
                     "content": json.dumps({"characters": characters})
                 }
 
-                # 3) Druhé volání AI s výsledkem funkce
+                # 3) Druhé volání AI s výsledkem funkce pro human-like response
                 final_response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
@@ -731,7 +731,7 @@ def send_message():
                 ai_reply = final_response.choices[0].message.content
                 return jsonify({"reply": ai_reply})
 
-    # Pokud AI žádnou funkci nevolá, vrátíme normální odpověď
+    # Pokud AI žádnou funkci nevolá, vrátíme normální odpověď, jako kdyby uživatel prostě promptival AI
     ai_reply = response.choices[0].message.content
     return jsonify({"reply": ai_reply})
 
