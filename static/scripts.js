@@ -1,3 +1,7 @@
+//------------------------------------
+// Edit mode
+//------------------------------------
+
 // Used for redirecting user between edit mode and normal sheet due to the need of argument in the url
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".edit-button").forEach(button => {
@@ -13,12 +17,14 @@ document.addEventListener("DOMContentLoaded", function () {
 //------------------------------------
 // Inventory
 //------------------------------------
+
 // Uloží aktuální stav checkboxů (UUID -> true/false)
 let lastState = {};
 
-// Uloží aktuální stav všech checkboxů + množství
+// Uloží aktuální stav všech checkboxů + množství, aby bylo možné předejít posílání duplikátů napříč znovunačtením stránky
 function saveChanges() {
     lastState = {};
+    //vybere všechny tr v edit-table, které nemají .collapse
     document.querySelectorAll('#edit-table tbody > tr:not(.collapse)').forEach(row => {
         const uuidCell = row.querySelector("td[data-id]");
         const checkbox = row.querySelector('input[type="checkbox"]');
@@ -78,7 +84,7 @@ function refreshInventory(result) {
     const equippedTable = document.getElementById("equipped-table");
     const inventoryTable = document.getElementById("inventory-table");
 
-    // smažeme staré položky, ale necháme první řádek s tlačítkem "Edit Inventory"
+    // smaže staré položky, ale nechá první řádek s tlačítkem "Edit Inventory"
     equippedTable.querySelectorAll("tbody").forEach(tbody => tbody.remove());
     inventoryTable.querySelectorAll("tbody").forEach((tbody, i) => {
         if (i > 0) tbody.remove();
@@ -128,7 +134,6 @@ function refreshInventory(result) {
 
 
 // Finální Volaná Funkce pro Změnu Inventory
-
 function getInventoryChanges() {
     const changes = getChanges();
     console.log("Added:", changes.checked);
@@ -248,6 +253,7 @@ document.addEventListener("DOMContentLoaded", function () {
 //------------------------------------
 // Řeší funcionalitu healthbaru a komunikaci s db
 //------------------------------------
+
 // TODO: Upravit ideálně na jedno volání funkce
 function updateHealtbar(max) {
     let hp_element = document.getElementById("hp")
@@ -277,6 +283,7 @@ function updateHealtbar(max) {
 //------------------------------------
 // univerzální update z inputu a odeslání na univerzální /api/stats endpoint, TODO: použít pro více funkcí
 //------------------------------------
+
 function updateFromInput(input) {
     const url = "/api/stats";
     const value = input.value;
@@ -300,6 +307,7 @@ function updateFromInput(input) {
 //------------------------------------
 // Update jedné dovednosti a poslání na endpoint
 //------------------------------------
+
 function updateSkill(id, value) {
     fetch("/api/skills", {
         method: "POST",
@@ -325,6 +333,7 @@ function updateSkill(id, value) {
 //------------------------------------
 // Delete Character
 //------------------------------------
+
 function deleteChar(button) {
     id = button.id
     tr = document.getElementById(id + "_tr")
@@ -398,8 +407,9 @@ function search_table() {
 
 
 //------------------------------------
-// Spells
+// Spells - funguje obdobně jako inventory
 //------------------------------------
+
 // Uloží stav spells zvlášť od inventáře
 let lastSpellState = {};
 
@@ -542,7 +552,8 @@ function refreshSpells(result) {
 //------------------------------------
 // Dice Rolls
 //------------------------------------
-// javascript nemá normální Random funkci
+
+// javascript nemá normální Random funkci, takže jsem si ji vytvořil
 function generateRandomInteger(min, max) {
     return Math.floor(min + Math.random() * (max - min + 1))
 }
@@ -619,6 +630,7 @@ function showToast(element, title = 'Heading') {
 //------------------------------------
 // Form Validation
 //------------------------------------
+
 function validateForm() {
     let username = document.forms["login-form"]["uname"];
     if (x == "") {
@@ -630,6 +642,7 @@ function validateForm() {
 //------------------------------------
 // Feature charges tracking
 //------------------------------------
+
 // nastaví UI podle nextCount
 function applyCharges(container, nextCount) {
   const checkboxes = Array.from(container.querySelectorAll('input[type="checkbox"]'));
@@ -701,3 +714,4 @@ function useFeature(button) {
     });
 
 }
+
