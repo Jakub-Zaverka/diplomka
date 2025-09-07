@@ -176,6 +176,7 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 char_id INTEGER NOT NULL,
                 feat_id STRING NOT NULL,
+                level INTEGER NOT NULL,
                 FOREIGN KEY (char_id) REFERENCES characters(char_id)
             )
         ''')
@@ -446,6 +447,53 @@ def stats_api():
     return {"status": "OK", "received": data}
 
 # ----- API Feats
+
+@login_required
+@app.route('/api/feats', methods=['POST'])
+def feats_api():
+    data = request.get_json()
+    db = get_db()
+
+    char_id = session.get("current_character_id")
+
+    feat_id = data.get("id")
+    level = int(data.get("level", 0))
+
+    if feat_id is None:
+        return {"status": "error", "message": "Chybí ID"}, 400
+
+    # Pokud je hodnota 0 smaž záznam pro daný level
+    if feat_id == "0" or feat_id == 0:
+        db.execute(
+            "DELETE FROM feats WHERE char_id = ? AND level = ?",
+            (char_id, level)
+        )
+    else:
+        # Nejprve update
+        result = db.execute(
+            "UPDATE feats SET feat_id = ? WHERE char_id = ? AND level = ?",
+            (feat_id, char_id, level)
+        )
+        # Pokud žádný řádek neexistoval, vložit nový
+        if result.rowcount == 0:
+            db.execute(
+                "INSERT INTO feats (char_id, feat_id, level) VALUES (?, ?, ?)",
+                (char_id, feat_id, level)
+            )
+
+    db.commit()
+
+    # vrať aktuální seznam featů
+    # rows = db.execute(
+    #     "SELECT feat_id, level FROM feats WHERE char_id = ?",
+    #     (char_id,)
+    # ).fetchall()
+
+    # feats_list = [{"id": row["feat_id"], "level": row["level"]} for row in rows]
+
+    # return {"status": "OK", "feats": feats_list}
+    return {"status": "OK"}
+
 
 
 # ---------- API Skills ----------

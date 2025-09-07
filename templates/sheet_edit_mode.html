@@ -220,8 +220,8 @@
                         <div>
                             <p>Origin Feat</p>
                             <select id="origin_select" class="form-select bg-primary"
-                                aria-label="Class select">
-                                <option selected>Select Feat</option>
+                                aria-label="Feat select" onchange="postFeat(this)" data-level="0">
+                                <option selected value="0">Select Feat</option>
                                 {% for item in data_page_template["feats"].values() %}
                                 {%if item['type']=='origin'%}
                                 <option value="{{ item['UUID'] }}">{{ item['name'] | capitalize}}</option>
@@ -232,8 +232,8 @@
                         <div>
                             <p>Level 4 Feat</p>
                             <select id="origin_select" class="form-select bg-primary"
-                                aria-label="Class select">
-                                <option selected>Select Feat</option>
+                                aria-label="Feat select" onchange="postFeat(this)" data-level="4">
+                                <option selected value="0">Select Feat</option>
                                 {% for item in data_page_template["feats"].values() %}
                                 {%if item['type'] != 'epic'%}
                                 <option value="{{ item['UUID'] }}">{{ item['name'] | capitalize}}</option>
@@ -244,8 +244,8 @@
                         <div>
                             <p>Level 8 Feat</p>
                             <select id="origin_select" class="form-select bg-primary"
-                                aria-label="Class select">
-                                <option selected>Select Feat</option>
+                                aria-label="Feat select" onchange="postFeat(this)" data-level="8">
+                                <option selected value="0">Select Feat</option>
                                 {% for item in data_page_template["feats"].values() %}
                                 {%if item['type'] != 'epic'%}
                                 <option value="{{ item['UUID'] }}">{{ item['name'] | capitalize}}</option>
@@ -256,8 +256,8 @@
                         <div>
                             <p>Level 12 Feat</p>
                             <select id="origin_select" class="form-select bg-primary"
-                                aria-label="Class select">
-                                <option selected>Select Feat</option>
+                                aria-label="Feat select" onchange="postFeat(this)" data-level="12">
+                                <option selected value="0">Select Feat</option>
                                 {% for item in data_page_template["feats"].values() %}
                                 {%if item['type'] != 'epic'%}
                                 <option value="{{ item['UUID'] }}">{{ item['name'] | capitalize}}</option>
@@ -268,8 +268,8 @@
                         <div>
                             <p>Level 16 Feat</p>
                             <select id="origin_select" class="form-select bg-primary"
-                                aria-label="Class select">
-                                <option selected>Select Feat</option>
+                                aria-label="Feat select" onchange="postFeat(this)" data-level="16">
+                                <option selected value="0">Select Feat</option>
                                 {% for item in data_page_template["feats"].values() %}
                                 {%if item['type'] != 'epic'%}
                                 <option value="{{ item['UUID'] }}">{{ item['name'] | capitalize}}</option>
@@ -280,8 +280,8 @@
                         <div>
                             <p>Level 19 Feat/Epic Boon</p>
                             <select id="origin_select" class="form-select bg-primary"
-                                aria-label="Class select">
-                                <option selected>Select Feat</option>
+                                aria-label="Feat select" onchange="postFeat(this)" data-level="19">
+                                <option selected value="0">Select Feat</option>
                                 {% for item in data_page_template["feats"].values() %}
                                 <option value="{{ item['UUID'] }}">{{ item['name'] | capitalize}}</option>
                                 {% endfor %}
