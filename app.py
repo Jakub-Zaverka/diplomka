@@ -121,6 +121,7 @@ def init_db():
                 hit_die INTEGER DEFAULT 10,
                 initiative INTEGER DEFAULT 10, 
                 level INTEGER DEFAULT 10,
+                speed INTEGER DEFAULT 30,
                 char_class TEXT DEFAULT None,
                 char_subclass TEXT DEFAULT None,
                 char_race TEXT DEFAULT None,
@@ -134,7 +135,7 @@ def init_db():
             CREATE TABLE inventory (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 char_id INTEGER NOT NULL,
-                item_id INTEGER NOT NULL,
+                item_id STRING NOT NULL,
                 count FLOAT NOT NULL,
                 equipped INTEGER DEFAULT 0,
                 FOREIGN KEY (char_id) REFERENCES characters(char_id)
@@ -145,7 +146,7 @@ def init_db():
             CREATE TABLE spells (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 char_id INTEGER NOT NULL,
-                spell_id INTEGER NOT NULL,
+                spell_id STRING NOT NULL,
                 FOREIGN KEY (char_id) REFERENCES characters(char_id)
             )
         ''')
@@ -164,8 +165,17 @@ def init_db():
             CREATE TABLE features (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 char_id INTEGER NOT NULL,
-                feature_id INTEGER NOT NULL,
+                feature_id STRING NOT NULL,
                 current_charges INTEGER NOT NULL,
+                FOREIGN KEY (char_id) REFERENCES characters(char_id)
+            )
+        ''')
+
+        db.execute('''
+            CREATE TABLE feats (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                char_id INTEGER NOT NULL,
+                feat_id STRING NOT NULL,
                 FOREIGN KEY (char_id) REFERENCES characters(char_id)
             )
         ''')
@@ -434,6 +444,9 @@ def stats_api():
     # ttrpg.set_features(features,char)
 
     return {"status": "OK", "received": data}
+
+# ----- API Feats
+
 
 # ---------- API Skills ----------
 VALID_SKILLS = {
@@ -778,8 +791,12 @@ folders_class = os.listdir(path="data/class")
 folders_race = os.listdir(path="data/race")
 
 
-
-
+#Feats
+with open("data/feats/feats.json","r") as f:
+    data_json = f.read()
+    feats = json.loads(data_json)
+    feats_dict = {item["UUID"]: item for item in feats}
+    data_page_template["feats"] = feats_dict
 
 
 

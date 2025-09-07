@@ -199,12 +199,13 @@
                                 </div>
                                 <div class="col">
                                     <label for="char_subclass" class="form-label">Subclass</label>
-                                    <input id="char_subclass" type="text" class="form-control auto_update_stats bg-primary"
+                                    <input id="char_subclass" type="text"
+                                        class="form-control auto_update_stats bg-primary"
                                         value="{{ character.char_subclass }}">
                                 </div>
                                 <div class="col">
-                                    <label for="speed" class="form-label">TODO:Move Speed</label>
-                                    <input id="speed" type="text" class="form-control bg-primary" placeholder="Speed">
+                                    <label for="speed" class="form-label">Move Speed</label>
+                                    <input id="speed" type="text" class="form-control bg-primary" value="{{ character.speed }}">
                                 </div>
                             </div>
                         </form>
@@ -212,6 +213,79 @@
                         <div class="col-2 align-content-center">
                             <button class="edit-button btn btn-warning p-1"
                                 data-url="{{ url_for('sheet', char_id=character['char_id']) }}">Exit Edit Mode</button>
+                        </div>
+                    </div>
+                    <!-- Feats -->
+                    <div>
+                        <div>
+                            <p>Origin Feat</p>
+                            <select id="origin_select" class="form-select bg-primary"
+                                aria-label="Class select">
+                                <option selected>Select Feat</option>
+                                {% for item in data_page_template["feats"].values() %}
+                                {%if item['type']=='origin'%}
+                                <option value="{{ item['UUID'] }}">{{ item['name'] | capitalize}}</option>
+                                {%endif%}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <p>Level 4 Feat</p>
+                            <select id="origin_select" class="form-select bg-primary"
+                                aria-label="Class select">
+                                <option selected>Select Feat</option>
+                                {% for item in data_page_template["feats"].values() %}
+                                {%if item['type'] != 'epic'%}
+                                <option value="{{ item['UUID'] }}">{{ item['name'] | capitalize}}</option>
+                                {%endif%}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <p>Level 8 Feat</p>
+                            <select id="origin_select" class="form-select bg-primary"
+                                aria-label="Class select">
+                                <option selected>Select Feat</option>
+                                {% for item in data_page_template["feats"].values() %}
+                                {%if item['type'] != 'epic'%}
+                                <option value="{{ item['UUID'] }}">{{ item['name'] | capitalize}}</option>
+                                {%endif%}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <p>Level 12 Feat</p>
+                            <select id="origin_select" class="form-select bg-primary"
+                                aria-label="Class select">
+                                <option selected>Select Feat</option>
+                                {% for item in data_page_template["feats"].values() %}
+                                {%if item['type'] != 'epic'%}
+                                <option value="{{ item['UUID'] }}">{{ item['name'] | capitalize}}</option>
+                                {%endif%}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <p>Level 16 Feat</p>
+                            <select id="origin_select" class="form-select bg-primary"
+                                aria-label="Class select">
+                                <option selected>Select Feat</option>
+                                {% for item in data_page_template["feats"].values() %}
+                                {%if item['type'] != 'epic'%}
+                                <option value="{{ item['UUID'] }}">{{ item['name'] | capitalize}}</option>
+                                {%endif%}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <p>Level 19 Feat/Epic Boon</p>
+                            <select id="origin_select" class="form-select bg-primary"
+                                aria-label="Class select">
+                                <option selected>Select Feat</option>
+                                {% for item in data_page_template["feats"].values() %}
+                                <option value="{{ item['UUID'] }}">{{ item['name'] | capitalize}}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                     </div>
                 </div>
