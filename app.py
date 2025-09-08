@@ -390,14 +390,19 @@ def create_new():
     # print(f"Session: {session["current_character_id"]}")
     char = db.execute("""SELECT * FROM characters WHERE char_id = ? """, (char_id,)).fetchone()
     prof = db.execute("SELECT skill_name, proficiency_level FROM character_skills WHERE char_id = ?",(char_id,)).fetchall()
+    known_feats = db.execute("SELECT * FROM feats WHERE char_id = ?", (char_id,)).fetchall()
+
 
     # Vytvoření slovníku pro hledání následně v šabloně
     proficiencies_dict = {
     row["skill_name"].lower(): row["proficiency_level"]
     for row in prof
     }
+
+    known_feats_by_level = {row["level"]: row["feat_id"] for row in known_feats}
+
     
-    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders_class, player_races = folders_race)
+    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders_class, player_races = folders_race, known_feats = known_feats_by_level)
 
 
 @app.route('/chat')
