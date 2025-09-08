@@ -640,7 +640,22 @@ function showToast(element, title = 'Heading') {
     toastEl.role = 'alert';
     toastEl.ariaLive = 'assertive';
     toastEl.ariaAtomic = 'true';
-    toastEl.innerHTML = `
+    //Jestli je k dispozici damage die, tak se jedná o damage roll a je potřeba i udělat attack roll
+    if(element.getAttribute('data-damage')){
+        toastEl.innerHTML = `
+        <div class="toast-header">
+            <strong class="me-auto">${title}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            Attack Roll: ${modifier == "0" ? `${stringDiceRoll('1d20')} (${'1d20'})` : `${stringDiceRoll('1d20' + '+' + modifier)} (${'1d20'}+${modifier})`}<br>
+            Damage Roll: ${modifier == "0" ? `${stringDiceRoll(dice)} (${dice})` : `${stringDiceRoll(dice + '+' + modifier)} (${dice}+${modifier})`}
+        </div>
+        `;
+    }
+    //Jestli neni k dispozici damage die, tak se jedná o náhodný jiný roll a žádný jiný se nedělá
+    else{
+        toastEl.innerHTML = `
         <div class="toast-header">
             <strong class="me-auto">${title}</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -649,6 +664,8 @@ function showToast(element, title = 'Heading') {
             Random Roll: ${modifier == "0" ? `${stringDiceRoll(dice)} (${dice})` : `${stringDiceRoll(dice + '+' + modifier)} (${dice}+${modifier})`}
         </div>
         `;
+    }
+    
 
     toastContainer.appendChild(toastEl);
 
