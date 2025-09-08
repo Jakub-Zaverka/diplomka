@@ -354,6 +354,7 @@ def sheet_edit_mode(char_id):
     db = get_db()
     char = db.execute("SELECT * FROM characters WHERE char_id = ? AND user_id = ?",(char_id, current_user.id)).fetchone()
     prof = db.execute("SELECT skill_name, proficiency_level FROM character_skills WHERE char_id = ?",(char_id,)).fetchall()
+    known_feats = db.execute("SELECT * FROM feats WHERE char_id = ?", (char_id,)).fetchall()
 
     # Vytvoření slovníku pro hledání následně v šabloně
     proficiencies_dict = {
@@ -361,11 +362,13 @@ def sheet_edit_mode(char_id):
     for row in prof
     }
 
+    known_feats_by_level = {row["level"]: row["feat_id"] for row in known_feats}
+
 
     if char is None:
         return "Postava nebyla nalezena nebo ti nepatří"
 
-    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders_class, player_races = folders_race)
+    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders_class, player_races = folders_race, known_feats = known_feats_by_level)
 
 
 # ---------- Create new Character ----------
