@@ -278,7 +278,7 @@ def sheet(char_id):
 
 
     # features - aktuální stav (předpokládám, že feature_name odpovídá name v JSONu)
-    feat_db = db.execute("SELECT feature_id, current_charges FROM features WHERE char_id = ?",(char_id,)).fetchall()
+    features_db = db.execute("SELECT feature_id, current_charges FROM features WHERE char_id = ?",(char_id,)).fetchall()
 
     # --- Deep copy šablony (aby zůstala čistá pro ostatní requesty) -----
     page_template = copy.deepcopy(data_page_template)
@@ -294,7 +294,7 @@ def sheet(char_id):
 
     # Klíčujeme feature podle feature uuid (feature_id) - musí odpovídat fieldu "uuid" v JSONu
     feature_data_dict = {
-        row["feature_id"]: row["current_charges"] for row in feat_db
+        row["feature_id"]: row["current_charges"] for row in features_db
     }
 
     # --- Aktualizace položek (items) -------------------------------------
@@ -329,6 +329,15 @@ def sheet(char_id):
 
     #Race
     page_template = data_loader.load_category("race", "traits", char["char_race"], char, page_template)
+
+    #Feats
+    feats_db = db.execute("SELECT * FROM feats WHERE char_id = ?",(char_id,)).fetchall()
+    character_feats = [row["feat_id"] for row in feats_db]
+    for feat_id, feat_data in page_template.get("feats", {}).items():
+        if feat_id in character_feats:
+            feat_data["known"] = True
+        else:
+            feat_data["known"] = False
 
     # --- Výpočet ostatních hodnot ---
     bonus = ttrpg.get_proficiency_bonus(char["level"])

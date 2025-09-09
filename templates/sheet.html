@@ -285,8 +285,33 @@
                             </div>
                             {% endif %}
                             {% endfor %}
+                            <!-- Feats -->
+                            
+                            {% for feat in data_page_template["feats"].values() %}
+                            {# Nebudou se zobrazovat ASI mezi features #}
+                            {% if feat["known"] and feat["UUID"] != "3ec881a9-fbc5-4bf0-aa48-b6ada0bbfea0" %}
+                            <div class="card" style="width: auto;">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title m-1">{{ feat["name"] }}</h5>
+                                        
+                                        <button class="btn btn-outline-primary m-1" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#Collapse{{ feat['UUID'] }}"
+                                            aria-expanded="false" aria-controls="Collapse{{ feat['UUID'] }}">^</button>
+                                    </div>
+                                    
+                                    <div class="collapse mt-2" id="Collapse{{ feat['UUID'] }}">
+                                        <div class="card card-body">
+                                            {{ feat["description"] }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                            <!-- Racial Traits -->
                             {% for trait in traits %}
-                            {% if trait["known"] %}
+                            {% if trait["known"]%}
                             <div class="card" style="width: auto;">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center">
