@@ -13,11 +13,16 @@ import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
 
-load_dotenv()
+
 
 global debug
 debug = False
 
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# ---------- Inicializace ----------
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#načtení enviromental variables
+load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv("FLASK_CONFIG_SECRET")
@@ -66,6 +71,7 @@ class Chararacter():
 
 
 # ---------- Database connection ----------
+# pro práci s db je potřeba app.context
 def get_db():
     if 'db' not in g:
         g.db = sqlite3.connect(DATABASE)
@@ -186,6 +192,10 @@ def init_db():
 
 
 
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# ---------- App Routes ----------
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 # ---------- Registrace ----------
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -201,6 +211,7 @@ def register():
             db.commit()
             return redirect('/login')
         except sqlite3.IntegrityError:
+            # Flask umožnuje použít lepší podobu Alertu v podobě FLash, který se následně dá v jinja2 vypsat při znovunačtení stránky, proto je uživatel redirected zpět na stránku register.html
             flash("Uživatelské jméno či email je již používáno", "danger")
     return render_template('register.html')
 
@@ -220,11 +231,9 @@ def login():
             login_user(user_obj)
             return redirect('/dashboard')
 
-        # místo return textu → flash message
+        # flash message jako u registrace
         flash("Neplatné přihlašovací údaje!", "danger")
         return redirect('/login')
-
-    
     return render_template('login.html')
 
 # ---------- Odhlášení ----------
@@ -238,13 +247,11 @@ def logout():
 @login_required
 def dashboard():
     db = get_db()
-    if debug:
-        db.execute("INSERT INTO characters (user_id, name) VALUES (?, ?)", (current_user.id, f"testChar{random.randint(0,10)}"))
     rows = db.execute("SELECT * FROM characters WHERE user_id = ? AND status = 'Alive'", (current_user.id,)).fetchall()
     db.commit()
     return render_template('dashboard.html', data=rows, username=current_user.username)
 
-# ---------- Dashboard ----------
+# ---------- User Info ----------
 @app.route('/user_info')
 @login_required
 def user_info():
@@ -253,14 +260,12 @@ def user_info():
     return render_template('user_info.html', data=rows, user=current_user)
 
 # ---------- Sheet ----------
-
-
 @app.route("/sheet/<int:char_id>")
 @login_required
 def sheet(char_id):
     db = get_db()
 
-    # Načti postavu - pokud neexistuje nebo jí nepatří, vrať chybu
+    # Načti postavu - pokud neexistuje nebo uživateli nepatří, vrať chybu
     char = db.execute("SELECT * FROM characters WHERE char_id = ? AND user_id = ?",(char_id, current_user.id)).fetchone()
     
     if char is None:
@@ -269,21 +274,26 @@ def sheet(char_id):
     # Uložíme do session aktuální char
     session["current_character_id"] = char_id
 
-    # --- Načtení dat z DB -------------------------------------------------
-    # inventář (item_id, count, equipped)
+    # --- Načtení dat z DB a jejich párování s data_page_template-------------------------------------------------
+    # ----Načtení dat z DB-----
+    # inventář
     items = db.execute("SELECT item_id, count, equipped FROM inventory WHERE char_id = ?",(char_id,)).fetchall()
 
     # dovednosti
     prof = db.execute("SELECT skill_name, proficiency_level FROM character_skills WHERE char_id = ?",(char_id,)).fetchall()
 
-
     # features - aktuální stav (předpokládám, že feature_name odpovídá name v JSONu)
     features_db = db.execute("SELECT feature_id, current_charges FROM features WHERE char_id = ?",(char_id,)).fetchall()
 
+    
     # --- Deep copy šablony (aby zůstala čistá pro ostatní requesty) -----
     page_template = copy.deepcopy(data_page_template)
 
+    
     # --- Převod DB resultů na dicty pro rychlý lookup --------------------
+    # vše se klíčuje podle UUID, pouze skills ho nemají, takže ty se klíčují podle jména
+    # TODO: Přesunou tento krok do základního běhu programu, aby se to nemuselo dít při každém volání /sheet funkce
+    
     proficiencies_dict = {
         row["skill_name"].lower(): row["proficiency_level"] for row in prof
     }
@@ -292,7 +302,6 @@ def sheet(char_id):
         row["item_id"]: {"count": row["count"], "equipped": row["equipped"]} for row in items
     }
 
-    # Klíčujeme feature podle feature uuid (feature_id) - musí odpovídat fieldu "uuid" v JSONu
     feature_data_dict = {
         row["feature_id"]: row["current_charges"] for row in features_db
     }
@@ -314,7 +323,8 @@ def sheet(char_id):
     #Features
     page_template = data_loader.load_category("class", "features", char["char_class"], char, page_template, feature_data_dict)
 
-    #Spells
+    # Spells byly dělány pozdeji, takže jsou udělány jinak než zbytek
+    # Spells
     row_character_spells = db.execute("SELECT spell_id FROM spells WHERE char_id = ?",(char_id,)).fetchall()
 
     # vyrobíme list samotných spell_id hodnot
@@ -327,8 +337,9 @@ def sheet(char_id):
             spell_data["checked"] = False
     pass
 
-    #Race
+    #Race - bylo přesunuto do vlastního modulu data_loader.py
     page_template = data_loader.load_category("race", "traits", char["char_race"], char, page_template)
+
 
     #Feats
     feats_db = db.execute("SELECT * FROM feats WHERE char_id = ?",(char_id,)).fetchall()
@@ -338,6 +349,7 @@ def sheet(char_id):
             feat_data["known"] = True
         else:
             feat_data["known"] = False
+
 
     # --- Výpočet ostatních hodnot ---
     bonus = ttrpg.get_proficiency_bonus(char["level"])
@@ -419,17 +431,15 @@ def create_new():
 def chat_test():
     return render_template('chat.html')
 
+
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # ---------- API Endpoints ----------
-# ---------- test ----------
-
-# @app.route('/api/test', methods=['POST'])
-# def test_api():
-#     data = request.get_json()
-#     print(data)
-#     return {"status": "OK", "received": data}
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
+#--------------------------------------------
 # ---------- API delete character ----------
+#--------------------------------------------
 @login_required
 @app.route('/api/delete', methods=['POST'])
 def delete_char():
@@ -442,7 +452,9 @@ def delete_char():
 
     return {"status": "OK", "received": data}
 
+#------------------------------------
 # ---------- API Stats ----------
+#------------------------------------
 @login_required
 @app.route('/api/stats', methods=['POST'])
 def stats_api():
@@ -463,8 +475,12 @@ def stats_api():
 
     return {"status": "OK", "received": data}
 
-# ----- API Feats
 
+
+#------------------------------------
+# ---------- API Skills -------------
+#------------------------------------
+# ----- API Feats
 @login_required
 @app.route('/api/feats', methods=['POST'])
 def feats_api():
@@ -563,31 +579,9 @@ def skills_api():
     return {"status": "OK", "received": data}
 
 
-
-# @login_required
-# @app.route('/api/inventory', methods=['POST'])
-# def inventory_api():
-#     data = request.get_json()
-#     # print(data)
-#     db = get_db()
-#     for item in data["items"]:
-#         row = db.execute("SELECT * FROM inventory WHERE char_id = ? AND item_id = ?",(session.get("current_character_id"), item["UUID"])).fetchone()
-        
-        
-#         #Jestli záznam existuje, tak ho pouze upravím
-#         if row:
-#             print(f"Nalezeno: {row}")
-#             db.execute('UPDATE inventory SET count = ? WHERE char_id = ? AND item_id = ?',(item["amount"], session.get("current_character_id"),item["UUID"]))
-#         #Jinak vytvořím nový
-#         else:
-#             db.execute("INSERT INTO inventory (char_id, item_id, count, equipped) VALUES (?, ?, ?, ?)", (session.get("current_character_id"), item["UUID"], item["amount"], 0))
-#             print(f"Nenalezeno pro item: {item['UUID']}")
-#         db.commit()
-    
-#     return {"status": "OK", "received": data}
-
+#------------------------------------
 # ---------- API Inventory ----------
-
+#------------------------------------
 @login_required
 @app.route('/api/inventory', methods=['POST'])
 def inventory_api():
@@ -648,9 +642,10 @@ def inventory_api():
         #TODO: OPravit situaci, kdy nefunguje změna počtu, když uživatel má equiped item
 
     return {"status": "OK", "inventory": inventory_list}
-
-# ---------- API Inventory Equipped Status ----------
-
+    
+#----------------------------------------------------
+#---------- API Inventory Equipped Status ----------
+#----------------------------------------------------
 @login_required
 @app.route('/api/inventory_equipped', methods=['POST'])
 def inventory_equipped_api():
@@ -665,8 +660,9 @@ def inventory_equipped_api():
     db.commit()
     return {"status": "OK", "received": data}
 
+#---------------------------------------------------
 # ---------- API Features Charges Tracking ----------
-
+#----------------------------------------------------
 @login_required
 @app.route('/api/charges', methods=['POST'])
 def charges():
@@ -699,17 +695,11 @@ def charges():
     return {"status": "OK", "received": data}
 
 
-# @app.route('/api/get_db', methods=['POST'])
-# def get_db_items():
-#     data = request.get_json()
-#     print(data)
-#     result = next((item for item in gear_items if item['UUID'] == uuid), None)
-#     print(result)
 
-#     return {"status": "OK", "received": result}
 
-# ---------- API Spells ----------
-
+#------------------------------------
+#---------- API Spells ----------
+#------------------------------------
 @login_required
 @app.route('/api/spells', methods=['POST'])
 def spell_api():
@@ -757,8 +747,9 @@ def spell_api():
 
     return {"status": "OK", "spells": spells_list}
 
-
+#------------------------------------
 # ---------- API chat s AI ----------
+#------------------------------------
 @login_required
 @app.route("/send_message", methods=["POST"])
 def send_message():
@@ -834,14 +825,17 @@ def send_message():
 
 
 # -----------------------------
-#  Tvorba dynamické stránky
+#  Načtení dat pro tvorbu dynamické stránky
+#  Data se ukládají do Dict data_page_template
+#  Při jednotlivých přístupů do ní se pak tvoří deep copy aby se data nepřepisovala pro jiné uživatele
 # -----------------------------
-#Atributes and skills
+
+# Načtení Atributes and skills
 with open("data/stats.json","r") as f:
     data_json = f.read()
     data_page_template = json.loads(data_json)
 
-#Items
+#Načtení Items
 with open("data/items/gear.json","r") as f:
     data_json = f.read()
     gear_items = json.loads(data_json)
@@ -854,7 +848,7 @@ with open("data/items/gear.json","r") as f:
 gear_list = data_page_template["items"]
 gear_dict = {item["UUID"]: item for item in gear_list}
 
-#Spells
+#Načtení Spells
 with open("data/items/spells.json","r") as f:
     data_json = f.read()
     spells = json.loads(data_json)
@@ -862,11 +856,10 @@ with open("data/items/spells.json","r") as f:
     spells_dict = {item["UUID"]: item for item in spells}
     data_page_template["spells"] = spells_dict
     pass
-# print(data_page_template["spells"]["3119226a-b092-4d83-9f8d-ef00a11ba471"])
-# print(data_page_template["spells"]["6bc1291e-5fd8-44ba-a8e8-43eee559b101"])
+
 
 # dostupné classes a races
-# Předpokládá se, že každá dostupná class/povolání bude mít vlastní složku, ve které bude levelmap, kdy postava dostane jednotlivé schopnosti a features, obsahující 
+# Předpokládá se, že každá dostupná class/povolání a race bude mít vlastní složku, ve které bude levelmap, kdy postava dostane jednotlivé schopnosti a features, obsahující 
 # bližší info o jednotlivých možnostech
 folders_class = os.listdir(path="data/class")
 folders_race = os.listdir(path="data/race")
@@ -958,75 +951,10 @@ tools = [
     }
 ]
 
-# if call_AI:
-# # -----------------------------
-# # 3) První volání AI - Zde se uživatel ptá co potřebuje
-# # -----------------------------
-#     response = client.chat.completions.create(
-#         model="gpt-4o-mini",
-#         messages=[
-#             {"role": "system", "content": "Aktuálně je přihlášen uživatel s ID=1."},
-#             {"role": "user", "content": "Jaké mám postavy?"}
-#         ],
-#         tools=tools
-#     )
 
-#     # Debug: vypiš, co AI poslala
-#     print("=== První odpověď AI ===")
-#     print(response.choices[0].message)
-
-#     # Z odpovědi AI získáme tool_calls
-#     tool_calls = response.choices[0].message.tool_calls
-
-#     # -----------------------------
-#     # 4) Pokud AI zavolalo funkci
-#     # -----------------------------
-#     if tool_calls:
-#         for call in tool_calls:
-#             if call.function.name == "get_characters":
-#                 # AI navrhla zavolat naši funkci → vezmeme argumenty
-#                 args = json.loads(call.function.arguments)
-
-#                 # Použijeme user_id pokud je k dispozici, jinak default = 1
-#                 user_id = args.get("user_id", 1)
-
-#                 # Spustíme naši Python funkci → získáme seznam postav z DB
-#                 with app.app_context():
-#                     characters = get_characters(user_id)
-
-#                 # Výsledek musíme poslat zpět do modelu jako "tool" zprávu
-#                 result_message = {
-#                     "role": "tool",
-#                     "tool_call_id": call.id,  # propojí odpověď s voláním funkce
-#                     "content": json.dumps({"characters": characters})
-#                 }
-
-#                 # -----------------------------
-#                 # 5) Druhé volání AI s výsledkem
-#                 # -----------------------------
-#                 final_response = client.chat.completions.create(
-#                     model="gpt-4o-mini",
-#                     messages=[
-#                         {"role": "system", "content": "Aktuálně je přihlášen uživatel s ID=1."},
-#                         {"role": "user", "content": "Jaké mám postavy?"},
-#                         response.choices[0].message,  # odpověď AI s návrhem zavolat funkci
-#                         result_message                # výsledek naší funkce
-#                     ],
-#                     tools=tools
-#                 )
-
-#                 # Debug: finální odpověď
-#                 print("=== Finální odpověď AI ===")
-#                 print(final_response.choices[0].message.content)
-#     else:
-#         print("AI nezavolala žádnou funkci.")
-
-
-
-# print(data_page_template)
-
-
+#------------------------------------
 # ---------- Spuštění ----------
+#------------------------------------
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)

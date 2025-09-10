@@ -1,3 +1,7 @@
+//------------------------------------
+// Edit mode
+//------------------------------------
+
 // Used for redirecting user between edit mode and normal sheet due to the need of argument in the url
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".edit-button").forEach(button => {
@@ -8,54 +12,19 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// Adding items to Inventory
-// function getInventoryData() {
-//     const tableRows = document.querySelectorAll('#inventoryModal table tbody tr');
-//     const data = [];
-//     const url = "/api/inventory";
 
-//     tableRows.forEach(row => {
-//         const amountInput = row.querySelector('input[type="text"], input:not([type])'); // množství
-//         const nameCell = row.querySelectorAll('td')[0]; // název itemu
-//         const checkbox = row.querySelector('input[type="checkbox"]');
 
-//         if (checkbox && checkbox.checked) {
-//             const item = {
-//                 amount: amountInput?.value?.trim() || '',
-//                 UUID: nameCell?.dataset.id
-//             };
-//             data.push(item);
-//         }
-//     });
-
-//     fetch(url, {
-//         method: "POST",
-//         headers: {
-//             "Content-Type": "application/json"
-//         },
-//         body: JSON.stringify({ items: data }) // pošle pole položek jako "items"
-//     })
-//         .then(response => {
-//             if (!response.ok) {
-//                 throw new Error(`HTTP error! status: ${response.status}`);
-//             }
-//             return response.json();
-//         })
-//         .then(result => {
-//             console.log("Úspěšně odesláno:", result);
-//         })
-//         .catch(error => {
-//             console.error("Chyba při odesílání dat:", error);
-//         });
-// }
-
+//------------------------------------
+// Inventory
+//------------------------------------
 
 // Uloží aktuální stav checkboxů (UUID -> true/false)
 let lastState = {};
 
-// Uloží aktuální stav všech checkboxů + množství
+// Uloží aktuální stav všech checkboxů + množství, aby bylo možné předejít posílání duplikátů napříč znovunačtením stránky
 function saveChanges() {
     lastState = {};
+    //vybere všechny tr v edit-table, které nemají .collapse
     document.querySelectorAll('#edit-table tbody > tr:not(.collapse)').forEach(row => {
         const uuidCell = row.querySelector("td[data-id]");
         const checkbox = row.querySelector('input[type="checkbox"]');
@@ -115,7 +84,7 @@ function refreshInventory(result) {
     const equippedTable = document.getElementById("equipped-table");
     const inventoryTable = document.getElementById("inventory-table");
 
-    // smažeme staré položky, ale necháme první řádek s tlačítkem "Edit Inventory"
+    // smaže staré položky, ale nechá první řádek s tlačítkem "Edit Inventory"
     equippedTable.querySelectorAll("tbody").forEach(tbody => tbody.remove());
     inventoryTable.querySelectorAll("tbody").forEach((tbody, i) => {
         if (i > 0) tbody.remove();
@@ -165,7 +134,6 @@ function refreshInventory(result) {
 
 
 // Finální Volaná Funkce pro Změnu Inventory
-
 function getInventoryChanges() {
     const changes = getChanges();
     console.log("Added:", changes.checked);
@@ -252,9 +220,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
+//------------------------------------
+// Auto updating stats, AC, a prakticky cokoliv, kam lze dát class .auto_update_stats do DB
+//------------------------------------
 
-// Auto updating stats in the DB,
-// TODO: Adapt to other parts of sheet, like name, AC class and so on
 document.addEventListener("DOMContentLoaded", function () {
     // vybere úplně všechny elementy s danou class
     document.querySelectorAll(".auto_update_stats").forEach(element => {
@@ -281,7 +250,10 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+//------------------------------------
 // Řeší funcionalitu healthbaru a komunikaci s db
+//------------------------------------
+
 // TODO: Upravit ideálně na jedno volání funkce
 function updateHealtbar(max) {
     let hp_element = document.getElementById("hp")
@@ -308,7 +280,10 @@ function updateHealtbar(max) {
 }
 
 
+//------------------------------------
 // univerzální update z inputu a odeslání na univerzální /api/stats endpoint, TODO: použít pro více funkcí
+//------------------------------------
+
 function updateFromInput(input) {
     const url = "/api/stats";
     const value = input.value;
@@ -329,8 +304,10 @@ function updateFromInput(input) {
         });
 };
 
-
+//------------------------------------
 // Update jedné dovednosti a poslání na endpoint
+//------------------------------------
+
 function updateSkill(id, value) {
     fetch("/api/skills", {
         method: "POST",
@@ -353,6 +330,9 @@ function updateSkill(id, value) {
             alert("Chyba připojení");
         });
 }
+//------------------------------------
+// Delete Character
+//------------------------------------
 
 function deleteChar(button) {
     id = button.id
@@ -385,32 +365,10 @@ function deleteChar(button) {
 
 
 
-// Testing class
-// document.addEventListener("DOMContentLoaded", function () {
-//     document.querySelectorAll(".post").forEach(button => {
-//         button.addEventListener("click", () => {
-//             const url = "/api/test";
-//             console.log("URL:", url)
-
-//             fetch(url, {
-//                 method: "POST",
-//                 headers: {
-//                     "Content-Type": "application/json"
-//                 },
-//                 body: JSON.stringify({ message: "Edit request from JS" })
-//             })
-//                 .then(response => response.json())
-//                 .then(data => {
-//                     console.log("Odpověď serveru:", data);
-//                     // Můžeš tady třeba přesměrovat dál nebo aktualizovat stránku
-//                 })
-//                 .catch(error => console.error("Chyba při POST požadavku:", error));
-//         });
-//     });
-// });
-
-
+//------------------------------------
 // Search in table
+//------------------------------------
+
 // TODO:Udělat lepší search napříč všemi polemi - poslední až funguje, protože přepíše ty předcházející
 function search_table() {
     // Declare variables
@@ -448,8 +406,10 @@ function search_table() {
 
 
 
+//------------------------------------
+// Spells - funguje obdobně jako inventory
+//------------------------------------
 
-// Spells
 // Uloží stav spells zvlášť od inventáře
 let lastSpellState = {};
 
@@ -545,10 +505,10 @@ function refreshSpells(result) {
     const spellTable = document.querySelector("#nav-spells table tbody");
     if (!spellTable) return; // bezpečnostní pojistka
 
-    // smažeme všechny řádky
+    // smaže všechny řádky
     spellTable.querySelectorAll("tr").forEach(row => row.remove());
 
-    // přidáme kouzla z backendu
+    // přidá kouzla z backendu
     result.spells.forEach(spell => {
         spellTable.insertAdjacentHTML("beforeend", `
             <tr>
@@ -588,17 +548,24 @@ function refreshSpells(result) {
     `);
 }
 
-// javascript nemá normální Random funkci
+
+//------------------------------------
+// Dice Rolls
+//------------------------------------
+
+// javascript nemá normální Random funkci, takže jsem si ji vytvořil
 function generateRandomInteger(min, max) {
     return Math.floor(min + Math.random() * (max - min + 1))
 }
+
+
 // Dice Roll - old and not used
-function randomRoll(number, die = 20, modifier = 0) {
+/*function randomRoll(number, die = 20, modifier = 0) {
     rand = generateRandomInteger(number, die)
     modInt = parseInt(modifier)
     sum = rand + modInt
     return sum
-}
+}*/
 
 //Dice Roll From String
 //4d4+1d6+1
@@ -632,6 +599,7 @@ function stringDiceRoll(string) {
 // Toast funkce pro Dice Rolls
 function showToast(element = null, title = 'Heading') {
     const toastContainer = document.getElementById('toastContainer');
+
 
     // Defaultní hodnoty
     let modifier = "0";
@@ -689,6 +657,9 @@ function showToast(element = null, title = 'Heading') {
 }
 
 
+//------------------------------------
+// Form Validation
+//------------------------------------
 
 function validateForm() {
     let username = document.forms["login-form"]["uname"];
@@ -698,6 +669,9 @@ function validateForm() {
     }
 }
 
+//------------------------------------
+// Feature charges tracking
+//------------------------------------
 
 // nastaví UI podle nextCount
 function applyCharges(container, nextCount) {
@@ -746,15 +720,18 @@ function charges(input) {
 
 // Odebrání 1 charge přes tlačítko "UseAbility"
 function useFeature(button) {
-    const parent = button.parentNode;
-    const checkboxes = parent.querySelectorAll('input[type="checkbox"]');
-    if (!checkboxes.length) return;
 
-    const baseId = checkboxes[0].id.split("_")[0];
-    const container = document.getElementById(baseId + "_div");
+  const parent = button.parentNode;
+  const checkboxes = parent.querySelectorAll('input[type="checkbox"]');
+  if (!checkboxes.length) return;
+    
+    // ID checkboxes jsou psané ve tvaru UUID feature_číslo
+  const baseId = checkboxes[0].id.split("_")[0];
+  const container = document.getElementById(baseId + "_div");
 
-    const remaining = Array.from(checkboxes).filter(cb => cb.checked).length;
-    const nextCount = Math.max(0, remaining - 1);
+  const remaining = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
+  const nextCount = Math.max(0, remaining - 1);
+
 
     applyCharges(container, nextCount);
 
@@ -768,6 +745,7 @@ function useFeature(button) {
             alert("Chyba připojení");
         });
 }
+
 
 
 // Feats
@@ -879,7 +857,6 @@ $(document).ready(function () {
             sendMessage();
         }
     });
+
 });
-
-
 
