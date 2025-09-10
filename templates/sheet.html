@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static',filename='custom.css') }}">
 
     <link rel="stylesheet" href="{{ url_for('static',filename='styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> <!-- Jquery pro AJAX pro AI chat-->
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </head>
 
@@ -224,6 +225,8 @@
                             aria-selected="false">Inventory</button>
                         <button class="nav-link" id="nav-notes-tab" data-bs-toggle="tab" data-bs-target="#nav-notes"
                             type="button" role="tab" aria-controls="nav-notes" aria-selected="false">Notes</button>
+                        <button class="nav-link" id="nav-ai-tab" data-bs-toggle="tab" data-bs-target="#nav-ai"
+                            type="button" role="tab" aria-controls="nav-ai" aria-selected="false">AI</button>
                     </div>
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
@@ -248,18 +251,18 @@
                                     <div class="d-flex" id="{{ feature['UUID'] }}_div">
                                         {% set current_charger = feature["charges"] | int if feature["charges"] is not
                                         none else 0 %}
-                                        
+
                                         {% if feature["max_charges"] != 0 and current_charger != 0 %}
-                                        <button class="btn btn-primary m-1"
-                                            id="{{ feature['UUID'] }}" onclick="useFeature(this)">UseAbility</button>
+                                        <button class="btn btn-primary m-1" id="{{ feature['UUID'] }}"
+                                            onclick="useFeature(this)">UseAbility</button>
                                         {% endif %}
                                         {% if feature["max_charges"] != 0 and current_charger == 0 %}
-                                        <button class="btn btn-primary m-1"
-                                            id="{{ feature['UUID'] }}" disabled onclick="useFeature(this)">UseAbility</button>
+                                        <button class="btn btn-primary m-1" id="{{ feature['UUID'] }}" disabled
+                                            onclick="useFeature(this)">UseAbility</button>
                                         {% endif %}
-                                        
 
-                                        
+
+
 
                                         {% for i in range(0, current_charger) %}
                                         <div class="form-check form-check-inline m-0 p-0 ps-4">
@@ -285,8 +288,33 @@
                             </div>
                             {% endif %}
                             {% endfor %}
+                            <!-- Feats -->
+
+                            {% for feat in data_page_template["feats"].values() %}
+                            {# Nebudou se zobrazovat ASI mezi features #}
+                            {% if feat["known"] and feat["UUID"] != "3ec881a9-fbc5-4bf0-aa48-b6ada0bbfea0" %}
+                            <div class="card" style="width: auto;">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title m-1">{{ feat["name"] }}</h5>
+
+                                        <button class="btn btn-outline-primary m-1" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#Collapse{{ feat['UUID'] }}"
+                                            aria-expanded="false" aria-controls="Collapse{{ feat['UUID'] }}">^</button>
+                                    </div>
+
+                                    <div class="collapse mt-2" id="Collapse{{ feat['UUID'] }}">
+                                        <div class="card card-body">
+                                            {{ feat["description"] }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                            <!-- Racial Traits -->
                             {% for trait in traits %}
-                            {% if trait["known"] %}
+                            {% if trait["known"]%}
                             <div class="card" style="width: auto;">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -346,7 +374,9 @@
                                         <td>{{ spell["level"] }}</td>
                                         <td>{{ spell["name"] }}</td>
                                         <td>{{ spell["range"] }}</td>
-                                        <td data-damage="{{ spell['damage'] }}" onclick="showToast(this,'Dice Roll {{ spell['name'] }}')">{{ spell["damage"] }} {{ spell["damage_type"] | capitalize}}</td>
+                                        <td data-damage="{{ spell['damage'] }}"
+                                            onclick="showToast(this,'Dice Roll {{ spell['name'] }}')">{{ spell["damage"]
+                                            }} {{ spell["damage_type"] | capitalize}}</td>
                                         <td><button class="btn btn-primary m-1" type="button" data-bs-toggle="collapse"
                                                 data-bs-target="#Collapse{{ spell['UUID'] }}" aria-expanded="false"
                                                 aria-controls="#Collapse{{ spell['UUID'] }}">
@@ -513,13 +543,31 @@
                             </div>
                         </div>
                     </div>
-
-
                     <!-- Notes -->
                     <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
                         <div>
                             <textarea class="form-control" id="notes" rows="15"
                                 onblur="updateFromInput(this)">{{ character.notes }}</textarea>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="nav-ai" role="tabpanel" aria-labelledby="nav-ai-tab">
+                        <div class="d-flex justify-content-center container mt-5">
+                            <div class="wrapper">
+                                <div class="main">
+                                    <div class="px-2 scroll" id="chat-box">
+                                        <!-- Zprávy se budou přidávat sem -->
+                                    </div>
+                                    <nav class="navbar bg-white navbar-expand-sm d-flex justify-content-between">
+                                        <input type="text" id="user-input" class="form-control"
+                                            placeholder="Type a message...">
+                                        <div
+                                            class="icondiv d-flex justify-content-end align-content-center text-center ml-2">
+                                            <i class="fa fa-paperclip icon1"></i>
+                                            <i class="fa fa-arrow-circle-right icon2" id="send-btn"></i>
+                                        </div>
+                                    </nav>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -661,9 +709,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
         crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
         integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-        crossorigin="anonymous"></script>
+        crossorigin="anonymous"></script> -->
 </body>
 
 </html>

@@ -199,12 +199,14 @@
                                 </div>
                                 <div class="col">
                                     <label for="char_subclass" class="form-label">Subclass</label>
-                                    <input id="char_subclass" type="text" class="form-control auto_update_stats bg-primary"
+                                    <input id="char_subclass" type="text"
+                                        class="form-control auto_update_stats bg-primary"
                                         value="{{ character.char_subclass }}">
                                 </div>
                                 <div class="col">
-                                    <label for="speed" class="form-label">TODO:Move Speed</label>
-                                    <input id="speed" type="text" class="form-control bg-primary" placeholder="Speed">
+                                    <label for="speed" class="form-label">Move Speed</label>
+                                    <input id="speed" type="text" class="form-control auto_update_stats bg-primary"
+                                        value="{{ character.speed }}">
                                 </div>
                             </div>
                         </form>
@@ -213,6 +215,36 @@
                             <button class="edit-button btn btn-warning p-1"
                                 data-url="{{ url_for('sheet', char_id=character['char_id']) }}">Exit Edit Mode</button>
                         </div>
+                    </div>
+                    <!-- Feats -->
+                    {% set feat_levels = [
+                    {'level': 0, 'label': 'Origin Feat', 'filter': 'origin'},
+                    {'level': 4, 'label': 'Level 4 Feat', 'filter': 'non-epic'},
+                    {'level': 8, 'label': 'Level 8 Feat', 'filter': 'non-epic'},
+                    {'level': 12, 'label': 'Level 12 Feat', 'filter': 'non-epic'},
+                    {'level': 16, 'label': 'Level 16 Feat', 'filter': 'non-epic'},
+                    {'level': 19, 'label': 'Level 19 Feat/Epic Boon', 'filter': 'all'}
+                    ] %}
+                    <div>
+                        {% for conf in feat_levels %}
+                        <div>
+                            <p>{{ conf.label }}</p>
+                            <select class="form-select bg-primary" aria-label="Feat select" onchange="postFeat(this)"
+                                data-level="{{ conf.level }}">
+                                <option value="0">Select Feat</option>
+                                {% for item in data_page_template["feats"].values() %}
+                                {% if conf.filter == 'origin' and item['type'] == 'origin'
+                                or conf.filter == 'non-epic' and item['type'] != 'epic'
+                                or conf.filter == 'all' %}
+                                <option value="{{ item['UUID'] }}" {% if known_feats.get(conf.level)==item['UUID']
+                                    %}selected{% endif %}>
+                                    {{ item['name'] | capitalize }}
+                                </option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>

@@ -597,27 +597,57 @@ function stringDiceRoll(string) {
 }
 
 // Toast funkce pro Dice Rolls
-function showToast(element, title = 'Heading') {
+function showToast(element = null, title = 'Heading') {
     const toastContainer = document.getElementById('toastContainer');
-    // V data-modifier je +číslo modifier
-    // V data-damage je damage die
-    modifier = element.getAttribute('data-modifier') || '0'
-    dice = element.getAttribute('data-damage') || '1d20'
-    // vytvoření toastu, prozatím je tvořen Toast jenom pro Dice rolls
+
+
+    // Defaultní hodnoty
+    let modifier = "0";
+    let dice = "1d20";
+
+    // Pokud máme element, načteme atributy
+    if (element) {
+        modifier = element.getAttribute('data-modifier') || '0';
+        dice = element.getAttribute('data-damage') || '1d20';
+    }
+
+    // vytvoření toastu
     const toastEl = document.createElement('div');
     toastEl.className = 'toast align-items-center';
     toastEl.role = 'alert';
     toastEl.ariaLive = 'assertive';
     toastEl.ariaAtomic = 'true';
-    toastEl.innerHTML = `
+
+    if (element && element.getAttribute('data-damage')) {
+        // Damage roll
+        toastEl.innerHTML = `
         <div class="toast-header">
             <strong class="me-auto">${title}</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body">
-            Random Roll: ${modifier == "0" ? `${stringDiceRoll(dice)} (${dice})` : `${stringDiceRoll(dice + '+' + modifier)} (${dice}+${modifier})`}
+            Attack Roll: ${modifier == "0"
+                ? `${stringDiceRoll('1d20')} (1d20)`
+                : `${stringDiceRoll('1d20' + '+' + modifier)} (1d20+${modifier})`}<br>
+            Damage Roll: ${modifier == "0"
+                ? `${stringDiceRoll(dice)} (${dice})`
+                : `${stringDiceRoll(dice + '+' + modifier)} (${dice}+${modifier})`}
         </div>
         `;
+    } else {
+        // Random roll nebo fallback, když není element
+        toastEl.innerHTML = `
+        <div class="toast-header">
+            <strong class="me-auto">${title}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            Random Roll: ${modifier == "0"
+                ? `${stringDiceRoll(dice)} (${dice})`
+                : `${stringDiceRoll(dice + '+' + modifier)} (${dice}+${modifier})`}
+        </div>
+        `;
+    }
 
     toastContainer.appendChild(toastEl);
 
@@ -645,51 +675,52 @@ function validateForm() {
 
 // nastaví UI podle nextCount
 function applyCharges(container, nextCount) {
-  const checkboxes = Array.from(container.querySelectorAll('input[type="checkbox"]'));
-  checkboxes.forEach((cb, i) => { cb.checked = i < nextCount; });
+    const checkboxes = Array.from(container.querySelectorAll('input[type="checkbox"]'));
+    checkboxes.forEach((cb, i) => { cb.checked = i < nextCount; });
 
-  // Najdi tlačítko v parent containeru a disable, pokud není charge
-  const button = container.querySelector("button");
-  if (button) {
-    button.disabled = nextCount === 0;
-  }
+    // Najdi tlačítko v parent containeru a disable, pokud není charge
+    const button = container.querySelector("button");
+    if (button) {
+        button.disabled = nextCount === 0;
+    }
 
-  return nextCount;
+    return nextCount;
 }
 
 // pošli na backend
 function postCharges(baseId, nextCount) {
-  return fetch("/api/charges", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id: baseId, value: nextCount }) // číslo, ne string
-  });
+    return fetch("/api/charges", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: baseId, value: nextCount }) // číslo, ne string
+    });
 }
 
 // ruční klik na checkbox
 function charges(input) {
-  const [baseId, idx1] = input.id.split("_");
-  const container = document.getElementById(baseId + "_div");
-  if (!container) return;
+    const [baseId, idx1] = input.id.split("_");
+    const container = document.getElementById(baseId + "_div");
+    if (!container) return;
 
-  const index = parseInt(idx1, 10) - 1;
-  const nextCount = input.checked ? (index + 1) : index;
+    const index = parseInt(idx1, 10) - 1;
+    const nextCount = input.checked ? (index + 1) : index;
 
-  applyCharges(container, nextCount);
+    applyCharges(container, nextCount);
 
-  postCharges(baseId, nextCount)
-    .then(r => r.json())
-    .then(result => {
-      if (result.status !== "OK") alert("Chyba při ukládání dovednosti");
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Chyba připojení");
-    });
+    postCharges(baseId, nextCount)
+        .then(r => r.json())
+        .then(result => {
+            if (result.status !== "OK") alert("Chyba při ukládání dovednosti");
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Chyba připojení");
+        });
 }
 
 // Odebrání 1 charge přes tlačítko "UseAbility"
 function useFeature(button) {
+
   const parent = button.parentNode;
   const checkboxes = parent.querySelectorAll('input[type="checkbox"]');
   if (!checkboxes.length) return;
@@ -701,17 +732,131 @@ function useFeature(button) {
   const remaining = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
   const nextCount = Math.max(0, remaining - 1);
 
-  applyCharges(container, nextCount);
 
-  postCharges(baseId, nextCount)
-    .then(r => r.json())
-    .then(result => {
-      if (result.status !== "OK") alert("Chyba při ukládání dovednosti");
+    applyCharges(container, nextCount);
+
+    postCharges(baseId, nextCount)
+        .then(r => r.json())
+        .then(result => {
+            if (result.status !== "OK") alert("Chyba při ukládání dovednosti");
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Chyba připojení");
+        });
+}
+
+
+
+// Feats
+function postFeat(selectElement) {
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const featId = selectedOption.value;   // UUID featu
+    const level = parseInt(selectElement.dataset.level) || 0; // level z atributu data-level
+
+    fetch("/api/feats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            id: featId,
+            level: level
+        })
     })
-    .catch(err => {
-      console.error(err);
-      alert("Chyba připojení");
+        .then(r => r.json())
+        .then(data => console.log("Feat uložen:", data))
+        .catch(err => console.error("Chyba při ukládání featu:", err));
+}
+
+
+
+// AI
+$(document).ready(function () {
+    function addMessage(text, sender) {
+        let html = '';
+        if (sender === 'user') {
+            html = `
+            <div class="d-flex align-items-center text-right justify-content-end ">
+                <div class="pr-2"> <span class="name">You</span>
+                    <p class="msg">${text}</p>
+                </div>
+                <div><img src="https://i.imgur.com/HpF4BFG.jpg" width="30" class="img1" /></div>
+            </div>`;
+        } else {
+            html = `
+            <div class="d-flex align-items-center">
+                <div class="text-left pr-1"><img src="https://img.icons8.com/color/40/000000/guest-female.png" width="30" class="img1" /></div>
+                <div class="pr-2 pl-1"> <span class="name">AI</span>
+                    <p class="msg">${text}</p>
+                </div>
+            </div>`;
+        }
+        $('#nav-ai #chat-box').append(html);
+        $('#nav-ai #chat-box').scrollTop($('#nav-ai #chat-box')[0].scrollHeight);
+    }
+
+    function sendMessage() {
+        let message = $('#nav-ai #user-input').val().trim();
+        if (message === '') return;
+
+        addMessage(message, 'user');
+        $('#nav-ai #user-input').val('');
+
+        $.ajax({
+            url: "/send_message",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ message: message }),
+            success: function (data) {
+                addMessage(data.reply, 'ai');
+
+                // pokud přijde instrukce pro frontend
+                if (data.frontend_action) {
+                    if (data.frontend_action.type === "show_toast") {
+                        const action = data.frontend_action;
+                        // showToast(null, action.title);
+                        console.log("Toast triggered:", action);
+                        console.log(action['total'])
+                        // vytvoření toastu
+                        const toastEl = document.createElement('div');
+                        toastEl.className = 'toast align-items-center';
+                        toastEl.role = 'alert';
+                        toastEl.ariaLive = 'assertive';
+                        toastEl.ariaAtomic = 'true';
+                        toastEl.innerHTML = `
+        <div class="toast-header">
+            <strong class="me-auto">AI Roll</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            Roll: ${action['total']} ${`(${action['dice']})`}
+        </div>
+        `;
+                        toastContainer.appendChild(toastEl);
+
+                        // inicializace a zobrazení
+                        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastEl);
+                        toastBootstrap.show();
+
+                    }
+                }
+            },
+            error: function () {
+                addMessage("Error contacting AI.", 'ai');
+            }
+        });
+    }
+
+
+    // kliknutí na šipku
+    $('#nav-ai #send-btn').click(sendMessage);
+
+    // Enter v inputu
+    $('#nav-ai #user-input').keypress(function (e) {
+        if (e.which === 13) {
+            e.preventDefault(); // aby se neodeslal formulář/tab
+            sendMessage();
+        }
     });
 
-}
+});
 

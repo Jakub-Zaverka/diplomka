@@ -127,6 +127,7 @@ def init_db():
                 hit_die INTEGER DEFAULT 10,
                 initiative INTEGER DEFAULT 10, 
                 level INTEGER DEFAULT 10,
+                speed INTEGER DEFAULT 30,
                 char_class TEXT DEFAULT None,
                 char_subclass TEXT DEFAULT None,
                 char_race TEXT DEFAULT None,
@@ -140,7 +141,7 @@ def init_db():
             CREATE TABLE inventory (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 char_id INTEGER NOT NULL,
-                item_id INTEGER NOT NULL,
+                item_id STRING NOT NULL,
                 count FLOAT NOT NULL,
                 equipped INTEGER DEFAULT 0,
                 FOREIGN KEY (char_id) REFERENCES characters(char_id)
@@ -151,7 +152,7 @@ def init_db():
             CREATE TABLE spells (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 char_id INTEGER NOT NULL,
-                spell_id INTEGER NOT NULL,
+                spell_id STRING NOT NULL,
                 FOREIGN KEY (char_id) REFERENCES characters(char_id)
             )
         ''')
@@ -170,8 +171,18 @@ def init_db():
             CREATE TABLE features (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 char_id INTEGER NOT NULL,
-                feature_id INTEGER NOT NULL,
+                feature_id STRING NOT NULL,
                 current_charges INTEGER NOT NULL,
+                FOREIGN KEY (char_id) REFERENCES characters(char_id)
+            )
+        ''')
+
+        db.execute('''
+            CREATE TABLE feats (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                char_id INTEGER NOT NULL,
+                feat_id STRING NOT NULL,
+                level INTEGER NOT NULL,
                 FOREIGN KEY (char_id) REFERENCES characters(char_id)
             )
         ''')
@@ -272,7 +283,7 @@ def sheet(char_id):
     prof = db.execute("SELECT skill_name, proficiency_level FROM character_skills WHERE char_id = ?",(char_id,)).fetchall()
 
     # features - aktuální stav (předpokládám, že feature_name odpovídá name v JSONu)
-    feat_db = db.execute("SELECT feature_id, current_charges FROM features WHERE char_id = ?",(char_id,)).fetchall()
+    features_db = db.execute("SELECT feature_id, current_charges FROM features WHERE char_id = ?",(char_id,)).fetchall()
 
     
     # --- Deep copy šablony (aby zůstala čistá pro ostatní requesty) -----
@@ -292,7 +303,7 @@ def sheet(char_id):
     }
 
     feature_data_dict = {
-        row["feature_id"]: row["current_charges"] for row in feat_db
+        row["feature_id"]: row["current_charges"] for row in features_db
     }
 
     # --- Aktualizace položek (items) -------------------------------------
@@ -328,7 +339,18 @@ def sheet(char_id):
 
     #Race - bylo přesunuto do vlastního modulu data_loader.py
     page_template = data_loader.load_category("race", "traits", char["char_race"], char, page_template)
-    
+
+
+    #Feats
+    feats_db = db.execute("SELECT * FROM feats WHERE char_id = ?",(char_id,)).fetchall()
+    character_feats = [row["feat_id"] for row in feats_db]
+    for feat_id, feat_data in page_template.get("feats", {}).items():
+        if feat_id in character_feats:
+            feat_data["known"] = True
+        else:
+            feat_data["known"] = False
+
+
     # --- Výpočet ostatních hodnot ---
     bonus = ttrpg.get_proficiency_bonus(char["level"])
 
@@ -353,6 +375,7 @@ def sheet_edit_mode(char_id):
     db = get_db()
     char = db.execute("SELECT * FROM characters WHERE char_id = ? AND user_id = ?",(char_id, current_user.id)).fetchone()
     prof = db.execute("SELECT skill_name, proficiency_level FROM character_skills WHERE char_id = ?",(char_id,)).fetchall()
+    known_feats = db.execute("SELECT * FROM feats WHERE char_id = ?", (char_id,)).fetchall()
 
     # Vytvoření slovníku pro hledání následně v šabloně
     proficiencies_dict = {
@@ -360,11 +383,13 @@ def sheet_edit_mode(char_id):
     for row in prof
     }
 
+    known_feats_by_level = {row["level"]: row["feat_id"] for row in known_feats}
+
 
     if char is None:
         return "Postava nebyla nalezena nebo ti nepatří"
 
-    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders_class, player_races = folders_race)
+    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders_class, player_races = folders_race, known_feats = known_feats_by_level)
 
 
 # ---------- Create new Character ----------
@@ -386,14 +411,19 @@ def create_new():
     # print(f"Session: {session["current_character_id"]}")
     char = db.execute("""SELECT * FROM characters WHERE char_id = ? """, (char_id,)).fetchone()
     prof = db.execute("SELECT skill_name, proficiency_level FROM character_skills WHERE char_id = ?",(char_id,)).fetchall()
+    known_feats = db.execute("SELECT * FROM feats WHERE char_id = ?", (char_id,)).fetchall()
+
 
     # Vytvoření slovníku pro hledání následně v šabloně
     proficiencies_dict = {
     row["skill_name"].lower(): row["proficiency_level"]
     for row in prof
     }
+
+    known_feats_by_level = {row["level"]: row["feat_id"] for row in known_feats}
+
     
-    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders_class, player_races = folders_race)
+    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders_class, player_races = folders_race, known_feats = known_feats_by_level)
 
 
 @app.route('/chat')
@@ -446,9 +476,60 @@ def stats_api():
     return {"status": "OK", "received": data}
 
 
+
 #------------------------------------
 # ---------- API Skills -------------
 #------------------------------------
+# ----- API Feats
+@login_required
+@app.route('/api/feats', methods=['POST'])
+def feats_api():
+    data = request.get_json()
+    db = get_db()
+
+    char_id = session.get("current_character_id")
+
+    feat_id = data.get("id")
+    level = int(data.get("level", 0))
+
+    if feat_id is None:
+        return {"status": "error", "message": "Chybí ID"}, 400
+
+    # Pokud je hodnota 0 smaž záznam pro daný level
+    if feat_id == "0" or feat_id == 0:
+        db.execute(
+            "DELETE FROM feats WHERE char_id = ? AND level = ?",
+            (char_id, level)
+        )
+    else:
+        # Nejprve update
+        result = db.execute(
+            "UPDATE feats SET feat_id = ? WHERE char_id = ? AND level = ?",
+            (feat_id, char_id, level)
+        )
+        # Pokud žádný řádek neexistoval, vložit nový
+        if result.rowcount == 0:
+            db.execute(
+                "INSERT INTO feats (char_id, feat_id, level) VALUES (?, ?, ?)",
+                (char_id, feat_id, level)
+            )
+
+    db.commit()
+
+    # vrať aktuální seznam featů
+    # rows = db.execute(
+    #     "SELECT feat_id, level FROM feats WHERE char_id = ?",
+    #     (char_id,)
+    # ).fetchall()
+
+    # feats_list = [{"id": row["feat_id"], "level": row["level"]} for row in rows]
+
+    # return {"status": "OK", "feats": feats_list}
+    return {"status": "OK"}
+
+
+
+# ---------- API Skills ----------
 VALID_SKILLS = {
     "athletics", "acrobatics", "sleight_of_hand", "stealth",
     "arcana", "history", "investigation", "nature", "religion",
@@ -718,6 +799,22 @@ def send_message():
 
                 ai_reply = final_response.choices[0].message.content
                 return jsonify({"reply": ai_reply})
+            if call.function.name == "roll_dice":
+                args = json.loads(call.function.arguments)
+                result = roll_dice(args["dice"])
+
+                # Připravíme pro frontend → pošleme i reply i akci
+                return jsonify({
+                    "reply": f"Hodil jsem {args['dice']} a padlo {result['total']}.",
+                    "frontend_action": {
+                        "type": "show_toast",
+                        "title": f"Hod {args['dice']}",
+                        "dice": args["dice"],
+                        "rolls": result["rolls"],
+                        "modifier": result["modifier"],
+                        "total": result["total"]
+                    }
+                })
 
     # Pokud AI žádnou funkci nevolá, vrátíme normální odpověď, jako kdyby uživatel prostě promptival AI
     ai_reply = response.choices[0].message.content
@@ -768,8 +865,12 @@ folders_class = os.listdir(path="data/class")
 folders_race = os.listdir(path="data/race")
 
 
-
-
+#Feats
+with open("data/feats/feats.json","r") as f:
+    data_json = f.read()
+    feats = json.loads(data_json)
+    feats_dict = {item["UUID"]: item for item in feats}
+    data_page_template["feats"] = feats_dict
 
 
 
@@ -792,6 +893,26 @@ def get_characters(user_id: int = 1):
     return [row["name"] for row in rows]
 
 # -----------------------------
+# Dice funkce (backend helper)
+# -----------------------------
+def roll_dice(dice: str):
+    # jednoduchý parser formátu "1d20+3"
+    parts = dice.lower().split("d")
+    num = int(parts[0]) if parts[0] else 1
+    if "+" in parts[1]:
+        sides, mod = parts[1].split("+")
+        sides = int(sides)
+        mod = int(mod)
+    else:
+        sides = int(parts[1])
+        mod = 0
+    
+    rolls = [random.randint(1, sides) for _ in range(num)]
+    total = sum(rolls) + mod
+    print(total)
+    return {"rolls": rolls, "modifier": mod, "total": total, "dice": dice}
+
+# -----------------------------
 #  Definice tools pro AI
 # -----------------------------
 tools = [
@@ -799,15 +920,32 @@ tools = [
         "type": "function",
         "function": {
             "name": "get_characters",  # název musí sedět s Python funkcí
-            "description": "Vrátí všechny živé postavy aktuálního uživatele (pokud user_id není uveden, použije se 1).",
+            "description": "Vrátí všechny živé postavy aktuálního uživatele (pokud user_id není uveden, použije se 0).",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "user_id": {
                         "type": "integer",
-                        "description": "ID uživatele (pokud není zadáno, použije se 1)"
+                        "description": "ID uživatele (pokud není zadáno, použije se 0)"
                     }
                 }
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "roll_dice",
+            "description": "Hodí virtuální kostkou a vrátí výsledek. Formát např. '1d20+3'.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "dice": {
+                        "type": "string",
+                        "description": "Hod kostkou, např. '1d20+3', '2d6', atd."
+                    }
+                },
+                "required": ["dice"]
             }
         }
     }
