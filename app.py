@@ -808,6 +808,22 @@ def send_message():
 
                 ai_reply = final_response.choices[0].message.content
                 return jsonify({"reply": ai_reply})
+            if call.function.name == "roll_dice":
+                args = json.loads(call.function.arguments)
+                result = roll_dice(args["dice"])
+
+                # Připravíme pro frontend → pošleme i reply i akci
+                return jsonify({
+                    "reply": f"Hodil jsem {args['dice']} a padlo {result['total']}.",
+                    "frontend_action": {
+                        "type": "show_toast",
+                        "title": f"Hod {args['dice']}",
+                        "dice": args["dice"],
+                        "rolls": result["rolls"],
+                        "modifier": result["modifier"],
+                        "total": result["total"]
+                    }
+                })
 
     # Pokud AI žádnou funkci nevolá, vrátíme normální odpověď, jako kdyby uživatel prostě promptival AI
     ai_reply = response.choices[0].message.content
@@ -884,6 +900,26 @@ def get_characters(user_id: int = 1):
     return [row["name"] for row in rows]
 
 # -----------------------------
+# Dice funkce (backend helper)
+# -----------------------------
+def roll_dice(dice: str):
+    # jednoduchý parser formátu "1d20+3"
+    parts = dice.lower().split("d")
+    num = int(parts[0]) if parts[0] else 1
+    if "+" in parts[1]:
+        sides, mod = parts[1].split("+")
+        sides = int(sides)
+        mod = int(mod)
+    else:
+        sides = int(parts[1])
+        mod = 0
+    
+    rolls = [random.randint(1, sides) for _ in range(num)]
+    total = sum(rolls) + mod
+    print(total)
+    return {"rolls": rolls, "modifier": mod, "total": total, "dice": dice}
+
+# -----------------------------
 #  Definice tools pro AI
 # -----------------------------
 tools = [
@@ -891,15 +927,32 @@ tools = [
         "type": "function",
         "function": {
             "name": "get_characters",  # název musí sedět s Python funkcí
-            "description": "Vrátí všechny živé postavy aktuálního uživatele (pokud user_id není uveden, použije se 1).",
+            "description": "Vrátí všechny živé postavy aktuálního uživatele (pokud user_id není uveden, použije se 0).",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "user_id": {
                         "type": "integer",
-                        "description": "ID uživatele (pokud není zadáno, použije se 1)"
+                        "description": "ID uživatele (pokud není zadáno, použije se 0)"
                     }
                 }
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "roll_dice",
+            "description": "Hodí virtuální kostkou a vrátí výsledek. Formát např. '1d20+3'.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "dice": {
+                        "type": "string",
+                        "description": "Hod kostkou, např. '1d20+3', '2d6', atd."
+                    }
+                },
+                "required": ["dice"]
             }
         }
     }

@@ -7,6 +7,8 @@
     <title>Chat s AI</title>
     <link rel="stylesheet" href="{{ url_for('static',filename='custom.css') }}">
     <link rel="stylesheet" href="{{ url_for('static',filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- pro AJAX -->
     <style>
     </style>
@@ -29,7 +31,7 @@
             </div>
         </div>
     </div>
-
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
 <script>
 $(document).ready(function() {
     function addMessage(text, sender) {
@@ -68,7 +70,18 @@ $(document).ready(function() {
             contentType: "application/json",
             data: JSON.stringify({message: message}),
             success: function(data) {
+                // vždy zobraz zprávu od AI
                 addMessage(data.reply, 'ai');
+
+                // pokud AI poslala i nějakou akci pro frontend → proveď ji
+                if (data.frontend_action) {
+                    if (data.frontend_action.type === "show_toast") {
+                        const action = data.frontend_action;
+                        // spustíme tvoji funkci showToast
+                        showToast(null, action.title);
+                        console.log("Toast triggered:", action);
+                    }
+                }
             },
             error: function() {
                 addMessage("Error contacting AI.", 'ai');
@@ -81,6 +94,7 @@ $(document).ready(function() {
         if(e.which === 13) sendMessage(); // enter key
     });
 });
+
 </script>
 
 </body>
