@@ -1,0 +1,32 @@
+[
+    {
+        "UUID": "348c73e0-21d8-476a-b027-cefa271ddab2",
+        "name": "Ritual Adept",
+        "description": "You can cast any spell as a Ritual if that spell has the Ritual tag and the spell is in your spellbook. You needn't have the spell prepared, but you must read from the book to cast a spell in this way."
+    },
+    {
+        "UUID": "bfc6d1a2-a00f-473e-87ca-1de934085478",
+        "name": "Temporal Shift",
+        "description": "You magically shift time",
+        "max_charges": "2",
+        "recharge": "long",
+        "cost": "reaction"
+    },
+    {
+        "UUID": "cddb409a-165d-4039-95cc-0cd7571b81c1",
+        "name": "Time Stop",
+        "description": "As an action, you stop time",
+        "max_charges": "intelligence",
+        "recharge": "long",
+        "cost": "action"
+    },
+    {
+        "UUID": "bfc6d1a2-a00f-473e-87ca-1de934085479",
+        "name": "Spell Casting 1",
+        "description": "The Wizard Features table shows how many spell slots you have to cast your level 1+ spells. You regain all expended slots when you finish a Long Rest.",
+        "max_charges": "4",
+        "recharge": "long",
+        "cost": "action"
+    }
+
+]
