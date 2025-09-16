@@ -767,6 +767,25 @@ function postFeat(selectElement) {
         .catch(err => console.error("Chyba při ukládání featu:", err));
 }
 
+// Class Choices
+function postClassChoice(selectElement) {
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const featId = selectedOption.value;   // UUID featu
+    const level = parseInt(selectElement.dataset.level) || 0; // level z atributu data-level
+
+    fetch("/api/feats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            id: featId,
+            level: level
+        })
+    })
+        .then(r => r.json())
+        .then(data => console.log("Feat uložen:", data))
+        .catch(err => console.error("Chyba při ukládání featu:", err));
+}
+
 
 
 // AI

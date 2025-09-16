@@ -187,6 +187,17 @@ def init_db():
             )
         ''')
 
+        db.execute('''
+            CREATE TABLE character_choices (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                char_id INTEGER NOT NULL,
+                choice_id STRING NOT NULL,
+                choice STRING NOT NULL,
+                level INTEGER NOT NULL,
+                FOREIGN KEY (char_id) REFERENCES characters(char_id)
+            )
+        ''')
+
         db.commit()
         db.close()
 
@@ -527,6 +538,8 @@ def feats_api():
     # return {"status": "OK", "feats": feats_list}
     return {"status": "OK"}
 
+
+#---API Class Choices
 
 
 # ---------- API Skills ----------
@@ -871,6 +884,18 @@ with open("data/feats/feats.json","r") as f:
     feats = json.loads(data_json)
     feats_dict = {item["UUID"]: item for item in feats}
     data_page_template["feats"] = feats_dict
+
+#class and race choices (e.g warden or eldritch invocations)
+
+for player_class in folders_class:
+    with open(f"data/class/{player_class}/options.json","r") as f:
+        data_json = f.read()
+        options = json.loads(data_json)
+        options_dict = {item["UUID"]: item for item in options}
+        data_page_template[f"option_{player_class}"] = options_dict
+
+pass
+
 
 
 

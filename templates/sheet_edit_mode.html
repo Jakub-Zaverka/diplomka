@@ -255,6 +255,17 @@
                             </select>
                         </div>
                         {% endfor %}
+                        <div>
+                            {% for choice in data_page_template["option_" ~ character.char_class].values() %}
+                            <p>{{choice["name"]}}</p>
+                            <select class="form-select bg-primary" aria-label="Class choice select" onchange="">
+                                <option value="0">Select Option</option>
+                                {% for option,description in choice["options"].items() %}
+                                <option value="{{option}}" data-description="{{description}}">{{option}}</option>
+                                {%endfor%}
+                            </select>
+                            {%endfor%}
+                        </div>
                     </div>
                 </div>
             </div>
