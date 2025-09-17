@@ -387,6 +387,8 @@ def sheet_edit_mode(char_id):
     char = db.execute("SELECT * FROM characters WHERE char_id = ? AND user_id = ?",(char_id, current_user.id)).fetchone()
     prof = db.execute("SELECT skill_name, proficiency_level FROM character_skills WHERE char_id = ?",(char_id,)).fetchall()
     known_feats = db.execute("SELECT * FROM feats WHERE char_id = ?", (char_id,)).fetchall()
+    known_choices = db.execute("SELECT * FROM character_choices WHERE char_id = ?", (char_id,)).fetchall()
+    
 
     # Vytvoření slovníku pro hledání následně v šabloně
     proficiencies_dict = {
@@ -400,7 +402,7 @@ def sheet_edit_mode(char_id):
     if char is None:
         return "Postava nebyla nalezena nebo ti nepatří"
 
-    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders_class, player_races = folders_race, known_feats = known_feats_by_level)
+    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders_class, player_races = folders_race, known_feats = known_feats_by_level, known_choices = known_choices)
 
 
 # ---------- Create new Character ----------
@@ -540,7 +542,44 @@ def feats_api():
 
 
 #---API Class Choices
+@login_required
+@app.route('/api/character_choice', methods=['POST'])
+def character_choice_api():
+    data = request.get_json()
+    db = get_db()
+    print(data)
+    char_id = session.get("current_character_id")
 
+    choice_id = data.get("id")
+    choice = data.get("choice")
+    #TODO: vyřešit Level
+    level = 0
+
+    if choice_id is None:
+        return {"status": "error", "message": "Chybí ID"}, 400
+
+    # Pokud je hodnota 0 smaž záznam pro daný level
+    if choice == "0" or choice == 0:
+        db.execute(
+            "DELETE FROM character_choices WHERE char_id = ? AND choice_id = ?",
+            (char_id, choice_id)
+        )
+    else:
+        # Nejprve update
+        result = db.execute(
+            "UPDATE character_choices SET choice = ? WHERE char_id = ? AND choice_id = ?",
+            (choice, char_id, choice_id)
+        )
+        # Pokud žádný řádek neexistoval, vložit nový
+        if result.rowcount == 0:
+            db.execute(
+                "INSERT INTO character_choices (choice_id, choice, level, char_id) VALUES (?, ?, ?, ?)",
+                (choice_id, choice, level, char_id)
+            )
+
+    db.commit()
+
+    return {"status": "OK"}
 
 # ---------- API Skills ----------
 VALID_SKILLS = {

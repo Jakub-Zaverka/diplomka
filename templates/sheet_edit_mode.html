@@ -15,7 +15,6 @@
 
 <body class="bg-white">
     <!-- <h1>PH:Char_id:{{ character.char_id }} Char name:{{ character.name }} User_id:{{ character.user_id }}</h1> -->
-
     <div class="row">
         <div class="col-12 col-md-6 row">
             <!-- Atributes -->
@@ -226,14 +225,18 @@
                     {'level': 19, 'label': 'Level 19 Feat/Epic Boon', 'filter': 'all'}
                     ] %}
                     {% if character.char_race == 'human' %}
-                        {% set feat_levels = feat_levels + [{'level': 1, 'label': 'Origin Feat Human', 'filter': 'origin'}] %}
+                    {% set feat_levels = feat_levels + [{'level': 1, 'label': 'Origin Feat Human', 'filter': 'origin'}]
+                    %}
                     {% endif %}
                     {% if character.char_class == 'fighter' %}
-                        {% set feat_levels = feat_levels + [{'level': 6, 'label': 'Fighter Feat level 6', 'filter': 'non-epic'}] %}
-                        {% set feat_levels = feat_levels + [{'level': 14, 'label': 'Fighter Feat level 14', 'filter': 'non-epic'}] %}
+                    {% set feat_levels = feat_levels + [{'level': 6, 'label': 'Fighter Feat level 6', 'filter':
+                    'non-epic'}] %}
+                    {% set feat_levels = feat_levels + [{'level': 14, 'label': 'Fighter Feat level 14', 'filter':
+                    'non-epic'}] %}
                     {% endif %}
                     {% if character.char_class == 'rogue' %}
-                        {% set feat_levels = feat_levels + [{'level': 10, 'label': 'Rogue Feat level 6', 'filter': 'non-epic'}] %}
+                    {% set feat_levels = feat_levels + [{'level': 10, 'label': 'Rogue Feat level 6', 'filter':
+                    'non-epic'}] %}
                     {% endif %}
                     <div>
                         {% for conf in feat_levels %}
@@ -256,15 +259,40 @@
                         </div>
                         {% endfor %}
                         <div>
-                            {% for choice in data_page_template["option_" ~ character.char_class].values() %}
-                            <p>{{choice["name"]}}</p>
-                            <select class="form-select bg-primary" aria-label="Class choice select" onchange="">
+                            
+                            {# joining stringu se dělá pomocí ~ #}
+                            {% for choice in (data_page_template.get("option_" ~ (character.char_class or ""),
+                            {})).values() %}
+                            <p>{{ choice["name"] }}</p>
+                            <select class="form-select bg-primary" aria-label="Class choice select"
+                                data-uuid="{{ choice['UUID'] }}" onchange="postClassChoice(this)">
                                 <option value="0">Select Option</option>
-                                {% for option,description in choice["options"].items() %}
-                                <option value="{{option}}" data-description="{{description}}">{{option}}</option>
-                                {%endfor%}
+                                {% for option, description in choice["options"].items() %}
+                                {# zkontroluj, jestli known_choices obsahuje tento výběr #}
+                                {% set is_selected = false %}
+                                {% for kc in known_choices %}
+                                
+                                {% if kc["choice_id"] == choice["UUID"] and kc["choice"] == option %}
+                                {% set is_selected = true %}
+                                
+                                {% endif %}
+                                {% endfor %}
+                                {% if is_selected %}
+
+
+                                <!-- Nefunguje správně zobrazování, do tohoto bodu je ok -->
+                                <option value="{{ option }}" data-description="{{ description }}" data-test="{{is_selected}}" selected>
+                                    {{ option }}
+                                </option>
+                                {%else%}
+                                <option value="{{ option }}" data-description="{{ description }}">
+                                    {{ option }}
+                                </option>
+                                {% endif %}
+                                {% endfor %}
                             </select>
-                            {%endfor%}
+                            {% endfor %}
+
                         </div>
                     </div>
                 </div>

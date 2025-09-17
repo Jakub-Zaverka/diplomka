@@ -769,15 +769,30 @@ function postFeat(selectElement) {
 
 // Class Choices
 function postClassChoice(selectElement) {
-    const selectedOption = selectElement.options[selectElement.selectedIndex];
-    const featId = selectedOption.value;   // UUID featu
-    const level = parseInt(selectElement.dataset.level) || 0; // level z atributu data-level
+    // const selectedOption = selectElement.options[selectElement.selectedIndex];
+    // //const choice_id = selectedOption.dataset.uuid || 0;   // UUID choice
+    // const choice_id = selectedOption.parentNode.dataset.uuid || 0;
+    // const choice = selectedOption.value || 0;
+    // const level = parseInt(selectedOption.dataset.level) || 0; // level z atributu data-level - zde failne, protože tady neni zatím dořešen TODO:FIX
 
-    fetch("/api/feats", {
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+
+    const choice_id = selectElement.dataset.uuid || 0;   // vezme data-uuid přímo ze selectu
+    const choice = selectedOption.value || 0;
+    const level = parseInt(selectElement.dataset.level) || 0;
+
+    console.log(choice_id)
+    console.log(choice)
+    console.log(level)
+
+
+
+    fetch("/api/character_choice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            id: featId,
+            id: choice_id,
+            choice: choice,
             level: level
         })
     })
