@@ -721,16 +721,16 @@ function charges(input) {
 // Odebrání 1 charge přes tlačítko "UseAbility"
 function useFeature(button) {
 
-  const parent = button.parentNode;
-  const checkboxes = parent.querySelectorAll('input[type="checkbox"]');
-  if (!checkboxes.length) return;
-    
-    // ID checkboxes jsou psané ve tvaru UUID feature_číslo
-  const baseId = checkboxes[0].id.split("_")[0];
-  const container = document.getElementById(baseId + "_div");
+    const parent = button.parentNode;
+    const checkboxes = parent.querySelectorAll('input[type="checkbox"]');
+    if (!checkboxes.length) return;
 
-  const remaining = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
-  const nextCount = Math.max(0, remaining - 1);
+    // ID checkboxes jsou psané ve tvaru UUID feature_číslo
+    const baseId = checkboxes[0].id.split("_")[0];
+    const container = document.getElementById(baseId + "_div");
+
+    const remaining = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
+    const nextCount = Math.max(0, remaining - 1);
 
 
     applyCharges(container, nextCount);
@@ -802,8 +802,9 @@ function postClassChoice(selectElement) {
 }
 
 
-
+//-----------------------
 // AI
+//-----------------------
 $(document).ready(function () {
     function addMessage(text, sender) {
         let html = '';
@@ -894,3 +895,47 @@ $(document).ready(function () {
 
 });
 
+//------------------------------
+// Změna hesla
+//------------------------------
+
+function changeUserInfo(data, password) {
+    fetch("/api/user_info", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            data: data,
+            password: password
+        })
+    })
+        .then(resp => {
+            if (!resp.ok) {
+                throw new Error("Login failed");
+            }
+            return resp.json();
+        })
+        .then(data => {
+            console.log("Přihlášen:", data);
+        })
+        .catch(err => {
+            console.error("Chyba:", err);
+        });
+}
+function passwordCheck(){
+    newpass = document.getElementById("newPass").value
+    repeatpass = document.getElementById("repeatPass").value
+    pass = document = document.getElementById("pass").value
+    if(newpass === repeatpass){
+        console.log(newpass)
+        console.log(pass)
+        console.log("here")
+
+        changeUserInfo(newpass,pass)
+
+    }
+    else{
+        return "passwords do not match"
+    }
+}

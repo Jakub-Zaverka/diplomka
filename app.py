@@ -454,6 +454,27 @@ def chat_test():
 # ---------- API delete character ----------
 #--------------------------------------------
 @login_required
+@app.route('/api/user_info', methods=['POST'])
+def change_user_info():
+    data = request.get_json()
+    print(data)
+    db = get_db()
+    # print(current_user.id)
+    # check = check_password_hash(current_user.pwhash, "test"):
+    result = db.execute("SELECT password_hash from USERS where user_id = ?",(current_user.id,)).fetchone()["password_hash"]
+    if(check_password_hash(result,data["password"])):
+        new_hash = generate_password_hash(data["data"])
+        # print(new_hash)
+        db.execute("UPDATE USERS SET password_hash = ? WHERE user_id = ?", (new_hash,current_user.id))
+        db.commit()
+
+        return {"status": "OK", "received": data}
+    else:
+        return {"status": "Incorrect Password", "received": data}
+    
+
+
+@login_required
 @app.route('/api/delete', methods=['POST'])
 def delete_char():
     data = request.get_json()
