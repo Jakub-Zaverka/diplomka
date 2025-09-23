@@ -669,6 +669,12 @@ function validateForm() {
     }
 }
 
+function showPassword(btn) {
+    const wrapper = btn.closest(".input-group");
+    const input = wrapper.querySelector("input");
+    input.type = input.type === "password" ? "text" : "password";
+}
+
 //------------------------------------
 // Feature charges tracking
 //------------------------------------
@@ -896,10 +902,10 @@ $(document).ready(function () {
 });
 
 //------------------------------
-// Změna hesla
+// Změna hesla,emailu a username
 //------------------------------
 
-function changeUserInfo(data, password) {
+function changeUserInfo(data, password, type) {
     fetch("/api/user_info", {
         method: "POST",
         headers: {
@@ -907,35 +913,82 @@ function changeUserInfo(data, password) {
         },
         body: JSON.stringify({
             data: data,
-            password: password
+            password: password,
+            type: type
         })
     })
-        .then(resp => {
-            if (!resp.ok) {
-                throw new Error("Login failed");
-            }
-            return resp.json();
-        })
-        .then(data => {
-            console.log("Přihlášen:", data);
-        })
-        .catch(err => {
-            console.error("Chyba:", err);
-        });
+    .then(resp => resp.json())
+    .then(result => {
+        if (result.status !== "OK") {
+            // chyba -> zobrazit alert v příslušném modal
+            showError(type, result.status);
+            return;
+        }
+
+        // schovat error, zavřít modal, aktualizovat input
+        hideError(type);
+
+        const modalEl = document.getElementById('Modal' + capitalize(type));
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+
+        if (type === "email") {
+            document.getElementById("emailInput").value = result.received.data;
+        }
+        if (type === "username") {
+            document.getElementById("usernameInput").value = result.received.data;
+            document.getElementById("navBarUsername").textContent  = result.received.data;
+        }
+        // password nepotřebuje update na stránce
+    })
+    .catch(err => {
+        console.error("Chyba:", err);
+    });
 }
+//Existuje jen kvůli naming konvenci v JS a potřebě převést jména modálů na CammelCase
+function capitalize(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 function passwordCheck(){
-    newpass = document.getElementById("newPass").value
-    repeatpass = document.getElementById("repeatPass").value
-    pass = document = document.getElementById("pass").value
-    if(newpass === repeatpass){
-        console.log(newpass)
-        console.log(pass)
-        console.log("here")
+    const newElement = document.getElementById("newPass").value;
+    const repeatElement = document.getElementById("repeatPass").value;
+    const pass = document.getElementById("pass_password").value;
 
-        changeUserInfo(newpass,pass)
+    hideError("password");
 
-    }
-    else{
-        return "passwords do not match"
+    if(newElement === repeatElement){
+        changeUserInfo(newElement, pass, "password");
+    } else {
+        showError("password", "New passwords do not match");
     }
 }
+
+function usernameCheck(){
+    const newElement = document.getElementById("newUsername").value;
+    const repeatElement = document.getElementById("repeatUsername").value;
+    const pass = document.getElementById("pass_username").value;
+
+    hideError("username");
+
+    if(newElement === repeatElement){
+        changeUserInfo(newElement, pass, "username");
+    } else {
+        showError("username", "Usernames do not match");
+    }
+}
+
+function emailCheck(){
+    const newElement = document.getElementById("newEmail").value;
+    const repeatElement = document.getElementById("repeatEmail").value;
+    const pass = document.getElementById("pass_email").value;
+
+    hideError("email");
+
+    if(newElement === repeatElement){
+        changeUserInfo(newElement, pass, "email");
+    } else {
+        showError("email", "Emails do not match");
+    }
+}
+

@@ -42,13 +42,19 @@
         </div>
         <div class="row m-2">
           <label for="password_input" class="ps-0 text-white">Password</label>
-          <input id="password_input" type="password" class="form-control" name="password" placeholder="****" required>
+          <div class="input-group p-0">
+            <input id="password_input" type="password" class="form-control" name="password" placeholder="****" required>
+            <button onclick="showPassword(this)" type="button">Show</button>
+          </div>
           <div class="invalid-feedback">Please enter password.</div>
         </div>
         <div class="row m-2">
           <label for="password_input_repeat" class="ps-0 text-white">Repeat Password</label>
-          <input id="password_input_repeat" type="password" class="form-control" name="password_repeat"
-            placeholder="****" required>
+          <div class="input-group p-0">
+            <input id="password_input_repeat" type="password" class="form-control" name="password_repeat"
+              placeholder="****" required>
+            <button onclick="showPassword(this)" type="button">Show</button>
+          </div>
           <div class="invalid-feedback">Please repeat password.</div>
         </div>
         <input class="btn btn-light row m-2" type="submit" value="Sign up">

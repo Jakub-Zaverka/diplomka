@@ -459,13 +459,26 @@ def change_user_info():
     data = request.get_json()
     print(data)
     db = get_db()
-    # print(current_user.id)
-    # check = check_password_hash(current_user.pwhash, "test"):
     result = db.execute("SELECT password_hash from USERS where user_id = ?",(current_user.id,)).fetchone()["password_hash"]
+    #Kontrola hesla
     if(check_password_hash(result,data["password"])):
-        new_hash = generate_password_hash(data["data"])
-        # print(new_hash)
-        db.execute("UPDATE USERS SET password_hash = ? WHERE user_id = ?", (new_hash,current_user.id))
+        if data["type"] == "password":
+            new_hash = generate_password_hash(data["data"])
+            db.execute("UPDATE USERS SET password_hash = ? WHERE user_id = ?", (new_hash,current_user.id))
+        if data["type"] == "email":
+            # Kontrola zda již není email/username používán jiným uživatelem (pokud je používán jím samotným tak si ho může "změnit" na to stávající ale reálně žádná změna nepojde)
+            result = db.execute("SELECT email, user_id from USERS where email = ?",(data["data"],)).fetchall()
+            if len(result) > 0 and result[0]["user_id"] != current_user.id:
+                return {"status": "Email in use", "received": data}
+            # Input do db by měl být už ochráněn tímto způsobem
+            # TODO: Projít zda je chráněn
+            db.execute("UPDATE USERS SET email = ? WHERE user_id = ?", (data["data"],current_user.id))
+
+        if data["type"] == "username":
+            result = db.execute("SELECT username, user_id from USERS where username = ?",(data["data"],)).fetchall()
+            if len(result) > 0 and result[0]["user_id"] != current_user.id:
+                return {"status": "Username in use", "received": data}
+            db.execute("UPDATE USERS SET username = ? WHERE user_id = ?", (data["data"],current_user.id))
         db.commit()
 
         return {"status": "OK", "received": data}

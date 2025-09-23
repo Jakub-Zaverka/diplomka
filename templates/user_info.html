@@ -9,6 +9,23 @@
         integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <link rel="stylesheet" href="static/styles.css">
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+    <script>
+        function showError(type, msg) {
+            const box = document.getElementById("errorBox" + capitalize(type));
+            if (box) {
+                box.textContent = msg;
+                box.classList.remove("d-none");
+            }
+        }
+
+        function hideError(type) {
+            const box = document.getElementById("errorBox" + capitalize(type));
+            if (box) {
+                box.classList.add("d-none");
+            }
+        }
+
+    </script>
 
 </head>
 
@@ -26,7 +43,7 @@
                         PH:Profile
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="/user_info">PH:UserName</a></li>
+                        <li><a id="navBarUsername" class="dropdown-item" href="/user_info">{{ data.username }}</a></li>
                         <li><a class="dropdown-item" href="/dashboard">Characters</a></li>
                         <li><a class="dropdown-item" href="/logout">Logout</a></li>
                     </ul>
@@ -49,14 +66,16 @@
     <div class="row container mx-auto my-3 py-1 bg-secondary shadow-lg rounded-2">
         <div class="row container p-1 my-1 ">
             <p class="h2">Username</p>
-            <div>
-                <input class="form-control" disabled value="{{ data.username }}">
+            <div class="input-group">
+                <input id="usernameInput" class="form-control" disabled value="{{ data.username }}">
+                <button class="btn btn-outline-warning" data-bs-toggle="modal"
+                    data-bs-target="#ModalUsername">Edit</button>
             </div>
         </div>
         <div class="row container p-1 my-1 ">
             <p class="h2">Password</p>
             <div class="input-group">
-                <input class="form-control" placeholder="PH:************">
+                <input id="passwordInput" class="form-control" disabled placeholder="PH:************">
                 <button class="btn btn-outline-warning" data-bs-toggle="modal"
                     data-bs-target="#ModalPassword">Edit</button>
             </div>
@@ -64,12 +83,14 @@
         <div class="row container p-1 my-1 ">
             <p class="h2">Email</p>
             <div class="input-group">
-                <input class="form-control" disabled value="{{ data.email }}">
-                <button class="btn btn-outline-warning" data-bs-target="#ModalPassword">Edit</button>
+                <input id="emailInput" class="form-control" disabled value="{{ data.email }}">
+                <button class="btn btn-outline-warning" data-bs-toggle="modal"
+                    data-bs-target="#ModalEmail">Edit</button>
             </div>
         </div>
     </div>
 
+    <!-- Modal Password -->
     <div class="modal fade" id="ModalPassword">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -82,18 +103,22 @@
 
                 <!-- Modal body -->
                 <div class="modal-body">
+                    <div id="errorBoxPassword" class="alert alert-danger d-none" role="alert"></div>
                     <div class="row container p-1 my-1 ">
                         <p class="h3">New Password</p>
                         <div class="input-group">
-                            <input class="form-control" id="newPass">
+                            <input class="form-control" id="newPass"type="password">
+                            <button onclick="showPassword(this)">Show</button>
                         </div>
                         <p class="h3">Repeat New Password</p>
                         <div class="input-group">
-                            <input class="form-control" id="repeatPass">
+                            <input class="form-control" id="repeatPass"type="password">
+                            <button onclick="showPassword(this)">Show</button>
                         </div>
                         <p class="h3">Old Password</p>
                         <div class="input-group">
-                            <input class="form-control" id="pass">
+                            <input class="form-control" id="pass_password"type="password">
+                            <button onclick="showPassword(this)">Show</button>
                         </div>
                     </div>
                 </div>
@@ -101,7 +126,90 @@
                 <!-- Modal footer -->
                 <div class="modal-footer">
                     <button type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="passwordCheck()">Change Password</button>
+                    <button type="button" class="btn btn-danger" onclick="passwordCheck()">Change Password</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Email -->
+    <div class="modal fade" id="ModalEmail">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Change email</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div id="errorBoxEmail" class="alert alert-danger d-none" role="alert"></div>
+                    <div class="row container p-1 my-1 ">
+                        <p class="h3">New email</p>
+                        <div class="input-group">
+                            <input class="form-control" id="newEmail">
+                        </div>
+                        <p class="h3">Repeat New email</p>
+                        <div class="input-group">
+                            <input class="form-control" id="repeatEmail">
+                        </div>
+                        <p class="h3">Current Password</p>
+                        <div class="input-group ">
+                            <input class="form-control" id="pass_email" type="password">
+                            <button onclick="showPassword(this)">Show</button>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="emailCheck()">Change Email</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Username -->
+    <div class="modal fade" id="ModalUsername">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Change username</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div id="errorBoxUsername" class="alert alert-danger d-none" role="alert"></div>
+                    <div class="row container p-1 my-1 ">
+                        <p class="h3">New username</p>
+                        <div class="input-group">
+                            <input class="form-control" id="newUsername">
+                        </div>
+                        <p class="h3">Repeat New username</p>
+                        <div class="input-group">
+                            <input class="form-control" id="repeatUsername">
+                        </div>
+                        <p class="h3">Current Password</p>
+                        <div class="input-group">
+                            <input class="form-control" id="pass_username"type="password">
+                            <button onclick="showPassword(this)">Show</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="usernameCheck()">Change Username</button>
                 </div>
 
             </div>

@@ -38,7 +38,11 @@
         </div>
         <div class="row m-2">
           <label for="password_input" class="ps-0 text-white">Password</label>
-          <input id="password_input" type="password" class="form-control" name="password" placeholder="****" required>
+          <div class="input-group p-0">
+            <input id="password_input" type="password" class="form-control" name="password" placeholder="****"
+              required>
+            <button onclick="showPassword(this)" type="button">Show</button>
+          </div>
           <div class="invalid-feedback">
             Please enter password.
           </div>
