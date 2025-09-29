@@ -15,6 +15,8 @@
 </head>
 
 <body class="bg-white">
+
+    <!-- PC NAV Bar -->
     <nav class="navbar navbar-expand-lg bg-secondary mb-2">
         <div class="container-fluid center">
             <!-- Logo nebo název vlevo -->
@@ -26,19 +28,33 @@
                     <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
                         PH:Profile
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#">PH:UserName</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end position-absolute" style="z-index: 1050;">
+                        <li><a class="dropdown-item" href="/user_info">PH:UserName</a></li>
                         <li><a class="dropdown-item" href="/dashboard">Characters</a></li>
                         <li><a class="dropdown-item" href="/logout">Logout</a></li>
                     </ul>
                 </li>
-            </ul>
+        </div>
+    </nav>
+    <nav class="navbar fixed-bottom bg-secondary d-block d-lg-none px-2">
+        <div class="nav nav-pills nav-fill w-100" id="mobile-tab" role="tablist">
+            <button class="nav-link text-white active" data-bs-toggle="tab" data-bs-target="#nav-features"
+                type="button">Features</button>
+            <button class="nav-link text-white" data-bs-toggle="tab" data-bs-target="#nav-spells"
+                type="button">Spells</button>
+            <button class="nav-link text-white" data-bs-toggle="tab" data-bs-target="#nav-inventory"
+                type="button">Inventory</button>
+            <button class="nav-link text-white" data-bs-toggle="tab" data-bs-target="#nav-attributes"
+                type="button">Stats</button>
+            <button class="nav-link text-white" data-bs-toggle="tab" data-bs-target="#nav-notes"
+                type="button">Notes</button>
+            <button class="nav-link text-white" data-bs-toggle="tab" data-bs-target="#nav-ai" type="button">AI</button>
         </div>
     </nav>
     <!-- <h1>PH DEBUG: Char_id:{{ character.char_id }} Char name:{{ character.name }} User_id:{{ character.user_id }}</h1> -->
     <!-- <button class="edit-button btn btn-warning p-1" data-url="{{ url_for('dashboard') }}">PH:Dashboard</button> -->
-    <div class="row">
-        <div class="col-12 col-md-6 row">
+    <div class="row ">
+        <div class="col-12 col-md-6 row d-none d-lg-flex">
             <!-- Atributes -->
             <div class="col-12 col-md-7 px-md-3">
                 <div class="bg-info order-md-1">
@@ -213,7 +229,7 @@
                 </div>
             </div>
             <div class="row bg-light mt-3 shadow sheet-features-scroll">
-                <nav style="position:sticky; top:0; z-index: 2;" class="bg-light">
+                <nav style="position:sticky; top:0; z-index: 2;" class="bg-light d-none d-lg-flex">
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
                         <button class="nav-link active" id="nav-features-tab" data-bs-toggle="tab"
                             data-bs-target="#nav-features" type="button" role="tab" aria-controls="nav-features"
@@ -260,10 +276,6 @@
                                         <button class="btn btn-primary m-1" id="{{ feature['UUID'] }}" disabled
                                             onclick="useFeature(this)">UseAbility</button>
                                         {% endif %}
-
-
-
-
                                         {% for i in range(0, current_charger) %}
                                         <div class="form-check form-check-inline m-0 p-0 ps-4">
                                             <input class="form-check-input" type="checkbox"
@@ -271,7 +283,6 @@
                                                 checked>
                                         </div>
                                         {% endfor %}
-
                                         {% for i in range(current_charger, feature["max_charges"] | int) %}
                                         <div class="form-check form-check-inline m-0 p-0 ps-4">
                                             <input class="form-check-input" type="checkbox"
@@ -550,6 +561,7 @@
                                 onblur="updateFromInput(this)">{{ character.notes }}</textarea>
                         </div>
                     </div>
+                    <!-- AI -->
                     <div class="tab-pane fade" id="nav-ai" role="tabpanel" aria-labelledby="nav-ai-tab">
                         <div class="d-flex justify-content-center container mt-5">
                             <div class="wrapper">
@@ -570,6 +582,87 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Pro mobilní UI -->
+                    <!-- Stats (Attributes + Skills) -->
+                    <div class="tab-pane fade d-block d-lg-none" id="nav-attributes" role="tabpanel">
+                        <div class="row">
+                            <div class="col-12">
+                                {% for item in data_page_template["atributes"] %}
+                                <div class="row">
+                                    <div class="bg-light row shadow ">
+                                        {% set bonus = ((character[item["name"]] - 10) / 2)|int %}
+                                        <div class="col-2 px-4 px-md-2 px-lg-4 px-sm-3 clickable_div"
+                                            data-modifier="{{ bonus }}" onclick="showToast(this,'Dice Roll {{ item["
+                                            name"] }}')">
+                                            <div class="row">
+                                                <p class="h3 my-0 mx-1">
+
+                                                    {% if bonus >= 0 %}
+                                                    +{{ bonus }}
+                                                    {% else %}
+                                                    {{ bonus }}
+                                                    {% endif %}
+                                                </p>
+                                            </div>
+                                            <div class="row">
+                                                <p class="h4 px-4 small">{{ character[item["name"]] }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-10 align-self-center">
+                                            <p class="h3 w-100 word-wrap: break-word px-3">{{ item["name"] }}</p>
+                                            {% set stat_prof_bonus = proficiencies.get(item["name"] | lower, 0) %}
+                                            {% if stat_prof_bonus == 2 %}
+                                            {% set stat_prof_bonus_value = prof_bonus%}
+                                            {%else%}
+                                            {% set stat_prof_bonus_value = 0 %}
+                                            {%endif%}
+                                            {% set bonus = (((character[item["name"]] - 10) / 2) +
+                                            stat_prof_bonus_value) | int %}
+
+                                            <p class="h6 px-3 clickable_div" data-modifier="{{ bonus }}"" onclick="
+                                                showToast(this,'Dice Roll {{ item["name"] }} Saving Throw')">
+                                                {% if bonus >= 0 %}
+                                                +{{ bonus }}
+                                                {% else %}
+                                                {{ bonus }}
+                                                {% endif %}
+                                                Saving Throw</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-12 mt-3">
+                                {% for item in data_page_template["skills"] %}
+                                {% for atribute in data_page_template["atributes"] %}
+                                {% if atribute["name"] == item["parent"] %}
+                                {% set skill_key = item["name"] | lower | replace(' ', '_') %}
+                                {% set level = proficiencies.get(skill_key, 1) %}
+                                <div class="bg-light row shadow px-2">
+                                    {% set bonus = (((character[atribute["name"]] - 10) / 2) + prof_bonus*(level-1))|int
+                                    %}
+                                    <div class="col-1 clickable_div px-0" data-modifier="{{ bonus }}"
+                                        onclick="showToast(this,'Dice Roll {{ item[" name"] }}')">
+                                        <div class="row">
+                                            <p class="h5 my-0">
+                                                {% if bonus >= 0 %}
+                                                +{{ bonus }}
+                                                {% else %}
+                                                {{ bonus }}
+                                                {% endif %}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-9 align-self-center ">
+                                        <p class="h5 w-100 text-wrap px-3">{{ item["name"] }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Health -->
                 </div>
             </div>
         </div>
@@ -701,7 +794,7 @@
     </div>
 
     <!-- Kontejner pro stackované toasty -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 2;" id="toastContainer"></div>
 
 
 
