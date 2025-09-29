@@ -24,17 +24,19 @@
                     <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
                         PH:Profile
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
+                    <ul class="dropdown-menu dropdown-menu-end position-absolute" style="z-index: 1050;">
                         <li><a class="dropdown-item" href="/user_info">PH:UserName</a></li>
                         <li><a class="dropdown-item" href="/dashboard">Characters</a></li>
                         <li><a class="dropdown-item" href="/logout">Logout</a></li>
                     </ul>
                 </li>
+
+
             </ul>
         </div>
     </nav>
     <!-- Mobile NavBar -->
-    <nav class="navbar fixed-bottom bg-primary d-block d-lg-none px-5">
+    <!-- <nav class="navbar fixed-bottom bg-secondary d-block d-lg-none px-5">
         <div class="container-fluid justify-content-between">
             <a class="navbar-text" href="">Stats</a>
             <a class="navbar-text" href="">Features</a>
@@ -43,9 +45,9 @@
             <a class="navbar-text" href="">Notes</a>
             <a class="navbar-text" href="">Edit mode</a>
         </div>
-    </nav>
+    </nav> -->
     <div class="d-flex justify-content-center align-items-center ">
-        <div class="col-lg-6">
+        <div class="col-lg-6 col-11">
             <input placeholder="Search..." class="w-100 form-control mt-3" onkeyup="search_table()" id="search_input">
             <button class="btn btn-primary float-end mt-1" data-bs-toggle="modal"
                 data-bs-target="#ModalCreateNew">Create
@@ -59,7 +61,7 @@
             <table class="table" id="table" style="table-layout:fixed; width:100%;">
                 <thead>
                     <tr>
-                        <th scope="col" style="width: 300px;">Character Name</th>
+                        <th scope="col" class="text-wrap" style="width: 35%;">Character Name</th>
                         <th scope="col">Level</th>
                         <th scope="col">Character Class</th>
                         <th scope="col"></th>
@@ -69,7 +71,7 @@
                 <tbody>
                     {% for char in data %}
                     <tr id="{{ char['char_id'] }}_tr">
-                        <td style="word-wrap: break-word;">{{ char['name'] }}</td>
+                        <td class="text-wrap" style="width: 35%;">{{ char['name'] }}</td>
                         <td>{{ char['level'] }}</td>
                         <td>{{ char['char_class'] }}</td>
                         <td><a href="{{ url_for('sheet', char_id=char['char_id']) }}">PH:Play</a></td>
@@ -110,7 +112,7 @@
                             <input id="create_new_name_input" class="form-control">
                         </div>
                     </div>
-                    
+
                 </div>
 
                 <!-- Modal footer -->

@@ -5,9 +5,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>User Info</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
-    <link rel="stylesheet" href="static/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static',filename='custom.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles.css') }}">
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
     <script>
         function showError(type, msg) {
@@ -31,28 +31,28 @@
 
 <body>
     <!-- PC NAV Bar -->
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <!-- Logo nebo název vlevo -->
-            <!-- <a class="navbar-brand" href="#">MojeApp</a> -->
+    <nav class="navbar navbar-expand-lg bg-secondary">
+        <div class="container-fluid center">
 
             <!-- Pravá část navbaru -->
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
                         PH:Profile
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a id="navBarUsername" class="dropdown-item" href="/user_info">{{ data.username }}</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end position-absolute" style="z-index: 1050;">
+                        <li><a class="dropdown-item" href="/user_info">PH:UserName</a></li>
                         <li><a class="dropdown-item" href="/dashboard">Characters</a></li>
                         <li><a class="dropdown-item" href="/logout">Logout</a></li>
                     </ul>
                 </li>
+
+
             </ul>
         </div>
     </nav>
     <!-- Mobile NavBar -->
-    <nav class="navbar fixed-bottom bg-primary d-block d-lg-none px-5">
+    <!-- <nav class="navbar fixed-bottom bg-primary d-block d-lg-none px-5">
         <div class="container-fluid justify-content-between">
             <a class="navbar-text" href="">Stats</a>
             <a class="navbar-text" href="">Features</a>
@@ -61,7 +61,7 @@
             <a class="navbar-text" href="">Notes</a>
             <a class="navbar-text" href="">Edit mode</a>
         </div>
-    </nav>
+    </nav> -->
 
     <div class="row container mx-auto my-3 py-1 bg-secondary shadow-lg rounded-2">
         <div class="row container p-1 my-1 ">
@@ -75,7 +75,7 @@
         <div class="row container p-1 my-1 ">
             <p class="h2">Password</p>
             <div class="input-group">
-                <input id="passwordInput" class="form-control" disabled placeholder="PH:************">
+                <input id="passwordInput" class="form-control" disabled value="************">
                 <button class="btn btn-outline-warning" data-bs-toggle="modal"
                     data-bs-target="#ModalPassword">Edit</button>
             </div>
@@ -107,17 +107,17 @@
                     <div class="row container p-1 my-1 ">
                         <p class="h3">New Password</p>
                         <div class="input-group">
-                            <input class="form-control" id="newPass"type="password">
+                            <input class="form-control" id="newPass" type="password">
                             <button onclick="showPassword(this)">Show</button>
                         </div>
                         <p class="h3">Repeat New Password</p>
                         <div class="input-group">
-                            <input class="form-control" id="repeatPass"type="password">
+                            <input class="form-control" id="repeatPass" type="password">
                             <button onclick="showPassword(this)">Show</button>
                         </div>
                         <p class="h3">Old Password</p>
                         <div class="input-group">
-                            <input class="form-control" id="pass_password"type="password">
+                            <input class="form-control" id="pass_password" type="password">
                             <button onclick="showPassword(this)">Show</button>
                         </div>
                     </div>
@@ -161,7 +161,7 @@
                             <input class="form-control" id="pass_email" type="password">
                             <button onclick="showPassword(this)">Show</button>
                         </div>
-                        
+
                     </div>
                 </div>
 
@@ -200,7 +200,7 @@
                         </div>
                         <p class="h3">Current Password</p>
                         <div class="input-group">
-                            <input class="form-control" id="pass_username"type="password">
+                            <input class="form-control" id="pass_username" type="password">
                             <button onclick="showPassword(this)">Show</button>
                         </div>
                     </div>
