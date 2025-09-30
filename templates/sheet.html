@@ -233,10 +233,9 @@
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
                     <!-- Features -->
-                    <div class="tab-pane fade show active" id="nav-features" role="tabpanel"
-                        aria-labelledby="nav-features-tab">
+                    <div class="tab-pane fade show active" id="nav-features" role="tabpanel" aria-labelledby="nav-features-tab" style="overflow-y: auto;">
                         <!-- Flex container for all feature cards -->
-                        <div class="d-flex flex-wrap gap-2">
+                        <div class="d-flex flex-wrap gap-2 ">
                             <!-- One Feature -->
                             {% for feature in data_page_template["features"] %}
                             {% if feature["known"] %}
