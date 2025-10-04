@@ -836,6 +836,8 @@ def spell_api():
 #------------------------------------
 # ---------- API chat s AI ----------
 #------------------------------------
+preprompt = "Jsi AI assistent pro DND 5e 2024. Vždy odpovídej čistým textem bez Markdown, bez tučného písma, kurzívy nebo seznamů. Používej pouze prostý text.. Odpovídej přehledně."
+
 @login_required
 @app.route("/send_message", methods=["POST"])
 def send_message():
@@ -845,6 +847,7 @@ def send_message():
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
+            {"role": "system", "content": preprompt},
             {"role": "system", "content": f"Aktuálně je přihlášen uživatel s ID={current_user.id}."},
             {"role": "user", "content": user_message}
         ],
@@ -875,6 +878,7 @@ def send_message():
                 final_response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
+                        {"role": "system", "content": preprompt},
                         {"role": "system", "content": f"Aktuálně je přihlášen uživatel s ID={current_user.id}."},
                         {"role": "user", "content": user_message},
                         response.choices[0].message,

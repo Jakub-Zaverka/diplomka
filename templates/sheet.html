@@ -417,7 +417,7 @@
                             <div class="row mt-1">
 
                                 <!-- EQUIPPED ITEMS -->
-                                <div class="col-5">
+                                <div class="col-12 col-lg-5">
                                     <div class="inventory-scroll">
                                         <table id="equipped-table" class="table inventory-equip-table"
                                             style="table-layout: fixed; width: 100%;">
@@ -429,8 +429,7 @@
                                             </colgroup>
 
                                             {% for item in data_page_template["items"] if item['checked'] and
-                                            item['equipped']
-                                            == 1 %}
+                                            item['equipped'] == 1 %}
                                             <tbody data-uuid="{{ item['UUID'] }}">
                                                 <tr>
                                                     <td>
@@ -438,20 +437,11 @@
                                                             data-uuid="{{ item['UUID'] }}">
                                                     </td>
                                                     <td>
-                                                        {# Zajištuje formátování aby čísla neměla za sebou .0, ale
-                                                        zároveň
-                                                        nebyla int #}
-                                                        <p class="mb-0">{{ ("%.2f"|format(
-                                                            item['count'])).rstrip('0').rstrip('.')}}</p>
+                                                        <p class="mb-0">{{
+                                                            ("%.2f"|format(item['count'])).rstrip('0').rstrip('.') }}
+                                                        </p>
                                                     </td>
-                                                    <td data-id="{{ item['UUID'] }}" {% if item.get('damage') %}
-                                                        data-damage="{{ item['damage'] }}" {% set damage_mods=[] %} {%
-                                                        for mod in item['damage_modifier'] %} {% set
-                                                        _=damage_mods.append(character[mod]) %} {% endfor %} {% set
-                                                        bonus=((damage_mods|max - 10) / 2) | int %}
-                                                        data-damage_modifier="{{ item['damage_modifier'] }}"
-                                                        data-modifier="{{ bonus }}" {% endif %}
-                                                        class="item-name clickable-div"
+                                                    <td class="item-name clickable-div"
                                                         onclick="showToast(this,'Dice Roll {{ item['name'] }}')">
                                                         {{ item['name'] }}
                                                     </td>
@@ -477,13 +467,13 @@
                                 </div>
 
                                 <!-- EQUIP/UNEQUIP BUTTONS -->
-                                <div class="col-2 align-self-center">
-                                    <button id="equip-selected" class="btn btn-primary">Vybavit označené</button>
-                                    <button id="unequip-selected" class="btn btn-primary">Sundat označené</button>
+                                <div class="col-12 col-lg-2 align-self-center text-center">
+                                    <button id="equip-selected" class="btn btn-primary my-2">Vybavit označené</button>
+                                    <button id="unequip-selected" class="btn btn-primary my-2">Sundat označené</button>
                                 </div>
 
                                 <!-- INVENTORY ITEMS -->
-                                <div class="col-5">
+                                <div class="col-12 col-lg-5">
                                     <div class="inventory-scroll">
                                         <table id="inventory-table" class="table inventory-equip-table"
                                             style="table-layout: fixed; width: 100%;">
@@ -506,8 +496,7 @@
                                             </tbody>
 
                                             {% for item in data_page_template["items"] if item['checked'] and
-                                            item['equipped']
-                                            == 0 %}
+                                            item['equipped'] == 0 %}
                                             <tbody data-uuid="{{ item['UUID'] }}">
                                                 <tr>
                                                     <td>
@@ -515,21 +504,14 @@
                                                             data-uuid="{{ item['UUID'] }}">
                                                     </td>
                                                     <td>
-                                                        <p class="mb-0">{{ ("%.2f"|format(
-                                                            item['count'])).rstrip('0').rstrip('.')}}</p>
+                                                        <p class="mb-0">{{
+                                                            ("%.2f"|format(item['count'])).rstrip('0').rstrip('.') }}
+                                                        </p>
                                                     </td>
-                                                    <td data-id="{{ item['UUID'] }}" {% if item.get('damage') %}
-                                                        data-damage="{{ item['damage'] }}" {% set damage_mods=[] %} {%
-                                                        for mod in item['damage_modifier'] %} {% set
-                                                        _=damage_mods.append(character[mod]) %} {% endfor %} {% set
-                                                        bonus=((damage_mods|max - 10) / 2) | int %}
-                                                        data-damage_modifier="{{ item['damage_modifier'] }}"
-                                                        data-modifier="{{ bonus }}" {% endif %}
-                                                        class="item-name clickable-div"
+                                                    <td class="item-name clickable-div"
                                                         onclick="showToast(this,'Dice Roll {{ item['name'] }}')">
                                                         {{ item['name'] }}
                                                     </td>
-
                                                     <td class="text-end">
                                                         <button class="btn btn-primary m-1" type="button"
                                                             data-bs-toggle="collapse"
@@ -550,9 +532,11 @@
                                         </table>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
+
                     <!-- Notes -->
                     <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
                         <div class="tab-scroll-wrapper">
@@ -562,21 +546,23 @@
                     </div>
                     <!-- AI -->
                     <div class="tab-pane fade" id="nav-ai" role="tabpanel" aria-labelledby="nav-ai-tab">
-                        <div class="d-flex justify-content-center container mt-5">
-                            <div class="wrapper">
-                                <div class="main">
-                                    <div class="px-2 scroll" id="chat-box">
-                                        <!-- Zprávy se budou přidávat sem -->
-                                    </div>
-                                    <nav class="navbar bg-white navbar-expand-sm d-flex justify-content-between">
-                                        <input type="text" id="user-input" class="form-control"
-                                            placeholder="Type a message...">
-                                        <div
-                                            class="icondiv d-flex justify-content-end align-content-center text-center ml-2">
-                                            <i class="fa fa-paperclip icon1"></i>
-                                            <i class="fa fa-arrow-circle-right icon2" id="send-btn"></i>
+                        <div class="tab-scroll-wrapper">
+                            <div class="d-flex justify-content-center container mt-5">
+                                <div class="wrapper">
+                                    <div class="main">
+                                        <div class="px-2 scroll" id="chat-box">
+                                            <!-- Zprávy se budou přidávat sem -->
                                         </div>
-                                    </nav>
+                                        <nav class="navbar bg-white navbar-expand-sm d-flex justify-content-between">
+                                            <input type="text" id="user-input" class="form-control"
+                                                placeholder="Type a message...">
+                                            <div
+                                                class="icondiv d-flex justify-content-end align-content-center text-center ml-2">
+                                                <i class="fa fa-paperclip icon1"></i>
+                                                <i class="fa fa-arrow-circle-right icon2" id="send-btn"></i>
+                                            </div>
+                                        </nav>
+                                    </div>
                                 </div>
                             </div>
                         </div>
