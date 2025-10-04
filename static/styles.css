@@ -82,36 +82,31 @@ body {
     vertical-align: middle;
 }
 
-@media (min-width: 992px) {
-    .sheet-features-scroll {
-        min-height: calc(100vh - 300px);
-        /* nastav výšku podle potřeby */
-        overflow-y: auto;
-        box-sizing: border-box;
 
-        /*zajistí, aby obsah tab-panes byl vypisován odshora*/
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-    }
-}
-
-/*veze pro mobil*/
-/*Scroll je blokován na body levelu*/
-/*TODO: Vyřešit na úrovni pane*/
-.sheet-features-scroll {
-    min-height: calc(100vh - 280px);
-    /* nastav výšku podle potřeby */
-    overflow-y: auto;
-    box-sizing: border-box;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-}
 
 /* aby tabulka vypadala pořád pěkně */
 .sheet-features-scroll table {
     margin-bottom: 0;
     /* odstraní extra mezery pod tabulkou */
+}
+
+/* Scrollovací wrapper uvnitř každého tab-pane */
+.tab-scroll-wrapper {
+    height: calc(100vh - 400px); /*400px je prostě tip výšky navbaru a jiných elementů*/
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+/*tablety*/
+@media (max-width: 960px) {
+    .tab-scroll-wrapper {
+        height: calc(100dvh - 350px); /*350px je prostě tip výšky navbaru a jiných elementů, dvh je dynamick viewport height, specifické pro mobily*/
+    }
+}
+/*extra malé displeje*/
+@media (max-width: 767px) {
+    .tab-scroll-wrapper {
+        height: calc(100dvh - 425px); /*425px je prostě tip výšky navbaru a jiných elementů, dvh je dynamick viewport height, specifické pro mobily*/
+    }
 }
