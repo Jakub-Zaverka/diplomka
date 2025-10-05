@@ -90,7 +90,7 @@ body {
     /* odstraní extra mezery pod tabulkou */
 }
 
-/* Scrollovací wrapper uvnitř každého tab-pane */
+/* Scrollovací wrapper uvnitř každého tab-pane sheet*/
 .tab-scroll-wrapper {
     height: calc(100vh - 400px); /*400px je prostě tip výšky navbaru a jiných elementů*/
     overflow-y: auto;
@@ -108,5 +108,26 @@ body {
 @media (max-width: 767px) {
     .tab-scroll-wrapper {
         height: calc(100dvh - 425px); /*425px je prostě tip výšky navbaru a jiných elementů, dvh je dynamick viewport height, specifické pro mobily*/
+    }
+}
+
+/* Scrollovací wrapper uvnitř každého tab-pane sheet edit mode*/
+.tab-scroll-wrapper-edit-mode {
+    height: calc(100vh - 300px); /*400px je prostě tip výšky navbaru a jiných elementů*/
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+/*tablety*/
+@media (max-width: 960px) {
+    .tab-scroll-wrapper-edit-mode {
+        height: calc(100dvh - 300px); /*350px je prostě tip výšky navbaru a jiných elementů, dvh je dynamick viewport height, specifické pro mobily*/
+    }
+}
+/*extra malé displeje*/
+@media (max-width: 767px) {
+    .tab-scroll-wrapper-edit-mode {
+        height: calc(100dvh - 350px); /*425px je prostě tip výšky navbaru a jiných elementů, dvh je dynamick viewport height, specifické pro mobily*/
     }
 }

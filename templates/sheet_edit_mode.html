@@ -16,7 +16,7 @@
 <body class="bg-white">
     <!-- <h1>PH:Char_id:{{ character.char_id }} Char name:{{ character.name }} User_id:{{ character.user_id }}</h1> -->
     <div class="row">
-        <div class="col-12 col-md-6 row">
+        <div class="col-12 col-md-6 row d-none d-lg-flex">
             <!-- Atributes -->
             <div class="col-12 col-md-7 px-md-3">
                 <div class="order-md-1">
@@ -37,7 +37,7 @@
                     </div>
                     <!-- Individual Atribute -->
                     {% for item in data_page_template["atributes"] %}
-                    <div class="row">
+                    <div class="row ">
                         <div class="bg-light row shadow mx-0 py-1">
                             <!-- Levý sloupec s hodnotou -->
                             <div class="col-2 d-flex align-items-center justify-content-center">
@@ -215,86 +215,273 @@
                                 data-url="{{ url_for('sheet', char_id=character['char_id']) }}">Exit Edit Mode</button>
                         </div>
                     </div>
-                    <!-- Feats -->
-                    {% set feat_levels = [
-                    {'level': 0, 'label': 'Origin Feat', 'filter': 'origin'},
-                    {'level': 4, 'label': 'Level 4 Feat', 'filter': 'non-epic'},
-                    {'level': 8, 'label': 'Level 8 Feat', 'filter': 'non-epic'},
-                    {'level': 12, 'label': 'Level 12 Feat', 'filter': 'non-epic'},
-                    {'level': 16, 'label': 'Level 16 Feat', 'filter': 'non-epic'},
-                    {'level': 19, 'label': 'Level 19 Feat/Epic Boon', 'filter': 'all'}
-                    ] %}
-                    {% if character.char_race == 'human' %}
-                    {% set feat_levels = feat_levels + [{'level': 1, 'label': 'Origin Feat Human', 'filter': 'origin'}]
-                    %}
-                    {% endif %}
-                    {% if character.char_class == 'fighter' %}
-                    {% set feat_levels = feat_levels + [{'level': 6, 'label': 'Fighter Feat level 6', 'filter':
-                    'non-epic'}] %}
-                    {% set feat_levels = feat_levels + [{'level': 14, 'label': 'Fighter Feat level 14', 'filter':
-                    'non-epic'}] %}
-                    {% endif %}
-                    {% if character.char_class == 'rogue' %}
-                    {% set feat_levels = feat_levels + [{'level': 10, 'label': 'Rogue Feat level 6', 'filter':
-                    'non-epic'}] %}
-                    {% endif %}
-                    <div>
-                        {% for conf in feat_levels %}
-                        <div>
-                            <p>{{ conf.label }}</p>
-                            <select class="form-select bg-primary" aria-label="Feat select" onchange="postFeat(this)"
-                                data-level="{{ conf.level }}">
-                                <option value="0">Select Feat</option>
-                                {% for item in data_page_template["feats"].values() %}
-                                {% if conf.filter == 'origin' and item['type'] == 'origin'
-                                or conf.filter == 'non-epic' and item['type'] != 'epic'
-                                or conf.filter == 'all' %}
-                                <option value="{{ item['UUID'] }}" {% if known_feats.get(conf.level)==item['UUID']
-                                    %}selected{% endif %}>
-                                    {{ item['name'] | capitalize }}
-                                </option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                        {% endfor %}
-                        <div>
-                            
-                            {# joining stringu se dělá pomocí ~ #}
-                            {% for choice in (data_page_template.get("option_" ~ (character.char_class or ""),
-                            {})).values() %}
-                            <p>{{ choice["name"] }}</p>
-                            <select class="form-select bg-primary" aria-label="Class choice select"
-                                data-uuid="{{ choice['UUID'] }}" onchange="postClassChoice(this)">
-                                <option value="0">Select Option</option>
-                                {% for option, description in choice["options"].items() %}
-                                {# zkontroluj, jestli known_choices obsahuje tento výběr #}
-                                {% set is_selected = false %}
-                                {% for kc in known_choices %}
-                                
-                                {% if kc["choice_id"] == choice["UUID"] and kc["choice"] == option %}
-                                {% set is_selected = true %}
-                                
-                                {% endif %}
-                                {% endfor %}
-                                {% if is_selected %}
+                    <!-- TABLIST: Feats & Class Choices -->
+                    <div class="mt-3">
+                        <nav>
+                            <div class="nav nav-tabs" id="feat-class-tab" role="tablist">
+                                <button class="nav-link active" id="nav-feats-tab" data-bs-toggle="tab"
+                                    data-bs-target="#nav-feats" type="button" role="tab" aria-controls="nav-feats"
+                                    aria-selected="true">Feats</button>
+                                <button class="nav-link" id="nav-classchoices-tab" data-bs-toggle="tab"
+                                    data-bs-target="#nav-classchoices" type="button" role="tab"
+                                    aria-controls="nav-classchoices" aria-selected="false">Class Choices</button>
+                                <button class="nav-link d-block d-lg-none" id="nav-stats-tab" data-bs-toggle="tab"
+                                    data-bs-target="#nav-stats" type="button" role="tab" aria-controls="nav-stats"
+                                    aria-selected="false">Stats</button>
+                                <button class="nav-link d-block d-lg-none" id="nav-skills-tab" data-bs-toggle="tab"
+                                    data-bs-target="#nav-skills" type="button" role="tab" aria-controls="nav-skills"
+                                    aria-selected="false">Skills</button>
+                            </div>
+                        </nav>
+
+                        <div class="tab-content" id="feat-class-tabContent">
+                            <!-- FEATS TAB -->
+                            <div class="tab-pane fade show active p-3" id="nav-feats" role="tabpanel"
+                                aria-labelledby="nav-feats-tab">
+                                <div class="tab-scroll-wrapper-edit-mode">
+                                    {% set feat_levels = [
+                                    {'level': 0, 'label': 'Origin Feat', 'filter': 'origin'},
+                                    {'level': 4, 'label': 'Level 4 Feat', 'filter': 'non-epic'},
+                                    {'level': 8, 'label': 'Level 8 Feat', 'filter': 'non-epic'},
+                                    {'level': 12, 'label': 'Level 12 Feat', 'filter': 'non-epic'},
+                                    {'level': 16, 'label': 'Level 16 Feat', 'filter': 'non-epic'},
+                                    {'level': 19, 'label': 'Level 19 Feat/Epic Boon', 'filter': 'all'}
+                                    ] %}
+
+                                    {% if character.char_race == 'human' %}
+                                    {% set feat_levels = feat_levels + [{'level': 1, 'label': 'Origin Feat (Human
+                                    Bonus)',
+                                    'filter': 'origin'}] %}
+                                    {% endif %}
+                                    {% if character.char_class == 'fighter' %}
+                                    {% set feat_levels = feat_levels + [
+                                    {'level': 6, 'label': 'Fighter Feat level 6', 'filter': 'non-epic'},
+                                    {'level': 14, 'label': 'Fighter Feat level 14', 'filter': 'non-epic'}
+                                    ] %}
+                                    {% endif %}
+                                    {% if character.char_class == 'rogue' %}
+                                    {% set feat_levels = feat_levels + [{'level': 10, 'label': 'Rogue Feat level 10',
+                                    'filter': 'non-epic'}] %}
+                                    {% endif %}
 
 
-                                <!-- Nefunguje správně zobrazování, do tohoto bodu je ok -->
-                                <option value="{{ option }}" data-description="{{ description }}" data-test="{{is_selected}}" selected>
-                                    {{ option }}
-                                </option>
-                                {%else%}
-                                <option value="{{ option }}" data-description="{{ description }}">
-                                    {{ option }}
-                                </option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-                            {% endfor %}
+                                    <div class="row">
+                                        <div class="col-lg-8">
+                                            {% for conf in feat_levels %}
+                                            <div class="mb-3">
+                                                <label class="form-label">{{ conf.label }}</label>
+                                                <select class="form-select bg-primary" onchange="postFeat(this)"
+                                                    data-level="{{ conf.level }}">
+                                                    <option value="0">Select Feat</option>
+                                                    {% for item in data_page_template['feats'].values() %}
+                                                    {% if conf.filter == 'origin' and item['type'] == 'origin'
+                                                    or conf.filter == 'non-epic' and item['type'] != 'epic'
+                                                    or conf.filter == 'all' %}
+                                                    <option value="{{ item['UUID'] }}" {% if
+                                                        known_feats.get(conf.level)==item['UUID'] %}selected{% endif %}
+                                                        data-description="{{ item['description'] }}">
+                                                        {{ item['name'] | capitalize }}
+                                                    </option>
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div id="feat-description" class="border rounded p-3 bg-light"
+                                                style="min-height:150px;">
+                                                <p class="text-muted">Select a feat to see its description.</p>
+                                            </div>
+                                        </div>
+                                    </div>
 
+                                </div>
+                            </div>
+
+                            <!-- CLASS CHOICES TAB -->
+                            <div class="tab-pane fade p-3" id="nav-classchoices" role="tabpanel"
+                                aria-labelledby="nav-classchoices-tab">
+                                <div class="tab-scroll-wrapper-edit-mode">
+                                    <div class="row">
+                                        <div class="col-lg-8">
+                                            {% for choice in (data_page_template.get('option_' ~ (character.char_class
+                                            or
+                                            ''), {})).values() %}
+                                            <div class="mb-3">
+                                                <label class="form-label">{{ choice['name'] }}</label>
+                                                <select class="form-select bg-primary" data-uuid="{{ choice['UUID'] }}"
+                                                    onchange="postClassChoice(this)">
+                                                    <option value="0">Select Option</option>
+                                                    {% for option, description in choice['options'].items() %}
+                                                    {% set is_selected = false %}
+                                                    {% for kc in known_choices %}
+                                                    {% if kc['choice_id'] == choice['UUID'] and kc['choice'] == option
+                                                    %}
+                                                    {% set is_selected = true %}
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                    <option value="{{ option }}" data-description="{{ description }}" {%
+                                                        if is_selected %}selected{% endif %}>
+                                                        {{ option }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div id="classchoice-description" class="border rounded p-3 bg-light"
+                                                style="min-height:150px;">
+                                                <p class="text-muted">Select an option to see its description.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- STAST TAB -->
+                            <div class="tab-pane fade p-3" id="nav-stats" role="tabpanel" aria-labelledby="nav-stats">
+                                <div class="tab-scroll-wrapper-edit-mode">
+                                    <div class="col-12 col-md-7 px-md-3">
+                                        <div class="order-md-1">
+                                            <div class="row">
+                                                <div class="bg-light row shadow mx-0 py-1">
+                                                    <div class="col-2 ">
+                                                        <div class="row">
+                                                            <!-- <p class="h3 my-0">+5</p> -->
+                                                        </div>
+                                                        <div class="row ">
+                                                            <h3>Value</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-10 align-self-center">
+                                                        <p class="h3 w-100 word-wrap: break-word px-4">Atribute Name</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Individual Atribute -->
+                                            {% for item in data_page_template["atributes"] %}
+                                            <div class="row ">
+                                                <div class="bg-light row shadow mx-0 py-1">
+                                                    <!-- Levý sloupec s hodnotou -->
+                                                    <div class="col-2 d-flex align-items-center justify-content-center">
+                                                        <input
+                                                            class="form-control border-0 bg-primary text-center ms-2 auto_update_stats"
+                                                            style="width: 70px; height: 70px; font-size: 2rem; box-shadow: none;"
+                                                            id='{{ item["name"].lower() }}'
+                                                            value='{{ character[item["name"]] }}'>
+                                                    </div>
+
+                                                    <!-- Pravý sloupec s názvem + proficiency -->
+                                                    <div class="col-10 align-self-center">
+                                                        <p class="h3 w-100 text-wrap px-4">{{ item["name"] }}</p>
+                                                        {% set skill_key = item["name"] | lower | replace(' ', '_') %}
+                                                        {% set level = proficiencies.get(skill_key, 1) %}
+                                                        <div class="row px-2">
+                                                            <div class="col-12 d-flex gap-3">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        id="skillNone_{{ skill_key }}"
+                                                                        name="skill_{{ skill_key }}_mobile" value="1" {% if
+                                                                        level==1 %}checked{% endif %}
+                                                                        onchange="updateSkill('{{ item['name'].lower() }}', this.value)">
+                                                                    <label class="form-check-label"
+                                                                        for="skillNone_{{ skill_key }}">None</label>
+                                                                </div>
+
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        id="skillProficient_{{ skill_key }}"
+                                                                        name="skill_{{ skill_key }}_mobile" value="2" {% if
+                                                                        level==2 %}checked{% endif %}
+                                                                        onchange="updateSkill('{{ item['name'].lower() }}', this.value)">
+                                                                    <label class="form-check-label"
+                                                                        for="skillProficient_{{ skill_key }}">Proficient</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Skills tab -->
+                            <div class="tab-pane fade p-3" id="nav-skills" role="tabpanel" aria-labelledby="nav-skills">
+                                <div class="tab-scroll-wrapper-edit-mode">
+                                    <div class="bg-light row shadow px-0">
+                                        <!-- Header -->
+                                        <div class="col-12">
+                                            <h5 class="my-2 px-3">Proficiency</h5>
+                                        </div>
+
+                                        <!-- Scrollable skills container -->
+                                        <div class="col-12 skills-container overflow-auto" style="max-height: 80vh;">
+                                            {% for item in data_page_template["skills"] %}
+                                            {% set skill_key = item["name"] | lower | replace(' ', '_') %}
+                                            {% set level = proficiencies.get(skill_key, 1) %}
+                                            <div class="bg-light row shadow-sm px-3 py-2 mb-2 rounded-0">
+                                                <!-- Skill name -->
+                                                <div class="col-12">
+                                                    <p class="h5 w-100 text-wrap mb-2">{{ item["name"] }}</p>
+                                                </div>
+
+                                                <!-- Radios -->
+                                                <div class="col-12 d-flex gap-3 flex-wrap">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio"
+                                                            id="skillNone_{{ skill_key }}" name="skill_{{ skill_key }}_mobile"
+                                                            value="1" {% if level==1 %}checked{% endif %}
+                                                            onchange="updateSkill('{{ skill_key }}', this.value)">
+                                                        <label class="form-check-label"
+                                                            for="skillNone_{{ skill_key }}">None</label>
+                                                    </div>
+
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio"
+                                                            id="skillProficient_{{ skill_key }}"
+                                                            name="skill_{{ skill_key }}_mobile" value="2" {% if level==2
+                                                            %}checked{% endif %}
+                                                            onchange="updateSkill('{{ skill_key }}', this.value)">
+                                                        <label class="form-check-label"
+                                                            for="skillProficient_{{ skill_key }}">Proficient</label>
+                                                    </div>
+
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio"
+                                                            id="skillExpertise_{{ skill_key }}"
+                                                            name="skill_{{ skill_key }}_mobile" value="3" {% if level==3
+                                                            %}checked{% endif %}
+                                                            onchange="updateSkill('{{ skill_key }}', this.value)">
+                                                        <label class="form-check-label"
+                                                            for="skillExpertise_{{ skill_key }}">Expertise</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    <script>
+                        // Dynamické zobrazení popisu pro feats a class choices
+                        document.addEventListener("change", function (e) {
+                            if (e.target.matches("[onchange='postFeat(this)']")) {
+                                const desc = e.target.selectedOptions[0].dataset.description || "No description available.";
+                                document.getElementById("feat-description").innerHTML = `<p>${desc}</p>`;
+                            }
+                            if (e.target.matches("[onchange='postClassChoice(this)']")) {
+                                const desc = e.target.selectedOptions[0].dataset.description || "No description available.";
+                                document.getElementById("classchoice-description").innerHTML = `<p>${desc}</p>`;
+                            }
+                        });
+                    </script>
+
                 </div>
             </div>
         </div>
