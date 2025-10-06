@@ -16,7 +16,7 @@
 <body class="bg-white">
     <!-- <h1>PH:Char_id:{{ character.char_id }} Char name:{{ character.name }} User_id:{{ character.user_id }}</h1> -->
     <div class="row">
-        <div class="col-12 col-md-6 row d-none d-lg-flex">
+        <div class="col-12 col-lg-6 row d-none d-lg-flex">
             <!-- Atributes -->
             <div class="col-12 col-md-7 px-md-3">
                 <div class="order-md-1">
@@ -135,86 +135,84 @@
 
         </div>
         <!-- Health -->
-        <div class="no-gutters-edit col-12 col-md-6 px-4 p">
+        <div class="no-gutters-edit col-12 col-lg-6 px-4">
             <div class="row bg-light shadow">
                 <div class="col-12">
                     <div class="row m-1">
-                        <form class="col-10">
-                            <div class="row g-3">
-                                <div class="col">
+                        <form class="col-12 col-md-10 p-2 compact-form">
+                            <div class="row g-2">
+                                <div class="col-6 col-md">
                                     <label for="level" class="form-label">Level</label>
-                                    <input id="level" type="text" class="form-control auto_update_stats bg-primary"
+                                    <input id="level" type="text"
+                                        class="form-control form-control-sm auto_update_stats bg-primary "
                                         value="{{ character.level }}">
                                 </div>
-                                <!-- <div class="col">
+                                <div class="col-6 col-md">
                                     <label for="char_race" class="form-label">Race</label>
-                                    <input id="char_race" type="text" class="form-control auto_update_stats bg-primary"
-                                        value="{{ character.char_race }}">
-                                </div> -->
-                                <div class="col">
-                                    <label for="char_race" class="form-label">Race</label>
-                                    <!-- <input id="char_class" type="text" class="form-control auto_update_stats"
-                                        value="{{ character.char_class }}"> -->
-                                    <select id="char_race" class="form-select auto_update_stats bg-primary"
-                                        aria-label="Race select">
+                                    <select id="char_race"
+                                        class="form-select form-select-sm auto_update_stats bg-primary ">
                                         <option selected>Select Race</option>
                                         {% for item in player_races %}
                                         {% if item == character.char_race %}
-                                        <option selected value="{{ item }}">{{ item | capitalize}}</option>
-                                        {%else%}
-                                        <option value="{{ item }}">{{ item | capitalize}}</option>
-                                        {%endif%}
+                                        <option selected value="{{ item }}">{{ item | capitalize }}</option>
+                                        {% else %}
+                                        <option value="{{ item }}">{{ item | capitalize }}</option>
+                                        {% endif %}
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col">
+                                <div class="col-6 col-md">
                                     <label for="ac" class="form-label">AC</label>
-                                    <input id="ac" type="text" class="form-control auto_update_stats bg-primary"
+                                    <input id="ac" type="text"
+                                        class="form-control form-control-sm auto_update_stats bg-primary "
                                         value="{{ character.ac }}">
                                 </div>
-                                <div class="col">
+                                <div class="col-6 col-md">
                                     <label for="max_hp" class="form-label">Max HP</label>
-                                    <input id="max_hp" type="text" class="form-control auto_update_stats bg-primary"
+                                    <input id="max_hp" type="text"
+                                        class="form-control form-control-sm auto_update_stats bg-primary "
                                         value="{{ character.max_hp }}">
                                 </div>
                             </div>
 
-                            <div class="row g-3 mt-1">
-                                <div class="col">
+                            <div class="row g-2 mt-2">
+                                <div class="col-6 col-md">
                                     <label for="char_class" class="form-label">Class</label>
-                                    <!-- <input id="char_class" type="text" class="form-control auto_update_stats"
-                                        value="{{ character.char_class }}"> -->
-                                    <select id="char_class" class="form-select auto_update_stats bg-primary"
-                                        aria-label="Class select">
+                                    <select id="char_class"
+                                        class="form-select form-select-sm auto_update_stats bg-primary ">
                                         <option selected>Select Class</option>
                                         {% for item in player_classes %}
                                         {% if item == character.char_class %}
-                                        <option selected value="{{ item }}">{{ item | capitalize}}</option>
-                                        {%else%}
-                                        <option value="{{ item }}">{{ item | capitalize}}</option>
-                                        {%endif%}
+                                        <option selected value="{{ item }}">{{ item | capitalize }}</option>
+                                        {% else %}
+                                        <option value="{{ item }}">{{ item | capitalize }}</option>
+                                        {% endif %}
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col">
+                                <div class="col-6 col-md">
                                     <label for="char_subclass" class="form-label">Subclass</label>
                                     <input id="char_subclass" type="text"
-                                        class="form-control auto_update_stats bg-primary"
+                                        class="form-control form-control-sm auto_update_stats bg-primary "
                                         value="{{ character.char_subclass }}">
                                 </div>
-                                <div class="col">
+                                <div class="col-6 col-md">
                                     <label for="speed" class="form-label">Move Speed</label>
-                                    <input id="speed" type="text" class="form-control auto_update_stats bg-primary"
+                                    <input id="speed" type="text"
+                                        class="form-control form-control-sm auto_update_stats bg-primary "
                                         value="{{ character.speed }}">
                                 </div>
                             </div>
                         </form>
 
-                        <div class="col-2 align-content-center">
-                            <button class="edit-button btn btn-warning p-1"
-                                data-url="{{ url_for('sheet', char_id=character['char_id']) }}">Exit Edit Mode</button>
+                        <div class="col-12 col-md-2 text-center align-content-center mt-2 mt-md-0">
+                            <button class="edit-button btn btn-warning btn-sm w-100"
+                                data-url="{{ url_for('sheet', char_id=character['char_id']) }}">
+                                Exit Edit Mode
+                            </button>
                         </div>
                     </div>
+
                     <!-- TABLIST: Feats & Class Choices -->
                     <div class="mt-3">
                         <nav>
@@ -345,7 +343,7 @@
                                     <div class="col-12 col-md-7 px-md-3">
                                         <div class="order-md-1">
                                             <div class="row">
-                                                <div class="bg-light row shadow mx-0 py-1">
+                                                <div class="bg-light row mx-0 py-1">
                                                     <div class="col-2 ">
                                                         <div class="row">
                                                             <!-- <p class="h3 my-0">+5</p> -->
@@ -362,7 +360,7 @@
                                             <!-- Individual Atribute -->
                                             {% for item in data_page_template["atributes"] %}
                                             <div class="row ">
-                                                <div class="bg-light row shadow mx-0 py-1">
+                                                <div class="bg-light row mx-0 py-1">
                                                     <!-- Levý sloupec s hodnotou -->
                                                     <div class="col-2 d-flex align-items-center justify-content-center">
                                                         <input
@@ -382,8 +380,8 @@
                                                                 <div class="form-check">
                                                                     <input class="form-check-input" type="radio"
                                                                         id="skillNone_{{ skill_key }}"
-                                                                        name="skill_{{ skill_key }}_mobile" value="1" {% if
-                                                                        level==1 %}checked{% endif %}
+                                                                        name="skill_{{ skill_key }}_mobile" value="1" {%
+                                                                        if level==1 %}checked{% endif %}
                                                                         onchange="updateSkill('{{ item['name'].lower() }}', this.value)">
                                                                     <label class="form-check-label"
                                                                         for="skillNone_{{ skill_key }}">None</label>
@@ -392,8 +390,8 @@
                                                                 <div class="form-check">
                                                                     <input class="form-check-input" type="radio"
                                                                         id="skillProficient_{{ skill_key }}"
-                                                                        name="skill_{{ skill_key }}_mobile" value="2" {% if
-                                                                        level==2 %}checked{% endif %}
+                                                                        name="skill_{{ skill_key }}_mobile" value="2" {%
+                                                                        if level==2 %}checked{% endif %}
                                                                         onchange="updateSkill('{{ item['name'].lower() }}', this.value)">
                                                                     <label class="form-check-label"
                                                                         for="skillProficient_{{ skill_key }}">Proficient</label>
@@ -411,18 +409,15 @@
                             <!-- Skills tab -->
                             <div class="tab-pane fade p-3" id="nav-skills" role="tabpanel" aria-labelledby="nav-skills">
                                 <div class="tab-scroll-wrapper-edit-mode">
-                                    <div class="bg-light row shadow px-0">
+                                    <div class="bg-light row  px-0">
                                         <!-- Header -->
-                                        <div class="col-12">
-                                            <h5 class="my-2 px-3">Proficiency</h5>
-                                        </div>
 
                                         <!-- Scrollable skills container -->
                                         <div class="col-12 skills-container overflow-auto" style="max-height: 80vh;">
                                             {% for item in data_page_template["skills"] %}
                                             {% set skill_key = item["name"] | lower | replace(' ', '_') %}
                                             {% set level = proficiencies.get(skill_key, 1) %}
-                                            <div class="bg-light row shadow-sm px-3 py-2 mb-2 rounded-0">
+                                            <div class="bg-light row px-3 py-2 mb-2 rounded-0">
                                                 <!-- Skill name -->
                                                 <div class="col-12">
                                                     <p class="h5 w-100 text-wrap mb-2">{{ item["name"] }}</p>
@@ -432,8 +427,9 @@
                                                 <div class="col-12 d-flex gap-3 flex-wrap">
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio"
-                                                            id="skillNone_{{ skill_key }}" name="skill_{{ skill_key }}_mobile"
-                                                            value="1" {% if level==1 %}checked{% endif %}
+                                                            id="skillNone_{{ skill_key }}"
+                                                            name="skill_{{ skill_key }}_mobile" value="1" {% if level==1
+                                                            %}checked{% endif %}
                                                             onchange="updateSkill('{{ skill_key }}', this.value)">
                                                         <label class="form-check-label"
                                                             for="skillNone_{{ skill_key }}">None</label>
@@ -480,7 +476,118 @@
                                 document.getElementById("classchoice-description").innerHTML = `<p>${desc}</p>`;
                             }
                         });
+
+
                     </script>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", () => {
+                            const raceSelect = document.getElementById("char_race");
+                            const classSelect = document.getElementById("char_class");
+
+                            [raceSelect, classSelect].forEach(select => {
+                                select.addEventListener("change", () => {
+                                    fetch("/api/update_character_options", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({
+                                            char_race: raceSelect.value,
+                                            char_class: classSelect.value
+                                        })
+                                    })
+                                        .then(res => res.json())
+                                        .then(data => {
+                                            updateFeatUI(data.feat_levels, data.feats);
+                                            updateClassChoicesUI(data.class_choices);
+                                        })
+                                        .catch(err => console.error("Chyba při aktualizaci:", err));
+                                });
+                            });
+
+                            // === 🧩 Aktualizace Feats ===
+                            function updateFeatUI(featLevels, feats) {
+                                const featsContainer = document.querySelector("#nav-feats .col-lg-8");
+                                featsContainer.innerHTML = "";
+
+                                featLevels.forEach(conf => {
+                                    const wrapper = document.createElement("div");
+                                    wrapper.classList.add("mb-3");
+
+                                    const label = document.createElement("label");
+                                    label.classList.add("form-label");
+                                    label.textContent = conf.label;
+
+                                    const select = document.createElement("select");
+                                    select.classList.add("form-select", "bg-primary");
+                                    select.dataset.level = conf.level;
+                                    select.onchange = () => postFeat(select);
+
+                                    const defaultOption = document.createElement("option");
+                                    defaultOption.value = "0";
+                                    defaultOption.textContent = "Select Feat";
+                                    select.appendChild(defaultOption);
+
+                                    // Filtrování podle pravidel
+                                    feats.forEach(f => {
+                                        if (
+                                            (conf.filter === "origin" && f.type === "origin") ||
+                                            (conf.filter === "non-epic" && f.type !== "epic") ||
+                                            conf.filter === "all"
+                                        ) {
+                                            const opt = document.createElement("option");
+                                            opt.value = f.UUID;
+                                            opt.textContent = f.name;
+                                            opt.dataset.description = f.description || "";
+                                            select.appendChild(opt);
+                                        }
+                                    });
+
+                                    wrapper.appendChild(label);
+                                    wrapper.appendChild(select);
+                                    featsContainer.appendChild(wrapper);
+                                });
+                            }
+
+                            // === 🧩 Aktualizace Class Choices ===
+                            function updateClassChoicesUI(classChoices) {
+                                const classContainer = document.querySelector("#nav-classchoices .col-lg-8");
+                                classContainer.innerHTML = "";
+
+                                classChoices.forEach(choice => {
+                                    const wrapper = document.createElement("div");
+                                    wrapper.classList.add("mb-3");
+
+                                    const label = document.createElement("label");
+                                    label.classList.add("form-label");
+                                    label.textContent = choice.name;
+
+                                    const select = document.createElement("select");
+                                    select.classList.add("form-select", "bg-primary");
+                                    select.dataset.uuid = choice.UUID;
+                                    select.onchange = () => postClassChoice(select);
+
+                                    const defaultOption = document.createElement("option");
+                                    defaultOption.value = "0";
+                                    defaultOption.textContent = "Select Option";
+                                    select.appendChild(defaultOption);
+
+                                    for (const [opt, desc] of Object.entries(choice.options)) {
+                                        const o = document.createElement("option");
+                                        o.value = opt;
+                                        o.textContent = opt;
+                                        o.dataset.description = desc;
+                                        select.appendChild(o);
+                                    }
+
+                                    wrapper.appendChild(label);
+                                    wrapper.appendChild(select);
+                                    classContainer.appendChild(wrapper);
+                                });
+                            }
+                        });
+                    </script>
+
+
+
 
                 </div>
             </div>
