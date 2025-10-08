@@ -446,7 +446,9 @@
                                                             ("%.2f"|format(item['count'])).rstrip('0').rstrip('.') }}
                                                         </p>
                                                     </td>
-                                                    <td class="item-name clickable-div"
+
+                                                    <td class="item-name clickable-div" data-id="{{item['UUID']}}"
+                                                        data-damage="{{item['damage']}}" data-modifier="{{max_stat}}"
                                                         onclick="showToast(this,'Dice Roll {{ item['name'] }}')">
                                                         {{ item['name'] }}
                                                     </td>
@@ -513,7 +515,17 @@
                                                             ("%.2f"|format(item['count'])).rstrip('0').rstrip('.') }}
                                                         </p>
                                                     </td>
-                                                    <td class="item-name clickable-div"
+                                                    {% set ns = namespace(max_stat=-999) %}
+
+                                                    {% for stat in item["damage_modifier"] %}
+                                                    {% set bonus = ((character[stat] - 10) / 2)|int %}
+                                                    {% if bonus > ns.max_stat %}
+                                                    {% set ns.max_stat = bonus %}
+                                                    {% endif %}
+                                                    {% endfor %}
+
+                                                    <td class="item-name clickable-div" data-id="{{item['UUID']}}"
+                                                        data-damage="{{item['damage']}}" data-modifier="{{ ns.max_stat }}"
                                                         onclick="showToast(this,'Dice Roll {{ item['name'] }}')">
                                                         {{ item['name'] }}
                                                     </td>

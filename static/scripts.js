@@ -559,13 +559,6 @@ function generateRandomInteger(min, max) {
 }
 
 
-// Dice Roll - old and not used
-/*function randomRoll(number, die = 20, modifier = 0) {
-    rand = generateRandomInteger(number, die)
-    modInt = parseInt(modifier)
-    sum = rand + modInt
-    return sum
-}*/
 
 //Dice Roll From String
 //4d4+1d6+1
@@ -628,7 +621,11 @@ function showToast(element = null, title = 'Heading') {
         <div class="toast-body">
             Attack Roll: ${modifier == "0"
                 ? `${stringDiceRoll('1d20')} (1d20)`
-                : `${stringDiceRoll('1d20' + '+' + modifier)} (1d20+${modifier})`}<br>
+                // : `${stringDiceRoll('1d20' + '+' + modifier)} (1d20+${modifier})`
+                :(modifier < 0 
+                    ? `${stringDiceRoll('1d20' + '+' + modifier)} (1d20${modifier})`
+                    : `${stringDiceRoll('1d20' + '+' + modifier)} (1d20+${modifier})`)
+            }<br>
             Damage Roll: ${modifier == "0"
                 ? `${stringDiceRoll(dice)} (${dice})`
                 : `${stringDiceRoll(dice + '+' + modifier)} (${dice}+${modifier})`}
@@ -643,8 +640,12 @@ function showToast(element = null, title = 'Heading') {
         </div>
         <div class="toast-body">
             Random Roll: ${modifier == "0"
-                ? `${stringDiceRoll(dice)} (${dice})`
-                : `${stringDiceRoll(dice + '+' + modifier)} (${dice}+${modifier})`}
+                ? `${stringDiceRoll('1d20')} (1d20)`
+                // : `${stringDiceRoll('1d20' + '+' + modifier)} (1d20+${modifier})`
+                :(modifier < 0 
+                    ? `${stringDiceRoll('1d20' + '+' + modifier)} (1d20${modifier})`
+                    : `${stringDiceRoll('1d20' + '+' + modifier)} (1d20+${modifier})`)
+            }
         </div>
         `;
     }
