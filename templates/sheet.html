@@ -24,10 +24,15 @@
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
-                        PH:Profile
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-person-circle" viewBox="0 0 16 16">
+                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
+                            <path fill-rule="evenodd"
+                                d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
+                        </svg>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#">PH:UserName</a></li>
+                        <li><a class="dropdown-item" href="/user_info">User info</a></li>
                         <li><a class="dropdown-item" href="/dashboard">Characters</a></li>
                         <li><a class="dropdown-item" href="/logout">Logout</a></li>
                     </ul>
@@ -38,9 +43,9 @@
     <!-- <h1>PH DEBUG: Char_id:{{ character.char_id }} Char name:{{ character.name }} User_id:{{ character.user_id }}</h1> -->
     <!-- <button class="edit-button btn btn-warning p-1" data-url="{{ url_for('dashboard') }}">PH:Dashboard</button> -->
     <div class="row">
-        <div class="col-12 col-md-6 row">
+        <div class="col-12 col-lg-6 row d-none d-lg-flex">
             <!-- Atributes -->
-            <div class="col-12 col-md-7 px-md-3">
+            <div class="col-12 col-lg-7 px-md-3">
                 <div class="bg-info order-md-1">
                     <!-- Individual Atribute -->
                     {% for item in data_page_template["atributes"] %}
@@ -96,11 +101,11 @@
                     </div>
                 </div>
             </div>
-            <div style="height: 100px;" class="bg-info col-12 col-md-6 order-md-3 order-last d-sm-block d-md-none">
+            <div style="height: 100px;" class="bg-info col-12 col-lg-6 order-md-3 order-last d-sm-block d-md-none">
                 <p>Rest Small Screen</p>
             </div>
             <!-- Skills -->
-            <div class="col-12 col-md-5 order-md-2 px-md-3">
+            <div class="col-12 col-lg-5 order-md-2 px-md-3">
                 <!-- Individual Skill -->
                 {% for item in data_page_template["skills"] %}
                 {% for atribute in data_page_template["atributes"] %}
@@ -130,7 +135,7 @@
             </div>
         </div>
         <!-- Health -->
-        <div class="no-gutters-edit col-12 col-md-6 px-4 p">
+        <div class="no-gutters-edit col-12 col-lg-6 px-4 p">
             <div class="row bg-light shadow">
                 <div class="col-12">
                     <div class="progress position-relative" style="height: 30px;">
@@ -227,137 +232,144 @@
                             type="button" role="tab" aria-controls="nav-notes" aria-selected="false">Notes</button>
                         <button class="nav-link" id="nav-ai-tab" data-bs-toggle="tab" data-bs-target="#nav-ai"
                             type="button" role="tab" aria-controls="nav-ai" aria-selected="false">AI</button>
+                        <button class="nav-link d-block d-lg-none" id="nav-stats-tab" data-bs-toggle="tab"
+                            data-bs-target="#nav-stats" type="button" role="tab" aria-controls="nav-stats"
+                            aria-selected="false">Stats</button>
                     </div>
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
                     <!-- Features -->
                     <div class="tab-pane fade show active" id="nav-features" role="tabpanel"
                         aria-labelledby="nav-features-tab">
-                        <!-- Flex container for all feature cards -->
-                        <div class="d-flex flex-wrap gap-2">
-                            <!-- One Feature -->
-                            {% for feature in data_page_template["features"] %}
-                            {% if feature["known"] %}
-                            <div class="card" style="width: auto;">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h5 class="card-title m-1">{{ feature["name"] }}</h5>
-                                        <h6 class="card-title m-1">{{ feature["cost"] | capitalize }}</h6>
-                                        <button class="btn btn-outline-primary m-1" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#Collapse{{ feature['UUID'] }}"
-                                            aria-expanded="false"
-                                            aria-controls="Collapse{{ feature['UUID'] }}">^</button>
-                                    </div>
-                                    <div class="d-flex" id="{{ feature['UUID'] }}_div">
-                                        {% set current_charger = feature["charges"] | int if feature["charges"] is not
-                                        none else 0 %}
+                        <div class="tab-scroll-wrapper">
+                            <!-- Flex container for all feature/feat/trait cards -->
+                            <div class="d-flex flex-wrap gap-2 ">
 
-                                        {% if feature["max_charges"] != 0 and current_charger != 0 %}
-                                        <button class="btn btn-primary m-1" id="{{ feature['UUID'] }}"
-                                            onclick="useFeature(this)">UseAbility</button>
-                                        {% endif %}
-                                        {% if feature["max_charges"] != 0 and current_charger == 0 %}
-                                        <button class="btn btn-primary m-1" id="{{ feature['UUID'] }}" disabled
-                                            onclick="useFeature(this)">UseAbility</button>
-                                        {% endif %}
-
-
-
-
-                                        {% for i in range(0, current_charger) %}
-                                        <div class="form-check form-check-inline m-0 p-0 ps-4">
-                                            <input class="form-check-input" type="checkbox"
-                                                id="{{ feature['UUID'] }}_{{ i+1 }}" value="" onchange="charges(this)"
-                                                checked>
+                                <!-- Features -->
+                                {% for feature in data_page_template["features"] %}
+                                {% if feature["known"] %}
+                                <div class="card" style="width: auto;">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="card-title m-1">{{ feature["name"] }}</h5>
+                                            <h6 class="card-title m-1">{{ feature["cost"] | capitalize }}</h6>
+                                            <button class="btn btn-outline-primary m-1" type="button"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#Collapse{{ feature['UUID'] }}" aria-expanded="false"
+                                                aria-controls="Collapse{{ feature['UUID'] }}">^</button>
                                         </div>
-                                        {% endfor %}
+                                        <div class="d-flex" id="{{ feature['UUID'] }}_div">
+                                            {% set current_charger = feature["charges"] | int if feature["charges"] is
+                                            not none else 0 %}
 
-                                        {% for i in range(current_charger, feature["max_charges"] | int) %}
-                                        <div class="form-check form-check-inline m-0 p-0 ps-4">
-                                            <input class="form-check-input" type="checkbox"
-                                                id="{{ feature['UUID'] }}_{{ i+1 }}" value="" onchange="charges(this)">
+                                            {% if feature["max_charges"] != 0 and current_charger != 0 %}
+                                            <button class="btn btn-primary m-1" id="{{ feature['UUID'] }}"
+                                                onclick="useFeature(this)">UseAbility</button>
+                                            {% endif %}
+                                            {% if feature["max_charges"] != 0 and current_charger == 0 %}
+                                            <button class="btn btn-primary m-1" id="{{ feature['UUID'] }}" disabled
+                                                onclick="useFeature(this)">UseAbility</button>
+                                            {% endif %}
+
+                                            {% for i in range(0, current_charger) %}
+                                            <div class="form-check form-check-inline m-0 p-0 ps-4">
+                                                <input class="form-check-input" type="checkbox"
+                                                    id="{{ feature['UUID'] }}_{{ i+1 }}" value=""
+                                                    onchange="charges(this)" checked>
+                                            </div>
+                                            {% endfor %}
+
+                                            {% for i in range(current_charger, feature["max_charges"] | int) %}
+                                            <div class="form-check form-check-inline m-0 p-0 ps-4">
+                                                <input class="form-check-input" type="checkbox"
+                                                    id="{{ feature['UUID'] }}_{{ i+1 }}" value=""
+                                                    onchange="charges(this)">
+                                            </div>
+                                            {% endfor %}
                                         </div>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="collapse mt-2" id="Collapse{{ feature['UUID'] }}">
-                                        <div class="card card-body">
-                                            {{ feature["description"] }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endif %}
-                            {% endfor %}
-                            <!-- Feats -->
-
-                            {% for feat in data_page_template["feats"].values() %}
-                            {# Nebudou se zobrazovat ASI mezi features #}
-                            {% if feat["known"] and feat["UUID"] != "3ec881a9-fbc5-4bf0-aa48-b6ada0bbfea0" %}
-                            <div class="card" style="width: auto;">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h5 class="card-title m-1">{{ feat["name"] }}</h5>
-
-                                        <button class="btn btn-outline-primary m-1" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#Collapse{{ feat['UUID'] }}"
-                                            aria-expanded="false" aria-controls="Collapse{{ feat['UUID'] }}">^</button>
-                                    </div>
-
-                                    <div class="collapse mt-2" id="Collapse{{ feat['UUID'] }}">
-                                        <div class="card card-body">
-                                            {{ feat["description"] }}
+                                        <div class="collapse mt-2" id="Collapse{{ feature['UUID'] }}">
+                                            <div class="card card-body">
+                                                {{ feature["description"] }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            {% endif %}
-                            {% endfor %}
-                            <!-- Racial Traits -->
-                            {% for trait in traits %}
-                            {% if trait["known"]%}
-                            <div class="card" style="width: auto;">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h5 class="card-title m-1">{{ trait["name"] }}</h5>
-                                        <h6 class="card-title m-1">{{ trait.get("cost","") | capitalize }}</h6>
-                                        <button class="btn btn-outline-primary m-1" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#Collapse{{ trait['UUID'] }}"
-                                            aria-expanded="false" aria-controls="Collapse{{ trait['UUID'] }}">^</button>
-                                    </div>
-                                    <div class="d-flex" id="{{ trait['UUID'] }}_div">
-                                        {% if trait["max_charges"] != 0 %}
-                                        <button class="btn btn-primary m-1" id="{{ trait['UUID'] }}">UseAbility</button>
-                                        {% endif %}
-                                        {% set current_charger = trait["charges"] if trait["charges"] is not none else 0
-                                        %}
-                                        {% for i in range(0, current_charger) %}
-                                        <div class="form-check form-check-inline m-0 p-0 ps-4">
-                                            <input class="form-check-input" type="checkbox"
-                                                id="{{ trait['UUID'] }}_{{ i+1 }}" value="" onchange="charges(this)"
-                                                checked>
+                                {% endif %}
+                                {% endfor %}
+
+                                <!-- Feats -->
+                                {% for feat in data_page_template["feats"].values() %}
+                                {% if feat["known"] and feat["UUID"] != "3ec881a9-fbc5-4bf0-aa48-b6ada0bbfea0" %}
+                                <div class="card" style="width: auto;">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="card-title m-1">{{ feat["name"] }}</h5>
+                                            <button class="btn btn-outline-primary m-1" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#Collapse{{ feat['UUID'] }}"
+                                                aria-expanded="false"
+                                                aria-controls="Collapse{{ feat['UUID'] }}">^</button>
                                         </div>
-                                        {% endfor %}
-                                        {% for i in range(current_charger, trait["max_charges"]) %}
-                                        <div class="form-check form-check-inline m-0 p-0 ps-4">
-                                            <input class="form-check-input" type="checkbox"
-                                                id="{{ trait['UUID'] }}_{{ i+1 }}" value="" onchange="charges(this)">
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="collapse mt-2" id="Collapse{{ trait['UUID'] }}">
-                                        <div class="card card-body">
-                                            {{ trait["description"] }}
+                                        <div class="collapse mt-2" id="Collapse{{ feat['UUID'] }}">
+                                            <div class="card card-body">
+                                                {{ feat["description"] }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                                {% endif %}
+                                {% endfor %}
+
+                                <!-- Racial Traits -->
+                                {% for trait in traits %}
+                                {% if trait["known"] %}
+                                <div class="card" style="width: auto;">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="card-title m-1">{{ trait["name"] }}</h5>
+                                            <h6 class="card-title m-1">{{ trait.get("cost","") | capitalize }}</h6>
+                                            <button class="btn btn-outline-primary m-1" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#Collapse{{ trait['UUID'] }}"
+                                                aria-expanded="false"
+                                                aria-controls="Collapse{{ trait['UUID'] }}">^</button>
+                                        </div>
+                                        <div class="d-flex" id="{{ trait['UUID'] }}_div">
+                                            {% if trait["max_charges"] != 0 %}
+                                            <button class="btn btn-primary m-1"
+                                                id="{{ trait['UUID'] }}">UseAbility</button>
+                                            {% endif %}
+                                            {% set current_charger = trait["charges"] if trait["charges"] is not none
+                                            else 0 %}
+                                            {% for i in range(0, current_charger) %}
+                                            <div class="form-check form-check-inline m-0 p-0 ps-4">
+                                                <input class="form-check-input" type="checkbox"
+                                                    id="{{ trait['UUID'] }}_{{ i+1 }}" value="" onchange="charges(this)"
+                                                    checked>
+                                            </div>
+                                            {% endfor %}
+                                            {% for i in range(current_charger, trait["max_charges"]) %}
+                                            <div class="form-check form-check-inline m-0 p-0 ps-4">
+                                                <input class="form-check-input" type="checkbox"
+                                                    id="{{ trait['UUID'] }}_{{ i+1 }}" value=""
+                                                    onchange="charges(this)">
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="collapse mt-2" id="Collapse{{ trait['UUID'] }}">
+                                            <div class="card card-body">
+                                                {{ trait["description"] }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
                             </div>
-                            {% endif %}
-                            {% endfor %}
                         </div>
                     </div>
+
                     <!-- Spells -->
                     <div class="tab-pane fade" id="nav-spells" role="tabpanel" aria-labelledby="nav-spells-tab">
-                        <div>
+                        <div class="tab-scroll-wrapper">
                             <table class="table">
                                 <thead>
                                     <tr>
@@ -406,167 +418,238 @@
                     </div>
                     <!-- Inventory -->
                     <div class="tab-pane fade" id="nav-inventory" role="tabpanel" aria-labelledby="nav-inventory-tab">
-                        <div class="row mt-1">
+                        <div class="tab-scroll-wrapper">
+                            <div class="row mt-1">
 
-                            <!-- EQUIPPED ITEMS -->
-                            <div class="col-5">
-                                <div class="inventory-scroll">
-                                    <table id="equipped-table" class="table inventory-equip-table"
-                                        style="table-layout: fixed; width: 100%;">
-                                        <colgroup>
-                                            <col style="width:40px"> <!-- checkbox -->
-                                            <col style="width:55px"> <!-- count -->
-                                            <col style="width:auto"> <!-- name -->
-                                            <col style="width:90px"> <!-- info button -->
-                                        </colgroup>
+                                <!-- EQUIPPED ITEMS -->
+                                <div class="col-12 col-lg-5">
+                                    <div class="inventory-scroll">
+                                        <table id="equipped-table" class="table inventory-equip-table"
+                                            style="table-layout: fixed; width: 100%;">
+                                            <colgroup>
+                                                <col style="width:40px"> <!-- checkbox -->
+                                                <col style="width:55px"> <!-- count -->
+                                                <col style="width:auto"> <!-- name -->
+                                                <col style="width:90px"> <!-- info button -->
+                                            </colgroup>
 
-                                        {% for item in data_page_template["items"] if item['checked'] and
-                                        item['equipped']
-                                        == 1 %}
-                                        <tbody data-uuid="{{ item['UUID'] }}">
-                                            <tr>
-                                                <td>
-                                                    <input class="form-check-input equip-checkbox" type="checkbox"
-                                                        data-uuid="{{ item['UUID'] }}">
-                                                </td>
-                                                <td>
-                                                    {# Zajištuje formátování aby čísla neměla za sebou .0, ale zároveň
-                                                    nebyla int #}
-                                                    <p class="mb-0">{{ ("%.2f"|format(
-                                                        item['count'])).rstrip('0').rstrip('.')}}</p>
-                                                </td>
-                                                <td data-id="{{ item['UUID'] }}" {% if item.get('damage') %}
-                                                    data-damage="{{ item['damage'] }}" {% set damage_mods=[] %} {% for
-                                                    mod in item['damage_modifier'] %} {% set
-                                                    _=damage_mods.append(character[mod]) %} {% endfor %} {% set
-                                                    bonus=((damage_mods|max - 10) / 2) | int %}
-                                                    data-damage_modifier="{{ item['damage_modifier'] }}"
-                                                    data-modifier="{{ bonus }}" {% endif %}
-                                                    class="item-name clickable-div"
-                                                    onclick="showToast(this,'Dice Roll {{ item['name'] }}')">
-                                                    {{ item['name'] }}
-                                                </td>
-                                                <td class="text-end">
-                                                    <button class="btn btn-primary m-1" type="button"
-                                                        data-bs-toggle="collapse"
-                                                        data-bs-target="#Collapse{{ item['UUID'] }}"
-                                                        aria-expanded="false"
-                                                        aria-controls="Collapse{{ item['UUID'] }}">
-                                                        Info
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="4" class="collapse" id="Collapse{{ item['UUID'] }}">
-                                                    {{ item["description"] }}
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                        {% endfor %}
-                                    </table>
+                                            {% for item in data_page_template["items"] if item['checked'] and
+                                            item['equipped'] == 1 %}
+                                            <tbody data-uuid="{{ item['UUID'] }}">
+                                                <tr>
+                                                    <td>
+                                                        <input class="form-check-input equip-checkbox" type="checkbox"
+                                                            data-uuid="{{ item['UUID'] }}">
+                                                    </td>
+                                                    <td>
+                                                        <p class="mb-0">{{
+                                                            ("%.2f"|format(item['count'])).rstrip('0').rstrip('.') }}
+                                                        </p>
+                                                    </td>
+                                                    <td class="item-name clickable-div"
+                                                        onclick="showToast(this,'Dice Roll {{ item['name'] }}')">
+                                                        {{ item['name'] }}
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <button class="btn btn-primary m-1" type="button"
+                                                            data-bs-toggle="collapse"
+                                                            data-bs-target="#Collapse{{ item['UUID'] }}"
+                                                            aria-expanded="false"
+                                                            aria-controls="Collapse{{ item['UUID'] }}">
+                                                            Info
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="4" class="collapse" id="Collapse{{ item['UUID'] }}">
+                                                        {{ item["description"] }}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            {% endfor %}
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- EQUIP/UNEQUIP BUTTONS -->
-                            <div class="col-2 align-self-center">
-                                <button id="equip-selected" class="btn btn-primary">Vybavit označené</button>
-                                <button id="unequip-selected" class="btn btn-primary">Sundat označené</button>
-                            </div>
-
-                            <!-- INVENTORY ITEMS -->
-                            <div class="col-5">
-                                <div class="inventory-scroll">
-                                    <table id="inventory-table" class="table inventory-equip-table"
-                                        style="table-layout: fixed; width: 100%;">
-                                        <colgroup>
-                                            <col style="width:40px"> <!-- checkbox -->
-                                            <col style="width:55px"> <!-- count -->
-                                            <col style="width:auto"> <!-- name -->
-                                            <col style="width:90px"> <!-- info button -->
-                                        </colgroup>
-
-                                        <tbody>
-                                            <tr>
-                                                <td colspan="4" class="text-center">
-                                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                                        data-bs-target="#inventoryModal">
-                                                        Edit Inventory
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-
-                                        {% for item in data_page_template["items"] if item['checked'] and
-                                        item['equipped']
-                                        == 0 %}
-                                        <tbody data-uuid="{{ item['UUID'] }}">
-                                            <tr>
-                                                <td>
-                                                    <input class="form-check-input equip-checkbox" type="checkbox"
-                                                        data-uuid="{{ item['UUID'] }}">
-                                                </td>
-                                                <td>
-                                                    <p class="mb-0">{{ ("%.2f"|format(
-                                                        item['count'])).rstrip('0').rstrip('.')}}</p>
-                                                </td>
-                                                <td data-id="{{ item['UUID'] }}" {% if item.get('damage') %}
-                                                    data-damage="{{ item['damage'] }}" {% set damage_mods=[] %} {% for
-                                                    mod in item['damage_modifier'] %} {% set
-                                                    _=damage_mods.append(character[mod]) %} {% endfor %} {% set
-                                                    bonus=((damage_mods|max - 10) / 2) | int %}
-                                                    data-damage_modifier="{{ item['damage_modifier'] }}"
-                                                    data-modifier="{{ bonus }}" {% endif %}
-                                                    class="item-name clickable-div"
-                                                    onclick="showToast(this,'Dice Roll {{ item['name'] }}')">
-                                                    {{ item['name'] }}
-                                                </td>
-
-                                                <td class="text-end">
-                                                    <button class="btn btn-primary m-1" type="button"
-                                                        data-bs-toggle="collapse"
-                                                        data-bs-target="#Collapse{{ item['UUID'] }}"
-                                                        aria-expanded="false"
-                                                        aria-controls="Collapse{{ item['UUID'] }}">
-                                                        Info
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="4" class="collapse" id="Collapse{{ item['UUID'] }}">
-                                                    {{ item["description"] }}
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                        {% endfor %}
-                                    </table>
+                                <!-- EQUIP/UNEQUIP BUTTONS -->
+                                <div class="col-12 col-lg-2 align-self-center text-center">
+                                    <button id="equip-selected" class="btn btn-primary my-2">Vybavit označené</button>
+                                    <button id="unequip-selected" class="btn btn-primary my-2">Sundat označené</button>
                                 </div>
+
+                                <!-- INVENTORY ITEMS -->
+                                <div class="col-12 col-lg-5">
+                                    <div class="inventory-scroll">
+                                        <table id="inventory-table" class="table inventory-equip-table"
+                                            style="table-layout: fixed; width: 100%;">
+                                            <colgroup>
+                                                <col style="width:40px"> <!-- checkbox -->
+                                                <col style="width:55px"> <!-- count -->
+                                                <col style="width:auto"> <!-- name -->
+                                                <col style="width:90px"> <!-- info button -->
+                                            </colgroup>
+
+                                            <tbody>
+                                                <tr>
+                                                    <td colspan="4" class="text-center">
+                                                        <button type="button" class="btn btn-primary"
+                                                            data-bs-toggle="modal" data-bs-target="#inventoryModal">
+                                                            Edit Inventory
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+
+                                            {% for item in data_page_template["items"] if item['checked'] and
+                                            item['equipped'] == 0 %}
+                                            <tbody data-uuid="{{ item['UUID'] }}">
+                                                <tr>
+                                                    <td>
+                                                        <input class="form-check-input equip-checkbox" type="checkbox"
+                                                            data-uuid="{{ item['UUID'] }}">
+                                                    </td>
+                                                    <td>
+                                                        <p class="mb-0">{{
+                                                            ("%.2f"|format(item['count'])).rstrip('0').rstrip('.') }}
+                                                        </p>
+                                                    </td>
+                                                    <td class="item-name clickable-div"
+                                                        onclick="showToast(this,'Dice Roll {{ item['name'] }}')">
+                                                        {{ item['name'] }}
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <button class="btn btn-primary m-1" type="button"
+                                                            data-bs-toggle="collapse"
+                                                            data-bs-target="#Collapse{{ item['UUID'] }}"
+                                                            aria-expanded="false"
+                                                            aria-controls="Collapse{{ item['UUID'] }}">
+                                                            Info
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="4" class="collapse" id="Collapse{{ item['UUID'] }}">
+                                                        {{ item["description"] }}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            {% endfor %}
+                                        </table>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
+
                     <!-- Notes -->
                     <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
-                        <div>
-                            <textarea class="form-control" id="notes" rows="15"
+                        <div class="tab-scroll-wrapper">
+                            <textarea class="form-control" id="notes" rows="10"
                                 onblur="updateFromInput(this)">{{ character.notes }}</textarea>
                         </div>
                     </div>
+                    <!-- AI -->
                     <div class="tab-pane fade" id="nav-ai" role="tabpanel" aria-labelledby="nav-ai-tab">
-                        <div class="d-flex justify-content-center container mt-5">
-                            <div class="wrapper">
-                                <div class="main">
-                                    <div class="px-2 scroll" id="chat-box">
-                                        <!-- Zprávy se budou přidávat sem -->
-                                    </div>
-                                    <nav class="navbar bg-white navbar-expand-sm d-flex justify-content-between">
-                                        <input type="text" id="user-input" class="form-control"
-                                            placeholder="Type a message...">
-                                        <div
-                                            class="icondiv d-flex justify-content-end align-content-center text-center ml-2">
-                                            <i class="fa fa-paperclip icon1"></i>
-                                            <i class="fa fa-arrow-circle-right icon2" id="send-btn"></i>
-                                        </div>
-                                    </nav>
+                        <div class="tab-scroll-wrapper d-flex flex-column">
+
+                            <!-- Chat messages -->
+                            <div id="chat-box" class="flex-grow-1 px-2 overflow-auto scroll">
+                                <!-- Zprávy se budou přidávat sem -->
+                            </div>
+
+                            <!-- Input bar -->
+                            <nav class="navbar navbar-expand-sm d-flex justify-content-between mt-2 p-2">
+                                <input type="text" id="user-input" class="form-control me-2"
+                                    placeholder="Type a message...">
+                                <div class="icondiv d-flex justify-content-end align-items-center">
+                                    <i class="fa fa-paperclip icon1 me-2"></i>
+                                    <i class="fa fa-arrow-circle-right icon2" id="send-btn"></i>
                                 </div>
+                            </nav>
+
+                        </div>
+                    </div>
+
+                    <!-- Stats mobile -->
+                    <div class="tab-pane fade" id="nav-stats" role="tabpanel" aria-labelledby="nav-stats-tab">
+                        <div class="tab-scroll-wrapper">
+                            <div>
+                                <!-- Atributes -->
+                                {% for item in data_page_template["atributes"] %}
+                                <div class="row">
+                                    <div class="bg-light row shadow ">
+                                        {% set bonus = ((character[item["name"]] - 10) / 2)|int %}
+                                        <div class="col-2 px-4 px-md-2 px-lg-4 px-sm-3 clickable_div"
+                                            data-modifier="{{ bonus }}" onclick="showToast(this,'Dice Roll {{ item["
+                                            name"] }}')">
+                                            <div class="row">
+                                                <p class="h3 my-0 mx-1">
+
+                                                    {% if bonus >= 0 %}
+                                                    +{{ bonus }}
+                                                    {% else %}
+                                                    {{ bonus }}
+                                                    {% endif %}
+                                                </p>
+                                            </div>
+                                            <div class="row">
+                                                <p class="h4 px-4 small">{{ character[item["name"]] }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-10 align-self-center">
+                                            <p class="h3 w-100 word-wrap: break-word px-3">{{ item["name"] }}</p>
+                                            {% set stat_prof_bonus = proficiencies.get(item["name"] | lower, 0) %}
+                                            {% if stat_prof_bonus == 2 %}
+                                            {% set stat_prof_bonus_value = prof_bonus%}
+                                            {%else%}
+                                            {% set stat_prof_bonus_value = 0 %}
+                                            {%endif%}
+                                            {% set bonus = (((character[item["name"]] - 10) / 2) +
+                                            stat_prof_bonus_value) |
+                                            int %}
+
+                                            <p class="h6 px-3 clickable_div" data-modifier="{{ bonus }}"" onclick="
+                                                showToast(this,'Dice Roll {{ item["name"] }} Saving Throw')">
+                                                {% if bonus >= 0 %}
+                                                +{{ bonus }}
+                                                {% else %}
+                                                {{ bonus }}
+                                                {% endif %}
+                                                Saving Throw</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div>
+                                <!-- Skills -->
+                                {% for item in data_page_template["skills"] %}
+                                {% for atribute in data_page_template["atributes"] %}
+                                {% if atribute["name"] == item["parent"] %}
+                                {% set skill_key = item["name"] | lower | replace(' ', '_') %}
+                                {% set level = proficiencies.get(skill_key, 1) %}
+                                <div class="bg-light row shadow px-2">
+                                    {% set bonus = (((character[atribute["name"]] - 10) / 2) + prof_bonus*(level-1))|int
+                                    %}
+                                    <div class="col-1 clickable_div px-0" data-modifier="{{ bonus }}"
+                                        onclick="showToast(this,'Dice Roll {{ item[" name"] }}')">
+                                        <div class="row">
+                                            <p class="h5 my-0">
+                                                {% if bonus >= 0 %}
+                                                +{{ bonus }}
+                                                {% else %}
+                                                {{ bonus }}
+                                                {% endif %}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-9 align-self-center ">
+                                        <p class="h5 w-100 text-wrap px-3">{{ item["name"] }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                {% endfor %}
                             </div>
                         </div>
                     </div>

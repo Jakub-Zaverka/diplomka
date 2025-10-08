@@ -669,11 +669,34 @@ function validateForm() {
     }
 }
 
+// function showPassword(btn) {
+//     const wrapper = btn.closest(".input-group");
+//     const input = wrapper.querySelector("input");
+//     input.type = input.type === "password" ? "text" : "password";
+// }
+
 function showPassword(btn) {
     const wrapper = btn.closest(".input-group");
     const input = wrapper.querySelector("input");
+    const svg = btn.querySelector("svg");
+
+    // přepni typ inputu
     input.type = input.type === "password" ? "text" : "password";
+
+    // přepni ikonu
+    if (svg.classList.contains("bi-eye-fill")) {
+        svg.classList.replace("bi-eye-fill", "bi-eye-slash-fill");
+        svg.innerHTML = `
+          <path d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7 7 0 0 0 2.79-.588M5.21 3.088A7 7 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474z"/>
+          <path d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12z"/>`;
+    } else {
+        svg.classList.replace("bi-eye-slash-fill", "bi-eye-fill");
+        svg.innerHTML = `
+          <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
+          <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"/>`;
+    }
 }
+
 
 //------------------------------------
 // Feature charges tracking
@@ -809,28 +832,34 @@ function postClassChoice(selectElement) {
 
 
 //-----------------------
-// AI
+// AI Assistent
 //-----------------------
 $(document).ready(function () {
     function addMessage(text, sender) {
         let html = '';
         if (sender === 'user') {
             html = `
-            <div class="d-flex align-items-center text-right justify-content-end ">
-                <div class="pr-2"> <span class="name">You</span>
-                    <p class="msg">${text}</p>
-                </div>
-                <div><img src="https://i.imgur.com/HpF4BFG.jpg" width="30" class="img1" /></div>
-            </div>`;
+    <div class="d-flex justify-content-end mb-2">
+    <div class="d-flex flex-column align-items-end">
+        <img src="https://i.imgur.com/HpF4BFG.jpg" width="30" class="rounded-circle mb-1" />
+        <span class="fw-bold mb-1">You</span>
+        <div class="bg-primary text-white rounded p-2" style="max-width: 75%; word-wrap: break-word;">
+            ${text}
+        </div>
+    </div>
+</div>`;
         } else {
             html = `
-            <div class="d-flex align-items-center">
-                <div class="text-left pr-1"><img src="https://img.icons8.com/color/40/000000/guest-female.png" width="30" class="img1" /></div>
-                <div class="pr-2 pl-1"> <span class="name">AI</span>
-                    <p class="msg">${text}</p>
-                </div>
-            </div>`;
+    <div class="d-flex justify-content-start mb-2">
+        <div>
+            <span class="d-block mb-1 fw-bold">AI</span>
+            <div class="bg-secondary text-dark rounded p-2" style="max-width: 75%; word-wrap: break-word;">
+                ${text}
+            </div>
+        </div>
+    </div>`;
         }
+
         $('#nav-ai #chat-box').append(html);
         $('#nav-ai #chat-box').scrollTop($('#nav-ai #chat-box')[0].scrollHeight);
     }
@@ -917,75 +946,75 @@ function changeUserInfo(data, password, type) {
             type: type
         })
     })
-    .then(resp => resp.json())
-    .then(result => {
-        if (result.status !== "OK") {
-            // chyba -> zobrazit alert v příslušném modal
-            showError(type, result.status);
-            return;
-        }
+        .then(resp => resp.json())
+        .then(result => {
+            if (result.status !== "OK") {
+                // chyba -> zobrazit alert v příslušném modal
+                showError(type, result.status);
+                return;
+            }
 
-        // schovat error, zavřít modal, aktualizovat input
-        hideError(type);
+            // schovat error, zavřít modal, aktualizovat input
+            hideError(type);
 
-        const modalEl = document.getElementById('Modal' + capitalize(type));
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        modal.hide();
+            const modalEl = document.getElementById('Modal' + capitalize(type));
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
 
-        if (type === "email") {
-            document.getElementById("emailInput").value = result.received.data;
-        }
-        if (type === "username") {
-            document.getElementById("usernameInput").value = result.received.data;
-            document.getElementById("navBarUsername").textContent  = result.received.data;
-        }
-        // password nepotřebuje update na stránce
-    })
-    .catch(err => {
-        console.error("Chyba:", err);
-    });
+            if (type === "email") {
+                document.getElementById("emailInput").value = result.received.data;
+            }
+            if (type === "username") {
+                document.getElementById("usernameInput").value = result.received.data;
+                document.getElementById("navBarUsername").textContent = result.received.data;
+            }
+            // password nepotřebuje update na stránce
+        })
+        .catch(err => {
+            console.error("Chyba:", err);
+        });
 }
 //Existuje jen kvůli naming konvenci v JS a potřebě převést jména modálů na CammelCase
 function capitalize(s) {
     return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-function passwordCheck(){
+function passwordCheck() {
     const newElement = document.getElementById("newPass").value;
     const repeatElement = document.getElementById("repeatPass").value;
     const pass = document.getElementById("pass_password").value;
 
     hideError("password");
 
-    if(newElement === repeatElement){
+    if (newElement === repeatElement) {
         changeUserInfo(newElement, pass, "password");
     } else {
         showError("password", "New passwords do not match");
     }
 }
 
-function usernameCheck(){
+function usernameCheck() {
     const newElement = document.getElementById("newUsername").value;
     const repeatElement = document.getElementById("repeatUsername").value;
     const pass = document.getElementById("pass_username").value;
 
     hideError("username");
 
-    if(newElement === repeatElement){
+    if (newElement === repeatElement) {
         changeUserInfo(newElement, pass, "username");
     } else {
         showError("username", "Usernames do not match");
     }
 }
 
-function emailCheck(){
+function emailCheck() {
     const newElement = document.getElementById("newEmail").value;
     const repeatElement = document.getElementById("repeatEmail").value;
     const pass = document.getElementById("pass_email").value;
 
     hideError("email");
 
-    if(newElement === repeatElement){
+    if (newElement === repeatElement) {
         changeUserInfo(newElement, pass, "email");
     } else {
         showError("email", "Emails do not match");

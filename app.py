@@ -833,9 +833,59 @@ def spell_api():
 
     return {"status": "OK", "spells": spells_list}
 
+#-----------------------------------
+#--------------API Feats------------
+#-----------------------------------
+@app.route("/api/update_character_options", methods=["POST"])
+@login_required
+def update_character_options():
+    data = request.get_json()
+    race = data.get("char_race")
+    char_class = data.get("char_class")
+
+    # základní feat levely
+    feat_levels = [
+        {"level": 0, "label": "Origin Feat", "filter": "origin"},
+        {"level": 4, "label": "Level 4 Feat", "filter": "non-epic"},
+        {"level": 8, "label": "Level 8 Feat", "filter": "non-epic"},
+        {"level": 12, "label": "Level 12 Feat", "filter": "non-epic"},
+        {"level": 16, "label": "Level 16 Feat", "filter": "non-epic"},
+        {"level": 19, "label": "Level 19 Feat/Epic Boon", "filter": "all"},
+    ]
+
+    if race == "human":
+        feat_levels.append({"level": 1, "label": "Origin Feat (Human Bonus)", "filter": "origin"})
+    if char_class == "fighter":
+        feat_levels.append({"level": 6, "label": "Fighter Feat level 6", "filter": "non-epic"})
+        feat_levels.append({"level": 14, "label": "Fighter Feat level 14", "filter": "non-epic"})
+    if char_class == "rogue":
+        feat_levels.append({"level": 10, "label": "Rogue Feat level 10", "filter": "non-epic"})
+
+    feats = []
+    for feat in data_page_template["feats"].values():
+        feats.append({
+            "UUID": feat["UUID"],
+            "name": feat["name"],
+            "type": feat["type"],
+            "description": feat.get("description", "")
+        })
+
+    class_choices = list(data_page_template.get(f"option_{char_class}", {}).values())
+
+    return jsonify({
+        "feat_levels": feat_levels,
+        "feats": feats,
+        "class_choices": class_choices
+    })
+
+
+
+
 #------------------------------------
 # ---------- API chat s AI ----------
 #------------------------------------
+preprompt = "Jsi AI assistent pro DND 5e 2024. Vždy odpovídej čistým textem bez Markdown, bez tučného písma, kurzívy nebo seznamů. Používej pouze prostý text.. Odpovídej přehledně."
+
 @login_required
 @app.route("/send_message", methods=["POST"])
 def send_message():
@@ -845,6 +895,7 @@ def send_message():
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
+            {"role": "system", "content": preprompt},
             {"role": "system", "content": f"Aktuálně je přihlášen uživatel s ID={current_user.id}."},
             {"role": "user", "content": user_message}
         ],
@@ -875,6 +926,7 @@ def send_message():
                 final_response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
+                        {"role": "system", "content": preprompt},
                         {"role": "system", "content": f"Aktuálně je přihlášen uživatel s ID={current_user.id}."},
                         {"role": "user", "content": user_message},
                         response.choices[0].message,
@@ -935,7 +987,7 @@ gear_list = data_page_template["items"]
 gear_dict = {item["UUID"]: item for item in gear_list}
 
 #Načtení Spells
-with open("data/items/spells.json","r") as f:
+with open("data/items/spells.json","r",encoding="utf-8") as f:
     data_json = f.read()
     spells = json.loads(data_json)
     # print(gear_items)
@@ -1055,4 +1107,4 @@ tools = [
 #------------------------------------
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)

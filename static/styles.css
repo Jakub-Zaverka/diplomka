@@ -11,13 +11,13 @@
 
 }
 
-@media (min-width: 960px) {
+@media (min-width: 991px) {
     body {
         margin: 20px;
     }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 991px) {
     body {
         padding-bottom: 60px;
         margin: 0px
@@ -30,7 +30,9 @@
 html,
 body {
     max-width: 100%;
+    height: 100%;
     overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 
@@ -38,6 +40,11 @@ body {
     max-height: 100px;
 }
 
+.table-scroll {
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
 
 /* Used in testing */
 .no-gutters-edit {
@@ -80,11 +87,7 @@ body {
     vertical-align: middle;
 }
 
-.sheet-features-scroll {
-    max-height: 425px;
-    /* nastav výšku podle potřeby */
-    overflow-y: auto;
-}
+
 
 /* aby tabulka vypadala pořád pěkně */
 .sheet-features-scroll table {
@@ -92,3 +95,54 @@ body {
     /* odstraní extra mezery pod tabulkou */
 }
 
+/* Scrollovací wrapper uvnitř každého tab-pane sheet*/
+.tab-scroll-wrapper {
+    height: calc(100vh - 400px);
+    /*400px je prostě tip výšky navbaru a jiných elementů*/
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+
+/*tablety*/
+@media (max-width: 960px) {
+    .tab-scroll-wrapper {
+        height: calc(100dvh - 350px);
+        /*350px je prostě tip výšky navbaru a jiných elementů, dvh je dynamick viewport height, specifické pro mobily*/
+    }
+}
+
+/*extra malé displeje*/
+@media (max-width: 767px) {
+    .tab-scroll-wrapper {
+        height: calc(100dvh - 500px);
+        /*425px je prostě tip výšky navbaru a jiných elementů, dvh je dynamick viewport height, specifické pro mobily*/
+    }
+}
+
+/* Scrollovací wrapper uvnitř každého tab-pane sheet edit mode*/
+.tab-scroll-wrapper-edit-mode {
+    height: calc(100vh - 400px);
+    /*400px je prostě tip výšky navbaru a jiných elementů*/
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+
+/*tablety*/
+@media (max-width: 960px) {
+    .tab-scroll-wrapper-edit-mode {
+        height: calc(100dvh - 425px);
+        /*350px je prostě tip výšky navbaru a jiných elementů, dvh je dynamick viewport height, specifické pro mobily*/
+    }
+}
+
+/*extra malé displeje*/
+@media (max-width: 767px) {
+    .tab-scroll-wrapper-edit-mode {
+        height: calc(100dvh - 480px);
+        /*425px je prostě tip výšky navbaru a jiných elementů, dvh je dynamick viewport height, specifické pro mobily*/
+    }
+}
