@@ -2,7 +2,66 @@ import os
 import json
 import ttrpg
 
-def load_category(source_type: str, category: str, source_name: str, char, page_template: dict, saved_data: dict = None):
+def reload_base_data():
+    """
+    Načte veškerá statická data (atributy, předměty, kouzla, feats, class options atd.)
+    Vrací tuple: (data_page_template, folders_class, folders_race, spells_dict)
+    """
+    data_page_template = {}
+
+    # --- Načtení Atributů a Skills ---
+    with open("data/stats.json", "r", encoding="utf-8") as f:
+        data_json = f.read()
+        data_page_template = json.loads(data_json)
+
+    # --- Načtení Items ---
+    with open("data/items/gear.json", "r", encoding="utf-8") as f:
+        gear_items = json.load(f)
+        data_page_template["items"] = gear_items
+
+    gear_dict = {item["UUID"]: item for item in gear_items}
+
+    # --- Načtení Spells ---
+    with open("data/items/spells.json", "r", encoding="utf-8") as f:
+        spells = json.load(f)
+        spells_dict = {item["UUID"]: item for item in spells}
+        data_page_template["spells"] = spells_dict
+
+    # --- Načtení dostupných classes a races ---
+    folders_class = os.listdir(path="data/class")
+    folders_race = os.listdir(path="data/race")
+
+    # --- Načtení Feats ---
+    with open("data/feats/feats.json", "r", encoding="utf-8") as f:
+        feats = json.load(f)
+        feats_dict = {item["UUID"]: item for item in feats}
+        data_page_template["feats"] = feats_dict
+
+    # --- Načtení class options ---
+    for player_class in folders_class:
+        options_path = f"data/class/{player_class}/options.json"
+        if os.path.exists(options_path):
+            with open(options_path, "r", encoding="utf-8") as f:
+                options = json.load(f)
+                options_dict = {item["UUID"]: item for item in options}
+                data_page_template[f"option_{player_class}"] = options_dict
+
+        # načti subclass options
+        subclass_dir = os.path.join("data", "class", player_class, "subclasses")
+        if os.path.exists(subclass_dir):
+            for subclass in os.listdir(subclass_dir):
+                subclass_options_path = os.path.join(subclass_dir, subclass, "options.json")
+                if os.path.exists(subclass_options_path):
+                    with open(subclass_options_path, "r", encoding="utf-8") as f:
+                        subclass_options = json.load(f)
+                        subclass_options_dict = {item["UUID"]: item for item in subclass_options}
+                        data_page_template[f"option_{player_class}_{subclass}"] = subclass_options_dict
+
+
+    return data_page_template, folders_class, folders_race, spells_dict, gear_dict
+
+
+def load_category(source_type: str, category: str, source_name: str, char, page_template: dict, saved_data: dict = None, reload_data: bool = False):
     """
     Načte a zpracuje data kategorie (features, traits, spells...) z class/race složky.
 
@@ -13,7 +72,14 @@ def load_category(source_type: str, category: str, source_name: str, char, page_
         char (dict): dict s postavou (sqlite3.Row)
         page_template (dict): dict do kterého se uloží výsledek
         saved_data (dict): uložené charges (např. {UUID: current_charges})
+        reload_data (bool): pokud True, znovu načte všechny zdrojové JSON soubory (např. po editaci dat za běhu)
     """
+
+    # Pokud je povoleno reload, načti znovu všechna data
+    if reload_data:
+        new_template, _, _, _ = reload_base_data()
+        page_template.update(new_template)
+
     base_path = f"data/{source_type}/{source_name}"
     data_path = os.path.join(base_path, "features.json")
     levelmap_path = os.path.join(base_path, "levelmap.json")
@@ -41,6 +107,33 @@ def load_category(source_type: str, category: str, source_name: str, char, page_
                 known_dict = {}
     else:
         known_dict = {}
+    
+    # --- SUBCLASS SUPPORT ---
+    if source_type == "class" and char["char_subclass"]:
+        subclass_name = char["char_subclass"].lower()
+        subclass_path = f"data/class/{source_name}/subclasses/{subclass_name}"
+
+        subclass_features_path = os.path.join(subclass_path, "features.json")
+        subclass_levelmap_path = os.path.join(subclass_path, "levelmap.json")
+
+        if os.path.exists(subclass_features_path):
+            with open(subclass_features_path, "r", encoding="utf-8") as f:
+                try:
+                    subclass_items = json.load(f)
+                    # přidáme subclass features do stejné kategorie
+                    page_template[category].extend(subclass_items)
+                except Exception as e:
+                    print(f"[load_category] Chyba při načítání subclass features: {e}")
+
+        if os.path.exists(subclass_levelmap_path):
+            with open(subclass_levelmap_path, "r", encoding="utf-8") as f:
+                try:
+                    subclass_known = json.load(f)
+                    for i in subclass_known:
+                        known_dict.update(i)
+                except Exception as e:
+                    print(f"[load_category] Chyba při načítání subclass levelmap: {e}")
+
 
     # --- 3) Postprocessing (stejně jako u features) ---
     for item in page_template.get(category, []):

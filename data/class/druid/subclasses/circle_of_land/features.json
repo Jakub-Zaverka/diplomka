@@ -1,0 +1,47 @@
+[
+    {
+        "UUID": "circle_land_1",
+        "name": "Bonus Cantrip",
+        "description": "When you choose this circle at 2nd level, you learn one additional druid cantrip of your choice.",
+        "max_charges": 0,
+        "type": "feature",
+        "source": "circle_of_land",
+        "level": 2
+    },
+    {
+        "UUID": "circle_land_2",
+        "name": "Natural Recovery",
+        "description": "Once per day when you finish a short rest, you can recover expended spell slots. The spell slots can have a combined level that is equal to or less than half your druid level (rounded up).",
+        "max_charges": "proficiency",
+        "type": "feature",
+        "source": "circle_of_land",
+        "level": 2
+    },
+    {
+        "UUID": "circle_land_3",
+        "name": "Land's Stride",
+        "description": "Starting at 6th level, moving through nonmagical difficult terrain costs you no extra movement. You can also pass through nonmagical plants without being slowed by them and without taking damage from them if they have thorns or a similar hazard.",
+        "max_charges": 0,
+        "type": "feature",
+        "source": "circle_of_land",
+        "level": 6
+    },
+    {
+        "UUID": "circle_land_4",
+        "name": "Nature's Ward",
+        "description": "Beginning at 10th level, you can’t be charmed or frightened by elementals or fey, and you are immune to poison and disease.",
+        "max_charges": 0,
+        "type": "feature",
+        "source": "circle_of_land",
+        "level": 10
+    },
+    {
+        "UUID": "circle_land_5",
+        "name": "Nature's Sanctuary",
+        "description": "When you reach 14th level, creatures of the natural world sense your connection to nature and become hesitant to attack you. When a beast or plant creature attacks you, that creature must make a Wisdom saving throw against your spell save DC. On a failed save, the creature must choose a different target or the attack automatically misses.",
+        "max_charges": 0,
+        "type": "feature",
+        "source": "circle_of_land",
+        "level": 14
+    }
+]

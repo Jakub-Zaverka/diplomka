@@ -8,7 +8,7 @@ import json
 import copy
 #import uuid
 import ttrpg
-import data_loader
+from data_loader import reload_base_data, load_category
 import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -332,7 +332,16 @@ def sheet(char_id):
 
     
     #Features
-    page_template = data_loader.load_category("class", "features", char["char_class"], char, page_template, feature_data_dict)
+    #page_template = load_category("class", "features", char["char_class"], char, page_template, feature_data_dict)
+    page_template = load_category(
+    source_type="class",
+    category="features",
+    source_name=char["char_class"],
+    char=char,
+    page_template=page_template,
+    saved_data=feature_data_dict,
+    reload_data=False  # nastav True, pokud chceš při každém načtení znovu načíst JSONy
+)
 
     # Spells byly dělány pozdeji, takže jsou udělány jinak než zbytek
     # Spells
@@ -348,8 +357,9 @@ def sheet(char_id):
             spell_data["checked"] = False
     pass
 
-    #Race - bylo přesunuto do vlastního modulu data_loader.py
-    page_template = data_loader.load_category("race", "traits", char["char_race"], char, page_template)
+    #Race - bylo přesunuto do vlastního modulu data_loader.py 
+    #TODO: Upravit do podoby features 334
+    page_template = load_category("race", "traits", char["char_race"], char, page_template)
 
 
     #Feats
@@ -966,63 +976,64 @@ def send_message():
 #  Načtení dat pro tvorbu dynamické stránky
 #  Data se ukládají do Dict data_page_template
 #  Při jednotlivých přístupů do ní se pak tvoří deep copy aby se data nepřepisovala pro jiné uživatele
+#  Všechno se děje v data_loader.py
 # -----------------------------
 
-# Načtení Atributes and skills
-with open("data/stats.json","r") as f:
-    data_json = f.read()
-    data_page_template = json.loads(data_json)
+# # Načtení Atributes and skills
+# with open("data/stats.json","r") as f:
+#     data_json = f.read()
+#     data_page_template = json.loads(data_json)
 
-#Načtení Items
-with open("data/items/gear.json","r") as f:
-    data_json = f.read()
-    gear_items = json.loads(data_json)
-    # print(gear_items)
-    data_page_template["items"] = gear_items
-
-
-#Lepší podoba gear pro inventory
-#TODO: Implementovat tento přístup v jiných místech
-gear_list = data_page_template["items"]
-gear_dict = {item["UUID"]: item for item in gear_list}
-
-#Načtení Spells
-with open("data/items/spells.json","r",encoding="utf-8") as f:
-    data_json = f.read()
-    spells = json.loads(data_json)
-    # print(gear_items)
-    spells_dict = {item["UUID"]: item for item in spells}
-    data_page_template["spells"] = spells_dict
-    pass
+# #Načtení Items
+# with open("data/items/gear.json","r") as f:
+#     data_json = f.read()
+#     gear_items = json.loads(data_json)
+#     # print(gear_items)
+#     data_page_template["items"] = gear_items
 
 
-# dostupné classes a races
-# Předpokládá se, že každá dostupná class/povolání a race bude mít vlastní složku, ve které bude levelmap, kdy postava dostane jednotlivé schopnosti a features, obsahující 
-# bližší info o jednotlivých možnostech
-folders_class = os.listdir(path="data/class")
-folders_race = os.listdir(path="data/race")
+# #Lepší podoba gear pro inventory
+# #TODO: Implementovat tento přístup v jiných místech
+# gear_list = data_page_template["items"]
+# gear_dict = {item["UUID"]: item for item in gear_list}
+
+# #Načtení Spells
+# with open("data/items/spells.json","r",encoding="utf-8") as f:
+#     data_json = f.read()
+#     spells = json.loads(data_json)
+#     # print(gear_items)
+#     spells_dict = {item["UUID"]: item for item in spells}
+#     data_page_template["spells"] = spells_dict
+#     pass
 
 
-#Feats
-with open("data/feats/feats.json","r") as f:
-    data_json = f.read()
-    feats = json.loads(data_json)
-    feats_dict = {item["UUID"]: item for item in feats}
-    data_page_template["feats"] = feats_dict
-
-#class and race choices (e.g warden or eldritch invocations)
-
-for player_class in folders_class:
-    with open(f"data/class/{player_class}/options.json","r") as f:
-        data_json = f.read()
-        options = json.loads(data_json)
-        options_dict = {item["UUID"]: item for item in options}
-        data_page_template[f"option_{player_class}"] = options_dict
-
-pass
+# # dostupné classes a races
+# # Předpokládá se, že každá dostupná class/povolání a race bude mít vlastní složku, ve které bude levelmap, kdy postava dostane jednotlivé schopnosti a features, obsahující 
+# # bližší info o jednotlivých možnostech
+# folders_class = os.listdir(path="data/class")
+# folders_race = os.listdir(path="data/race")
 
 
+# #Feats
+# with open("data/feats/feats.json","r") as f:
+#     data_json = f.read()
+#     feats = json.loads(data_json)
+#     feats_dict = {item["UUID"]: item for item in feats}
+#     data_page_template["feats"] = feats_dict
 
+# #class and race choices (e.g warden or eldritch invocations)
+
+# for player_class in folders_class:
+#     with open(f"data/class/{player_class}/options.json","r") as f:
+#         data_json = f.read()
+#         options = json.loads(data_json)
+#         options_dict = {item["UUID"]: item for item in options}
+#         data_page_template[f"option_{player_class}"] = options_dict
+
+# pass
+
+
+data_page_template, folders_class, folders_race, spells_dict, gear_dict = reload_base_data()
 
 
 # -----------------------------
