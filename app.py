@@ -414,7 +414,7 @@ def sheet_edit_mode(char_id):
         row["choice_id"].lower(): row["choice"]
         for row in known_choices
     }
-    
+
     pass
     if char is None:
         return "Postava nebyla nalezena nebo ti nepatří"
@@ -631,6 +631,24 @@ def character_choice_api():
     db.commit()
 
     return {"status": "OK"}
+
+#---API Subclasses
+@app.route("/api/get_subclasses", methods=["POST"])
+def get_subclasses():
+    data = request.get_json()
+    char_class = data.get("char_class", "").lower()
+
+    base_path = f"data/class/{char_class}/subclass"
+    subclasses = []
+
+    if os.path.exists(base_path):
+        for folder in os.listdir(base_path):
+            if os.path.isdir(os.path.join(base_path, folder)):
+                subclasses.append(folder)
+
+    return jsonify({"subclasses": subclasses})
+
+
 
 # ---------- API Skills ----------
 VALID_SKILLS = {
@@ -878,6 +896,7 @@ def update_character_options():
     if char_class == "rogue":
         feat_levels.append({"level": 10, "label": "Rogue Feat level 10", "filter": "non-epic"})
 
+    # --- načtení feats ---
     feats = []
     for feat in data_page_template["feats"].values():
         feats.append({
@@ -887,13 +906,25 @@ def update_character_options():
             "description": feat.get("description", "")
         })
 
+    # --- načtení class choices ---
     class_choices = list(data_page_template.get(f"option_{char_class}", {}).values())
+
+    # --- načtení subclasses ---
+    #TODO: Opravit možnost nevybrat subclass
+    subclasses = []
+    subclass_dir = f"data/class/{char_class}/subclasses"
+    if os.path.exists(subclass_dir):
+        for folder in os.listdir(subclass_dir):
+            if os.path.isdir(os.path.join(subclass_dir, folder)):
+                subclasses.append(folder)
 
     return jsonify({
         "feat_levels": feat_levels,
         "feats": feats,
-        "class_choices": class_choices
+        "class_choices": class_choices,
+        "subclasses": subclasses
     })
+
 
 
 

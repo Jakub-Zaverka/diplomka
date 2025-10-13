@@ -831,6 +831,10 @@ function postClassChoice(selectElement) {
         .catch(err => console.error("Chyba při ukládání featu:", err));
 }
 
+//Subclasses
+
+
+
 
 //-----------------------
 // AI Assistent
