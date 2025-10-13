@@ -31,6 +31,21 @@ def reload_base_data():
     folders_class = os.listdir(path="data/class")
     folders_race = os.listdir(path="data/race")
 
+    # --- Subclasses
+    subclasses_dict = {}
+    for cls in folders_class:
+        subclass_dir = os.path.join("data", "class", cls, "subclasses")
+        if os.path.exists(subclass_dir):
+            subclasses = [
+                folder for folder in os.listdir(subclass_dir)
+                if os.path.isdir(os.path.join(subclass_dir, folder))
+            ]
+            subclasses_dict[cls] = subclasses
+        else:
+            subclasses_dict[cls] = []
+
+    data_page_template["subclasses"] = subclasses_dict
+
     # --- Načtení Feats ---
     with open("data/feats/feats.json", "r", encoding="utf-8") as f:
         feats = json.load(f)
@@ -50,12 +65,19 @@ def reload_base_data():
         subclass_dir = os.path.join("data", "class", player_class, "subclasses")
         if os.path.exists(subclass_dir):
             for subclass in os.listdir(subclass_dir):
-                subclass_options_path = os.path.join(subclass_dir, subclass, "options.json")
+                subclass_path = os.path.join(subclass_dir, subclass)
+                subclass_options_path = os.path.join(subclass_path, "options.json")
+
                 if os.path.exists(subclass_options_path):
                     with open(subclass_options_path, "r", encoding="utf-8") as f:
-                        subclass_options = json.load(f)
-                        subclass_options_dict = {item["UUID"]: item for item in subclass_options}
-                        data_page_template[f"option_{player_class}_{subclass}"] = subclass_options_dict
+                        try:
+                            subclass_options = json.load(f)
+                            subclass_options_dict = {item["UUID"]: item for item in subclass_options}
+                            # uložíme pod názvem option_class_subclass
+                            data_page_template[f"option_{player_class}_{subclass}"] = subclass_options_dict
+                        except Exception as e:
+                            print(f"[reload_base_data] Chyba při načítání subclass options ({player_class}/{subclass}): {e}")
+
 
 
     return data_page_template, folders_class, folders_race, spells_dict, gear_dict

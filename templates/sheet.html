@@ -184,7 +184,7 @@
                             {% if character['char_subclass'] != "None" %}
                             <div class="flex-fill p-2">
                                 <p class="h2 mb-0">{{
-                                    character['char_subclass'] }}</p>
+                                    character['char_subclass'].replace('_', ' ') | title }}</p>
                                 <p class="h5">Subclass</p>
                             </div>
                             {% endif %}

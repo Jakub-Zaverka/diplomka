@@ -17,7 +17,7 @@
     <!-- <h1>PH:Char_id:{{ character.char_id }} Char name:{{ character.name }} User_id:{{ character.user_id }}</h1> -->
     <div class="row">
         <div class="col-12 col-lg-6 row d-none d-lg-flex">
-            
+
             <!-- Atributes -->
             <div class="col-12 col-md-7 px-md-3">
                 <div class="order-md-1">
@@ -204,12 +204,21 @@
                                     </select>
                                 </div>
                                 <div class="col-6 col-md">
-                                    <label for="char_subclass" class="form-label">Subclass {{subclass}}</label>
-                                    <input id="char_subclass" type="text"
-                                        class="form-control form-control-sm auto_update_stats bg-primary "
-                                        value="{{ character.char_subclass }}">
+                                    <label for="char_subclass" class="form-label">Subtřída:</label>
+                                    <select id="char_subclass" name="char_subclass"
+                                        class="form-select form-select-sm auto_update_stats bg-primary ">
+                                        <option value="">None</option>
+                                        {% set subclasses = data_page_template["subclasses"][character["char_class"]] |
+                                        default([]) %}
+                                        {% for subclass in subclasses %}
+                                        <option value="{{ subclass }}" {% if subclass==character["char_subclass"]
+                                            %}selected{% endif %}>
+                                            {{ subclass.replace('_', ' ') | title }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
-                                
+
                             </div>
                         </form>
 
@@ -311,11 +320,30 @@
                                 <div class="tab-scroll-wrapper-edit-mode">
                                     <div class="row">
                                         <div class="col-lg-8">
-                                            {% for choice in (data_page_template.get('option_' ~ (character.char_class
-                                            or
-                                            ''), {})).values() %}
+
+                                            {% set class_options = data_page_template.get('option_' ~
+                                            (character.char_class or ''), {}) %}
+                                            {% if character.char_subclass %}
+                                            {% set subclass_key = 'option_' ~ character.char_class ~ '_' ~
+                                            character.char_subclass %}
+                                            {% set subclass_options = data_page_template.get(subclass_key, {}) %}
+                                            {% else %}
+                                            {% set subclass_options = {} %}
+                                            {% endif %}
+
+                                            {% set all_options = {} %}
+                                            {% for k, v in class_options.items() %}
+                                            {% set _ = all_options.update({k: v}) %}
+                                            {% endfor %}
+                                            {% for k, v in subclass_options.items() %}
+                                            {% set _ = all_options.update({k: v}) %}
+                                            {% endfor %}
+
+                                            {% for choice in all_options.values() %}
                                             <div class="mb-3">
                                                 <label class="form-label">{{ choice['name'] }}</label>
+
+                                                {% if choice.get('options') %}
                                                 <select class="form-select bg-primary" data-uuid="{{ choice['UUID'] }}"
                                                     onchange="postClassChoice(this)">
                                                     <option value="0">Select Option</option>
@@ -333,9 +361,25 @@
                                                     </option>
                                                     {% endfor %}
                                                 </select>
+
+                                                {% elif choice.get('choices') %}
+                                                <select class="form-select bg-primary" data-uuid="{{ choice['UUID'] }}"
+                                                    onchange="postClassChoice(this)">
+                                                    <option value="0">Select Option</option>
+                                                    {% for option in choice['choices'] %}
+                                                    <option value="{{ option }}">{{ option }}</option>
+                                                    {% endfor %}
+                                                </select>
+
+                                                {% else %}
+                                                <p class="text-muted small">No selectable options.</p>
+                                                {% endif %}
+
                                             </div>
                                             {% endfor %}
+
                                         </div>
+
                                         <div class="col-lg-4">
                                             <div id="classchoice-description" class="border rounded p-3 bg-light"
                                                 style="min-height:150px;">
@@ -345,6 +389,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             <!-- STAST TAB -->
                             <div class="tab-pane fade p-3" id="nav-stats" role="tabpanel" aria-labelledby="nav-stats">
                                 <div class="tab-scroll-wrapper-edit-mode">

@@ -1,0 +1,47 @@
+[
+    {
+        "UUID": "champion_1",
+        "name": "Improved Critical",
+        "description": "Starting at 3rd level, your weapon attacks score a critical hit on a roll of 19 or 20.",
+        "max_charges": 0,
+        "type": "feature",
+        "source": "champion",
+        "level": 3
+    },
+    {
+        "UUID": "champion_2",
+        "name": "Remarkable Athlete",
+        "description": "Starting at 7th level, you can add half your proficiency bonus (rounded up) to any Strength, Dexterity, or Constitution check you make that doesn’t already use your proficiency bonus. You also increase your running jump distance by a number of feet equal to your Strength modifier.",
+        "max_charges": 0,
+        "type": "feature",
+        "source": "champion",
+        "level": 7
+    },
+    {
+        "UUID": "champion_3",
+        "name": "Additional Fighting Style",
+        "description": "At 10th level, you can choose a second option from the Fighting Style class feature.",
+        "max_charges": 0,
+        "type": "feature",
+        "source": "champion",
+        "level": 10
+    },
+    {
+        "UUID": "champion_4",
+        "name": "Superior Critical",
+        "description": "Beginning at 15th level, your weapon attacks score a critical hit on a roll of 18–20.",
+        "max_charges": 0,
+        "type": "feature",
+        "source": "champion",
+        "level": 15
+    },
+    {
+        "UUID": "champion_5",
+        "name": "Survivor",
+        "description": "At 18th level, you regain hit points equal to 5 + your Constitution modifier at the start of each of your turns if you have no more than half of your hit points left. You don’t gain this benefit if you have 0 hit points.",
+        "max_charges": 0,
+        "type": "feature",
+        "source": "champion",
+        "level": 18
+    }
+]
