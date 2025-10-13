@@ -347,16 +347,11 @@
                                                 <select class="form-select bg-primary" data-uuid="{{ choice['UUID'] }}"
                                                     onchange="postClassChoice(this)">
                                                     <option value="0">Select Option</option>
+
+                                                    {% set current_choice = known_dict.get(choice['UUID']|lower) %}
                                                     {% for option, description in choice['options'].items() %}
-                                                    {% set is_selected = false %}
-                                                    {% for kc in known_choices %}
-                                                    {% if kc['choice_id'] == choice['UUID'] and kc['choice'] == option
-                                                    %}
-                                                    {% set is_selected = true %}
-                                                    {% endif %}
-                                                    {% endfor %}
                                                     <option value="{{ option }}" data-description="{{ description }}" {%
-                                                        if is_selected %}selected{% endif %}>
+                                                        if current_choice==option %}selected{% endif %}>
                                                         {{ option }}
                                                     </option>
                                                     {% endfor %}
@@ -366,8 +361,13 @@
                                                 <select class="form-select bg-primary" data-uuid="{{ choice['UUID'] }}"
                                                     onchange="postClassChoice(this)">
                                                     <option value="0">Select Option</option>
+
+                                                    {% set current_choice = known_dict.get(choice['UUID']|lower) %}
                                                     {% for option in choice['choices'] %}
-                                                    <option value="{{ option }}">{{ option }}</option>
+                                                    <option value="{{ option }}" {% if current_choice==option
+                                                        %}selected{% endif %}>
+                                                        {{ option }}
+                                                    </option>
                                                     {% endfor %}
                                                 </select>
 
@@ -390,7 +390,8 @@
                                 </div>
                             </div>
 
-                            <!-- STAST TAB -->
+
+                            <!-- STATS TAB -->
                             <div class="tab-pane fade p-3" id="nav-stats" role="tabpanel" aria-labelledby="nav-stats">
                                 <div class="tab-scroll-wrapper-edit-mode">
                                     <div class="col-12 col-md-7 px-md-3">

@@ -401,6 +401,7 @@ def sheet_edit_mode(char_id):
     
 
     # Vytvoření slovníku pro hledání následně v šabloně
+    #Potřeba převést na dict, jinja nerada pracuje s sqlite3.row object
     proficiencies_dict = {
     row["skill_name"].lower(): row["proficiency_level"]
     for row in prof
@@ -408,11 +409,17 @@ def sheet_edit_mode(char_id):
 
     known_feats_by_level = {row["level"]: row["feat_id"] for row in known_feats}
 
-
+    
+    known_dict = {
+        row["choice_id"].lower(): row["choice"]
+        for row in known_choices
+    }
+    
+    pass
     if char is None:
         return "Postava nebyla nalezena nebo ti nepatří"
 
-    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders_class, player_races = folders_race, known_feats = known_feats_by_level, known_choices = known_choices)
+    return render_template("sheet_edit_mode.html", character=char, data_page_template = data_page_template, proficiencies=proficiencies_dict, player_classes = folders_class, player_races = folders_race, known_feats = known_feats_by_level, known_dict =  known_dict)
 
 
 # ---------- Create new Character ----------
