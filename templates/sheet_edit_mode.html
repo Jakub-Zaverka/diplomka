@@ -646,6 +646,7 @@
                                     defaultOption.textContent = "Select Option";
                                     select.appendChild(defaultOption);
 
+                                    // 🧩 Podpora obou formátů
                                     if (choice.options) {
                                         for (const [opt, desc] of Object.entries(choice.options)) {
                                             const o = document.createElement("option");
@@ -654,6 +655,15 @@
                                             o.dataset.description = desc;
                                             select.appendChild(o);
                                         }
+                                    } else if (choice.choices) {
+                                        // subclass variant — jednoduché pole stringů
+                                        choice.choices.forEach(opt => {
+                                            const o = document.createElement("option");
+                                            o.value = opt;
+                                            o.textContent = opt;
+                                            o.dataset.description = "";
+                                            select.appendChild(o);
+                                        });
                                     }
 
                                     wrapper.appendChild(label);
@@ -661,6 +671,7 @@
                                     classContainer.appendChild(wrapper);
                                 });
                             }
+
                         });
                     </script>
 
