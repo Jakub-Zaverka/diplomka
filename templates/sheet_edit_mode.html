@@ -564,7 +564,7 @@
 
                                             // aktualizace subclass dropdownu při změně classy
                                             if (select === classSelect && subclassSelect) {
-                                                subclassSelect.innerHTML = '<option value="">-- Žádná --</option>';
+                                                subclassSelect.innerHTML = '<option value="">None</option>';
                                                 if (data.subclasses && Array.isArray(data.subclasses)) {
                                                     data.subclasses.forEach(subclass => {
                                                         const option = document.createElement("option");

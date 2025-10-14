@@ -181,7 +181,7 @@
                                     character['char_class'] | capitalize}}</p>
                                 <p class="h5">Class</p>
                             </div>
-                            {% if character['char_subclass'] != "None" %}
+                            {% if character['char_subclass'] not in [None, '', 'None', 'null'] %}
                             <div class="flex-fill p-2">
                                 <p class="h2 mb-0">{{
                                     character['char_subclass'].replace('_', ' ') | title }}</p>

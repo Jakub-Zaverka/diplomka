@@ -121,12 +121,12 @@ def init_db():
                 wisdom INTEGER DEFAULT 8,
                 charisma INTEGER DEFAULT 8,
                 ac INTEGER DEFAULT 10,
-                hp INTEGER DEFAULT 10,
-                max_hp INTEGER DEFAULT 10,
+                hp INTEGER DEFAULT 1,
+                max_hp INTEGER DEFAULT 1,
                 temp_hp INTEGER DEFAULT 0,
-                hit_die INTEGER DEFAULT 10,
-                initiative INTEGER DEFAULT 10, 
-                level INTEGER DEFAULT 10,
+                hit_die INTEGER DEFAULT 1,
+                initiative INTEGER DEFAULT 0, 
+                level INTEGER DEFAULT 1,
                 speed INTEGER DEFAULT 30,
                 char_class TEXT DEFAULT None,
                 char_subclass TEXT DEFAULT None,
@@ -151,7 +151,7 @@ def init_db():
         db.execute('''
             CREATE TABLE spells (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                char_id INTEGER NOT NULL,
+                char_id STRING NOT NULL,
                 spell_id STRING NOT NULL,
                 FOREIGN KEY (char_id) REFERENCES characters(char_id)
             )
