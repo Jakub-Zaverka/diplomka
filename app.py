@@ -877,8 +877,9 @@ def update_character_options():
     data = request.get_json()
     race = data.get("char_race")
     char_class = data.get("char_class")
+    char_subclass = data.get("char_subclass")  # 🧩 přidáno
 
-    # základní feat levely
+    # --- feat levels ---
     feat_levels = [
         {"level": 0, "label": "Origin Feat", "filter": "origin"},
         {"level": 4, "label": "Level 4 Feat", "filter": "non-epic"},
@@ -897,20 +898,26 @@ def update_character_options():
         feat_levels.append({"level": 10, "label": "Rogue Feat level 10", "filter": "non-epic"})
 
     # --- načtení feats ---
-    feats = []
-    for feat in data_page_template["feats"].values():
-        feats.append({
+    feats = [
+        {
             "UUID": feat["UUID"],
             "name": feat["name"],
             "type": feat["type"],
             "description": feat.get("description", "")
-        })
+        }
+        for feat in data_page_template["feats"].values()
+    ]
 
     # --- načtení class choices ---
     class_choices = list(data_page_template.get(f"option_{char_class}", {}).values())
 
-    # --- načtení subclasses ---
-    #TODO: Opravit možnost nevybrat subclass
+    # --- subclass-specific options
+    if char_subclass:
+        subclass_key = f"option_{char_class}_{char_subclass}"
+        subclass_choices = list(data_page_template.get(subclass_key, {}).values())
+        class_choices.extend(subclass_choices)
+
+    # --- načtení dostupných subclasses ---
     subclasses = []
     subclass_dir = f"data/class/{char_class}/subclasses"
     if os.path.exists(subclass_dir):
@@ -918,6 +925,7 @@ def update_character_options():
             if os.path.isdir(os.path.join(subclass_dir, folder)):
                 subclasses.append(folder)
 
+    pass
     return jsonify({
         "feat_levels": feat_levels,
         "feats": feats,
