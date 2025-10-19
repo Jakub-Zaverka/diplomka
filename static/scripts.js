@@ -370,39 +370,67 @@ function deleteChar(button) {
 //------------------------------------
 
 // TODO:Udělat lepší search napříč všemi polemi - poslední až funguje, protože přepíše ty předcházející
-function search_table() {
-    // Declare variables
-    var input, filter, table, tr, td1, i, txtValue;
-    input = document.getElementById("search_input");
-    filter = input.value.toUpperCase();
-    table = document.getElementById("table");
-    tr = table.getElementsByTagName("tr");
+// function search_table() {
+//     // Declare variables
+//     var input, filter, table, tr, td1, i, txtValue;
+//     input = document.getElementById("search_input");
+//     filter = input.value.toUpperCase();
+//     table = document.getElementById("table");
+//     tr = table.getElementsByTagName("tr");
 
-    // Loop through all table rows, and hide those who don't match the search query
-    for (i = 0; i < tr.length; i++) {
-        td1 = tr[i].getElementsByTagName("td")[0];
-        td2 = tr[i].getElementsByTagName("td")[2];
+//     // Loop through all table rows, and hide those who don't match the search query
+//     for (i = 0; i < tr.length; i++) {
+//         td1 = tr[i].getElementsByTagName("td")[0];
+//         td2 = tr[i].getElementsByTagName("td")[2];
 
-        // Jestli je ve druhém sloupci něco
-        if (td2) {
-            txtValue = (td2.textContent || td2.innerText);
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-        }
-        // Jesli je v prvním sloupci něco
-        if (td1) {
-            txtValue = (td1.textContent || td1.innerText);
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-        }
-    }
-}
+//         // Jestli je ve druhém sloupci něco
+//         if (td2) {
+//             txtValue = (td2.textContent || td2.innerText);
+//             if (txtValue.toUpperCase().indexOf(filter) > -1) {
+//                 tr[i].style.display = "";
+//             } else {
+//                 tr[i].style.display = "none";
+//             }
+//         }
+//         // Jesli je v prvním sloupci něco
+//         if (td1) {
+//             txtValue = (td1.textContent || td1.innerText);
+//             if (txtValue.toUpperCase().indexOf(filter) > -1) {
+//                 tr[i].style.display = "";
+//             } else {
+//                 tr[i].style.display = "none";
+//             }
+//         }
+//     }
+// }
+
+
+// Každé vyhledávací pole má data-table="něco".
+// Tabulka, kterou má filtrovat, má stejný atribut data-table="něco".
+// Skript automaticky propojí správné pole s odpovídající tabulkou.
+
+document.addEventListener('DOMContentLoaded', () => {
+    // najde všechna vyhledávací pole s atributem data-table
+    console.log("fired")
+    document.querySelectorAll('input[data-table]').forEach(input => {
+        input.addEventListener('keyup', () => {
+            const searchTerm = input.value.toLowerCase();
+            const tableName = input.getAttribute('data-table');
+            const table = document.querySelector(`table[data-table="${tableName}"]`);
+            if (!table) return;
+
+            const rows = table.querySelectorAll('tbody tr');
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const found = Array.from(cells).some(cell =>
+                    cell.textContent.toLowerCase().includes(searchTerm)
+                );
+                row.style.display = found ? '' : 'none';
+            });
+        });
+    });
+});
 
 
 

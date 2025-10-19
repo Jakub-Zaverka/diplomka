@@ -53,7 +53,7 @@
     </nav> -->
     <div class="d-flex justify-content-center align-items-center ">
         <div class="col-lg-6 col-11">
-            <input placeholder="Search..." class="w-100 form-control mt-3" onkeyup="search_table()" id="search_input">
+            <input placeholder="Search..." class="w-100 form-control mt-3" data-table="characters" id="search_input">
             <button class="btn btn-primary float-end mt-1" data-bs-toggle="modal"
                 data-bs-target="#ModalCreateNew">Create
                 new Character</button>
@@ -64,7 +64,7 @@
         <div class="col-lg-6 ">
             {% if data %}
             <div class="table-scroll">
-                <table class="table" id="table" style="table-layout:fixed; width:100%; ">
+                <table class="table" id="table" style="table-layout:fixed; width:100%;" data-table="characters">
                     <thead>
                         <tr>
                             <th scope="col" class="text-wrap" style="width: 35%;">Character Name</th>
