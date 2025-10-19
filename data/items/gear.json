@@ -35,7 +35,13 @@
         "description": "A cool looking shield. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada eleifend lorem eget ultrices. Sed vel nulla condimentum, porttitor nibh tempus, venenatis dolor.",
         "bonus": {
             "ac": "+2"
-        }
+        },
+        "damage": "1d8",
+        "damage_type": "slashing",
+        "damage_modifier": [
+            "strength",
+            "dexterity"
+        ]
     },
     {
         "UUID": "9d7ec85e-41ee-4bab-8adf-1b6194ded4d8",

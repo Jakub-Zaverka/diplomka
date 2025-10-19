@@ -64,13 +64,11 @@ body {
 }
 
 .inventory-equip-table td.item-name {
-    white-space: normal;
-    /* povolí zalomení textu */
-    word-break: normal;
-    /* zachová slova pohromadě */
-    overflow-wrap: anywhere;
-    /* zalomí jen při potřebě */
-    vertical-align: middle;
+    white-space: normal;         /* dovolí textu normálně se zalamovat */
+    word-break: keep-all;        /* neřeže slova zbytečně */
+    overflow-wrap: break-word;   /* zalomí až když musí */
+    vertical-align: middle;      /* zarovná text na střed buňky */
+    width: 100%;                 /* využije celý prostor sloupce */
 }
 
 .inventory-equip-table {
