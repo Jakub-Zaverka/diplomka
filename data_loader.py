@@ -1,6 +1,7 @@
 import os
 import json
 import ttrpg
+import math
 
 def reload_base_data():
     """
@@ -184,6 +185,22 @@ def load_category(source_type: str, category: str, source_name: str, char, page_
                             item["max_charges"] = ttrpg.get_proficiency_bonus(char["level"])
                         except Exception:
                             item["max_charges"] = 1
+                    # level
+                    elif max_charges.lower() == "level":
+                        try:
+                            item["max_charges"] = char["level"]
+                        except Exception:
+                            item["max_charges"] = 1
+                    # level/2        
+                    elif max_charges.lower() == "level/2":
+                        #zaokrouhlení nahoru
+                        value = math.ceil(char["level"]/2)
+                        print(f"Level {value}")
+                        try:
+                            item["max_charges"] = value
+                        except Exception:
+                            item["max_charges"] = 1
+                    # fallback
                     else:
                         try:
                             item["max_charges"] = int(max_charges)

@@ -154,20 +154,7 @@
                                         class="form-control form-control-sm auto_update_stats bg-primary "
                                         value="{{ character.level }}">
                                 </div>
-                                <div class="col-6 col-md">
-                                    <label for="char_race" class="form-label">Race</label>
-                                    <select id="char_race"
-                                        class="form-select form-select-sm auto_update_stats bg-primary ">
-                                        <option selected>Select Race</option>
-                                        {% for item in player_races %}
-                                        {% if item == character.char_race %}
-                                        <option selected value="{{ item }}">{{ item | capitalize }}</option>
-                                        {% else %}
-                                        <option value="{{ item }}">{{ item | capitalize }}</option>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </select>
-                                </div>
+                                
                                 <div class="col-6 col-md">
                                     <label for="ac" class="form-label">AC</label>
                                     <input id="ac" type="text"
@@ -185,6 +172,26 @@
                                     <input id="speed" type="text"
                                         class="form-control form-control-sm auto_update_stats bg-primary "
                                         value="{{ character.speed }}">
+                                </div>
+                                <div class="col-6 col-md">
+                                    <label for="initiative" class="form-label">Initiative</label>
+                                    <input id="initiative" type="text"
+                                        class="form-control form-control-sm auto_update_stats bg-primary "
+                                        value="{{ character.initiative }}">
+                                </div>
+                                <div class="col-6 col-md">
+                                    <label for="char_race" class="form-label">Race</label>
+                                    <select id="char_race"
+                                        class="form-select form-select-sm auto_update_stats bg-primary ">
+                                        <option selected>Select Race</option>
+                                        {% for item in player_races %}
+                                        {% if item == character.char_race %}
+                                        <option selected value="{{ item }}">{{ item | capitalize }}</option>
+                                        {% else %}
+                                        <option value="{{ item }}">{{ item | capitalize }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
 

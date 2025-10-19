@@ -1,6 +1,6 @@
 [
     {
-        "UUID": "circle_land_choice_terrain",
+        "UUID": "3f3ba276-bf29-4473-bfb9-9efc2dae54c9",
         "name": "Land Type",
         "description": "Choose the type of land where you became a druid. It grants you extra spells and lore.",
         "choices": [

@@ -340,8 +340,10 @@ def sheet(char_id):
     char=char,
     page_template=page_template,
     saved_data=feature_data_dict,
+    #TODO: SET TO FALSE
     reload_data=False  # nastav True, pokud chceš při každém načtení znovu načíst JSONy
-)
+    )
+    
 
     # Spells byly dělány pozdeji, takže jsou udělány jinak než zbytek
     # Spells
