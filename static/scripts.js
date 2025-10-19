@@ -876,7 +876,7 @@ $(document).ready(function () {
     <div class="d-flex flex-column align-items-end">
         <img src="https://i.imgur.com/HpF4BFG.jpg" width="30" class="rounded-circle mb-1" />
         <span class="fw-bold mb-1">You</span>
-        <div class="bg-primary text-white rounded p-2" style="max-width: 75%; word-wrap: break-word;">
+        <div class="bg-primary text-white rounded p-2" style="max-width: 75%; white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word;">
             ${text}
         </div>
     </div>
