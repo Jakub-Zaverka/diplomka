@@ -573,7 +573,7 @@
                                                             ("%.2f"|format(item['count'])).rstrip('0').rstrip('.') }}
                                                         </p>
                                                     </td>
-                                                    {% set ns = namespace(max_stat=-999) %}
+                                                    {% set ns = namespace(max_stat=0) %}
 
                                                     {% for stat in item["damage_modifier"] %}
                                                     {% set bonus = ((character[stat] - 10) / 2)|int %}
@@ -616,7 +616,7 @@
                     <!-- Notes -->
                     <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
                         <div class="tab-scroll-wrapper">
-                            <textarea class="form-control" id="notes" rows="10"
+                            <textarea class="form-control" id="notes" rows="15"
                                 onblur="updateFromInput(this)">{{ character.notes }}</textarea>
                         </div>
                     </div>
@@ -730,8 +730,7 @@
     </div>
 
     <!-- Spell Modal -->
-    <div class="modal fade" id="spellModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
-        aria-hidden="true">
+    <div class="modal fade" id="spellModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -791,8 +790,7 @@
     </div>
 
     <!-- Inventory Modal -->
-    <div class="modal fade" id="inventoryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
-        aria-hidden="true">
+    <div class="modal fade" id="inventoryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle">
         <div class="modal-dialog modal-dialog-centered modal-lg " role="document">
             <div class="modal-content">
                 <div class="modal-header">

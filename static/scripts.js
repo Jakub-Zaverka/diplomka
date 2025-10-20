@@ -638,6 +638,7 @@ function showToast(element = null, title = 'Heading') {
     toastEl.role = 'alert';
     toastEl.ariaLive = 'assertive';
     toastEl.ariaAtomic = 'true';
+    toastEl.style.zIndex = '5';
 
     console.log(element.tagName.toLowerCase() == "input")
     if (element && element.getAttribute('data-damage')) {

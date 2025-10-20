@@ -58,5 +58,40 @@
         "bonus": {
             "ac": "+2"
         }
+    },
+    {
+        "UUID": "763d9b43-ef9d-4396-aabf-6280798524a9",
+        "name": "Gold Coin",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada eleifend lorem eget ultrices. Sed vel nulla condimentum, porttitor nibh tempus, venenatis dolor.",
+        "bonus": {
+        }
+    },
+        {
+        "UUID": "1bc1dc42-5b3a-4b58-b677-d0fe586d5ef9",
+        "name": "Silver Coin",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada eleifend lorem eget ultrices. Sed vel nulla condimentum, porttitor nibh tempus, venenatis dolor.",
+        "bonus": {
+        }
+    },
+        {
+        "UUID": "cfb64779-092a-44fc-ade1-0f10f04c2492",
+        "name": "Copper Coin",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada eleifend lorem eget ultrices. Sed vel nulla condimentum, porttitor nibh tempus, venenatis dolor.",
+        "bonus": {
+        }
+    },
+        {
+        "UUID": "1e18a06e-7c0e-4e85-b59a-bd1c6df5d04e",
+        "name": "Electrum Coin",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada eleifend lorem eget ultrices. Sed vel nulla condimentum, porttitor nibh tempus, venenatis dolor.",
+        "bonus": {
+        }
+    },
+    {
+        "UUID": "eb9faab0-a09a-4d9a-829f-e40ab11405e7",
+        "name": "Platinum Coin",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada eleifend lorem eget ultrices. Sed vel nulla condimentum, porttitor nibh tempus, venenatis dolor.",
+        "bonus": {
+        }
     }
 ]
