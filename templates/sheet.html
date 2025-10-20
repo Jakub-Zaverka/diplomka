@@ -92,14 +92,69 @@
                     {% endfor %}
                 </div>
                 <!-- Rest je řešen pomocí duplikace, která je vidět jen v určitě obrazovce, ato buď md nebo menší jak md. -->
-                <!-- <div class="order-md-3 order-last d-none d-md-block pt-2">
+                <div class="order-md-3 order-last d-none d-md-block pt-2 pe-2 m-1">
                     <div class="row">
-                        <div class="bg-light row shadow">
-                            <p style="height: 100px;" class="h3 w-100 text-nowrap px-3">Dice Rolls?</p>
-                            <input onblur="stringDiceRoll(this.value)">
+                        <div class="bg-light shadow p-2"
+                            style="height: 15vh; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
+
+                            <!-- Řádek s tlačítky -->
+                            <div class="row gx-0">
+                                <div class="col-12 d-flex justify-content-between flex-wrap gap-1">
+                                    <button class="btn btn-primary btn-sm flex-fill"
+                                        onclick="setDiceRoll('1d4')">1d4</button>
+                                    <button class="btn btn-primary btn-sm flex-fill"
+                                        onclick="setDiceRoll('1d6')">1d6</button>
+                                    <button class="btn btn-primary btn-sm flex-fill"
+                                        onclick="setDiceRoll('1d8')">1d8</button>
+                                    <button class="btn btn-primary btn-sm flex-fill"
+                                        onclick="setDiceRoll('1d10')">1d10</button>
+                                    <button class="btn btn-primary btn-sm flex-fill"
+                                        onclick="setDiceRoll('1d12')">1d12</button>
+                                    <button class="btn btn-primary btn-sm flex-fill"
+                                        onclick="setDiceRoll('1d20')">1d20</button>
+                                    <button class="btn btn-primary btn-sm flex-fill"
+                                        onclick="setDiceRoll('1d100')">1d100</button>
+                                </div>
+                            </div>
+
+                            <!-- Řádek s inputem -->
+                            <div class="row mt-1 gx-0">
+                                <div class="col-12 input-group">
+                                    <input id="dice-roll-input" type="text" class="form-control text-center"
+                                        placeholder="Manual Roll (např. 2d6+3)"
+                                        style=" font-size: 0.9rem;">
+                                    <button class="btn btn-outline-secondary" onclick="showToast(document.getElementById('dice-roll-input'), 'Manual Roll')">Roll</button>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
-                </div> -->
+                </div>
+
+
+                <script>
+                    function setDiceRoll(value) {
+                        const input = document.getElementById('dice-roll-input');
+                        if (!input) return;
+
+                        // odstraní přebytečné mezery na začátku/konci
+                        let current = input.value.trim();
+
+                        // přidá nový hod do existujícího řetězce s mezerou
+                        if (current) {
+                            input.value = current + " +" + value;
+                        } else {
+                            input.value = value;
+                        }
+
+                        input.focus(); // volitelné – přesune kurzor do inputu
+                    }
+
+                </script>
+
+
+
+
             </div>
             <div style="height: 100px;" class="bg-info col-12 col-lg-6 order-md-3 order-last d-sm-block d-md-none">
                 <p>Rest Small Screen</p>
@@ -528,7 +583,8 @@
                                                     {% endfor %}
 
                                                     <td class="item-name clickable-div" data-id="{{item['UUID']}}"
-                                                        data-damage="{{item['damage']}}" data-modifier="{{ ns.max_stat }}"
+                                                        data-damage="{{item['damage']}}"
+                                                        data-modifier="{{ ns.max_stat }}"
                                                         onclick="showToast(this,'Dice Roll {{ item['name'] }}')">
                                                         {{ item['name'] }}
                                                     </td>

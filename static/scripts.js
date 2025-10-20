@@ -408,10 +408,8 @@ function deleteChar(button) {
 // Každé vyhledávací pole má data-table="něco".
 // Tabulka, kterou má filtrovat, má stejný atribut data-table="něco".
 // Skript automaticky propojí správné pole s odpovídající tabulkou.
-
 document.addEventListener('DOMContentLoaded', () => {
     // najde všechna vyhledávací pole s atributem data-table
-    console.log("fired")
     document.querySelectorAll('input[data-table]').forEach(input => {
         input.addEventListener('keyup', () => {
             const searchTerm = input.value.toLowerCase();
@@ -592,6 +590,7 @@ function generateRandomInteger(min, max) {
 //4d4+1d6+1
 function stringDiceRoll(string) {
     resultRolls = []
+    console.log(string)
     plusSplit = string.split("+")
     for (let i = 0; i < plusSplit.length; i++) {
         dSplit = plusSplit[i].split("d")
@@ -632,6 +631,7 @@ function showToast(element = null, title = 'Heading') {
         dice = element.getAttribute('data-damage') || '1d20';
     }
 
+
     // vytvoření toastu
     const toastEl = document.createElement('div');
     toastEl.className = 'toast align-items-center';
@@ -639,6 +639,7 @@ function showToast(element = null, title = 'Heading') {
     toastEl.ariaLive = 'assertive';
     toastEl.ariaAtomic = 'true';
 
+    console.log(element.tagName.toLowerCase() == "input")
     if (element && element.getAttribute('data-damage')) {
         // Damage roll
         toastEl.innerHTML = `
@@ -659,7 +660,21 @@ function showToast(element = null, title = 'Heading') {
                 : `${stringDiceRoll(dice + '+' + modifier)} (${dice}+${modifier})`}
         </div>
         `;
-    } else {
+    } 
+    // Manualní roll v input boxu
+    else if(element.tagName.toLowerCase() == "input"){
+        toastEl.innerHTML = `
+        <div class="toast-header">
+            <strong class="me-auto">${title}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            Random Roll: ${stringDiceRoll(element.value)} (${element.value})
+            }
+        </div>
+        `;
+    }
+    else {
         // Random roll nebo fallback, když není element
         toastEl.innerHTML = `
         <div class="toast-header">
