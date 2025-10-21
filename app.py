@@ -247,6 +247,21 @@ def login():
         return redirect('/login')
     return render_template('login.html')
 
+# ---------- Password reset ----------
+@app.route('/pass_reset', methods=['GET', 'POST'])
+def pass_reset():
+    #Lognutý uživatel by neměl mít možnost resetovat heslo
+    if current_user.is_authenticated:
+        return redirect('/dashboard')
+    
+    if request.method == 'POST':
+        flash("Pokud existuje účet s tímto emailem, postupujte dle kroků v emailu", "info")
+        email = request.form['email']
+        print(email)
+        return redirect('/login')
+    return render_template('pass_reset.html')
+    
+
 # ---------- Odhlášení ----------
 @app.route('/logout')
 def logout():
