@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, g, session, flash, jsonify
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_mail import Mail
+import pass_reset
 import sqlite3
 import os
 import random
@@ -12,6 +14,9 @@ from data_loader import reload_base_data, load_category
 import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
+from threading import Thread
+import time
+import jwt
 
 
 
@@ -26,6 +31,17 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv("FLASK_CONFIG_SECRET")
+app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
+app.config['MAIL_PORT'] = os.getenv("MAIL_PORT")
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER")
+#TODO:Zmenit!!! je nastaveno na localhost
+app.config['SERVER_NAME'] = os.getenv("SERVER_NAME")
+app.config['PREFERRED_URL_SCHEME'] = os.getenv("PREFERRED_URL_SCHEME")
+mail = Mail(app)
 DATABASE = 'main.db'
 
 # Inicializace klienta OPENAI
@@ -40,10 +56,31 @@ login_manager.init_app(app)
 # ---------- User class ----------
 #Flask volá celý User objekt znovu mezi requests, takže všechno mezitím uložené se ztratí, asi spíše uložit do session?
 class User(UserMixin):
-    def __init__(self, id_, username):
+    def __init__(self, id_, username, email=None):
         self.id = id_
         self.username = username
+        self.email = email
         # self.character = Chararacter(user_id=id_)
+
+    def get_reset_token(self, expires=600):
+        """Vygeneruje JWT token platný po dobu 'expires' sekund"""
+        payload = {
+            'reset_password': self.username,
+            'exp': time.time() + expires
+        }
+        token = jwt.encode(payload, key=os.getenv('FLASK_CONFIG_SECRET'), algorithm='HS256')
+        return token
+    
+    @staticmethod
+    def verify_reset_token(token):
+        """Ověří JWT token, vrátí username pokud je platný"""
+        try:
+            payload = jwt.decode(token, key=os.getenv('SECRET_KEY_FLASK'), algorithms=['HS256'])
+            return payload.get('reset_password')
+        except jwt.ExpiredSignatureError:
+            return None  # token expiroval
+        except jwt.InvalidTokenError:
+            return None  # token je neplatný
 
 
 # ---------- Character class ----------
@@ -249,17 +286,53 @@ def login():
 
 # ---------- Password reset ----------
 @app.route('/pass_reset', methods=['GET', 'POST'])
-def pass_reset():
-    #Lognutý uživatel by neměl mít možnost resetovat heslo
+def password_reset():
+    # Lognutý uživatel by neměl mít možnost resetovat heslo
     if current_user.is_authenticated:
         return redirect('/dashboard')
-    
+
     if request.method == 'POST':
-        flash("Pokud existuje účet s tímto emailem, postupujte dle kroků v emailu", "info")
         email = request.form['email']
-        print(email)
+        db = get_db()
+        user = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+
+        # Flash zpráva se zobrazí vždy (z bezpečnostních důvodů)
+        flash("Pokud existuje účet s tímto e-mailem, zkontrolujte schránku pro další kroky.", "info")
+
+        if user:
+            # vytvoříme User objekt
+            user_obj = User(id_=user['user_id'], username=user['username'], email=user['email'])
+            # pošli e-mail asynchronně - jinak to až na moc dlouho zamrzne aplikaci
+            Thread(target=pass_reset.send_reset_email, args=(user_obj,)).start()
+
         return redirect('/login')
+
     return render_template('pass_reset.html')
+
+# ---------- Password reset - Token stránka ----------
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_with_token(token):
+    print("DEBUG token:", token, type(token))
+    try:
+        payload = jwt.decode(token, key=os.getenv('FLASK_CONFIG_SECRET'), algorithms=['HS256'])
+        username = payload.get('reset_password')
+    except jwt.ExpiredSignatureError:
+        flash('Odkaz pro reset hesla vypršel.', 'danger')
+        return redirect('/pass_reset')
+    except jwt.InvalidTokenError:
+        flash('Neplatný odkaz pro reset hesla.', 'danger')
+        return redirect('/pass_reset')
+
+    if request.method == 'POST':
+        new_password = request.form['password']
+        pw_hash = generate_password_hash(new_password)
+        db = get_db()
+        db.execute("UPDATE users SET password_hash = ? WHERE username = ?", (pw_hash, username))
+        db.commit()
+        flash('Heslo bylo úspěšně změněno. Můžeš se přihlásit.', 'success')
+        return redirect('/login')
+
+    return render_template('pass_reset_change.html', username=username)
     
 
 # ---------- Odhlášení ----------
