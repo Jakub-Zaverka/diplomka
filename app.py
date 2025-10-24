@@ -1187,7 +1187,14 @@ def get_characters(user_id: int = 1):
     ).fetchall()
     
     # Vrátíme jen jména (AI nepotřebuje celou tabulku)
-    return [row["name"] for row in rows]
+    return [
+    {
+        "name": row["name"],
+        "class": row["char_class"],
+        "level": row["level"]
+    }
+    for row in rows
+]
 
 # -----------------------------
 # Dice funkce (backend helper)
