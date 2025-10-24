@@ -121,7 +121,7 @@ body {
 
 /* Scrollovací wrapper uvnitř každého tab-pane sheet edit mode*/
 .tab-scroll-wrapper-edit-mode {
-    height: calc(100vh - 400px);
+    height: calc(100vh - 500px);
     /*400px je prostě tip výšky navbaru a jiných elementů*/
     overflow-y: auto;
     overflow-x: hidden;
@@ -132,7 +132,7 @@ body {
 /*tablety*/
 @media (max-width: 960px) {
     .tab-scroll-wrapper-edit-mode {
-        height: calc(100dvh - 425px);
+        height: calc(100dvh - 475px);
         /*350px je prostě tip výšky navbaru a jiných elementů, dvh je dynamick viewport height, specifické pro mobily*/
     }
 }
@@ -140,7 +140,7 @@ body {
 /*extra malé displeje*/
 @media (max-width: 767px) {
     .tab-scroll-wrapper-edit-mode {
-        height: calc(100dvh - 480px);
+        height: calc(100dvh - 525px);
         /*425px je prostě tip výšky navbaru a jiných elementů, dvh je dynamick viewport height, specifické pro mobily*/
     }
 }
