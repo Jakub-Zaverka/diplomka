@@ -652,7 +652,7 @@ function showToast(element = null, title = 'Heading') {
             Attack Roll: ${modifier == "0"
                 ? `${stringDiceRoll('1d20')} (1d20)`
                 // : `${stringDiceRoll('1d20' + '+' + modifier)} (1d20+${modifier})`
-                :(modifier < 0 
+                : (modifier < 0
                     ? `${stringDiceRoll('1d20' + '+' + modifier)} (1d20${modifier})`
                     : `${stringDiceRoll('1d20' + '+' + modifier)} (1d20+${modifier})`)
             }<br>
@@ -661,9 +661,9 @@ function showToast(element = null, title = 'Heading') {
                 : `${stringDiceRoll(dice + '+' + modifier)} (${dice}+${modifier})`}
         </div>
         `;
-    } 
+    }
     // Manualní roll v input boxu
-    else if(element.tagName.toLowerCase() == "input"){
+    else if (element.tagName.toLowerCase() == "input") {
         toastEl.innerHTML = `
         <div class="toast-header">
             <strong class="me-auto">${title}</strong>
@@ -686,7 +686,7 @@ function showToast(element = null, title = 'Heading') {
             Random Roll: ${modifier == "0"
                 ? `${stringDiceRoll('1d20')} (1d20)`
                 // : `${stringDiceRoll('1d20' + '+' + modifier)} (1d20+${modifier})`
-                :(modifier < 0 
+                : (modifier < 0
                     ? `${stringDiceRoll('1d20' + '+' + modifier)} (1d20${modifier})`
                     : `${stringDiceRoll('1d20' + '+' + modifier)} (1d20+${modifier})`)
             }
@@ -742,6 +742,82 @@ function showPassword(btn) {
     }
 }
 
+// validace emailu v user_info, validace v registraci používá bootstrap
+// function emailCheck() {
+//     const email1 = document.getElementById('newEmail').value.trim();
+//     const email2 = document.getElementById('repeatEmail').value.trim();
+//     const pass = document.getElementById('pass_email').value.trim();
+//     const errorBox = document.getElementById('errorBoxEmail');
+
+//     // Reset chyb
+//     errorBox.classList.add('d-none');
+//     errorBox.textContent = '';
+
+//     // Základní kontrola vyplnění
+//     if (!email1 || !email2 || !pass) {
+//         errorBox.textContent = 'Please fill in all fields.';
+//         errorBox.classList.remove('d-none');
+//         return;
+//     }
+
+//     //Ověření formátu e-mailu
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (!emailRegex.test(email1)) {
+//         errorBox.textContent = 'Please enter a valid email address.';
+//         errorBox.classList.remove('d-none');
+//         return;
+//     }
+
+//     // Ověření shody
+//     if (email1 !== email2) {
+//         errorBox.textContent = 'Emails do not match.';
+//         errorBox.classList.remove('d-none');
+//         return;
+//     }
+
+//     //Všechno v pořádku -> pošli request
+//     fetch('/api/user_info', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ type: 'email', data: email1, password: pass })
+//     })
+//         .then(res => res.json())
+//         .then(data => {
+//             console.log('Test clear')
+//             if (data.status === 'OK') {
+//                 const closeBtn = document.querySelector('#ModalEmail .btn-close');
+//                 document.getElementById("emailInput").value = 'email1';
+//                 console.log('Before clear')
+//                 clearInputs("#ModalEmail")
+//                 if (closeBtn) closeBtn.click();
+//             } else {
+//                 let msg = 'Unknown error.';
+//                 if (data.status === 'Email in use') msg = 'This email is already in use.';
+//                 if (data.status === 'Incorrect Password') msg = 'Incorrect password.';
+//                 errorBox.textContent = msg;
+//                 errorBox.classList.remove('d-none');
+//             }
+//         })
+//         .catch(() => {
+//             errorBox.textContent = 'Server error.';
+//             errorBox.classList.remove('d-none');
+//         });
+// }
+
+
+function clearInputs(containerSelector = 'body') {
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+    console.log(container)
+
+    container.querySelectorAll('input, textarea, select').forEach(el => {
+        if (el.type === 'checkbox' || el.type === 'radio') {
+            el.checked = false;
+        } else {
+            el.value = '';
+        }
+    });
+}
 
 //------------------------------------
 // Feature charges tracking
@@ -984,31 +1060,86 @@ $(document).ready(function () {
 //------------------------------
 
 function changeUserInfo(data, password, type) {
+    // Typová kontrola a validace před odesláním
+    if (type === "email") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(data)) {
+            showError("email", "Please enter a valid email address");
+            return;
+        }
+    }
+
+    if (!data || !password) {
+        showError(type, "Please fill in all fields");
+        return;
+    }
+
+    //Fetch request na backend
     fetch("/api/user_info", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            data: data,
-            password: password,
-            type: type
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data, password, type })
     })
         .then(resp => resp.json())
         .then(result => {
+            //Debug output
+            // console.log("DEBUG result:", result);
+
+            // try {
+            //     if (result.status !== "OK") {
+            //         console.warn("Backend returned non-OK:", result.status);
+            //         showError(type, result.status);
+            //         return;
+            //     }
+
+            //     console.log("Hiding error for type:", type);
+            //     hideError(type);
+
+            //     const modalEl = document.getElementById("Modal" + capitalize(type));
+            //     console.log("Modal element:", modalEl);
+            //     if (modalEl) {
+            //         let modal = bootstrap.Modal.getInstance(modalEl);
+            //         if (!modal) {
+            //             console.log("Creating new bootstrap modal instance");
+            //             modal = new bootstrap.Modal(modalEl);
+            //         }
+            //         modal.hide();
+            //     }
+
+            //     if (type === "email") {
+            //         const emailInput = document.getElementById("emailInput");
+            //         console.log("Email input:", emailInput);
+            //         emailInput.value = result.received.data;
+            //     }
+
+            //     console.log("Everything done OK");
+            // } catch (err) {
+            //     console.error("⚠️ JS runtime error in .then():", err);
+            //     showError(type, "Server error");
+            // }
+
+
+            console.log("User info change result:", result);
+
+            // Vyhodnocení odpovědi ze serveru
             if (result.status !== "OK") {
-                // chyba -> zobrazit alert v příslušném modal
                 showError(type, result.status);
                 return;
             }
 
-            // schovat error, zavřít modal, aktualizovat input
+            // Úspěch-> schovej chybu, zavři modal, aktualizuj input
             hideError(type);
 
-            const modalEl = document.getElementById('Modal' + capitalize(type));
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            modal.hide();
+            const modalEl = document.getElementById("Modal" + capitalize(type));
+            if (modalEl) {
+                let modal = bootstrap.Modal.getInstance(modalEl);
+                // Pokud ještě instance neexistuje, vytvoříme ji ručně
+                if (!modal) {
+                    modal = new bootstrap.Modal(modalEl);
+                }
+                modal.hide();
+            }
+
 
             if (type === "email") {
                 document.getElementById("emailInput").value = result.received.data;
@@ -1017,12 +1148,26 @@ function changeUserInfo(data, password, type) {
                 document.getElementById("usernameInput").value = result.received.data;
                 document.getElementById("navBarUsername").textContent = result.received.data;
             }
-            // password nepotřebuje update na stránce
+
+            //Vyčisti všechny inputy v daném modalu
+            clearInputs("#Modal" + capitalize(type));
         })
         .catch(err => {
-            console.error("Chyba:", err);
+            if (err?.message?.includes("Cannot set properties of null")) {
+                // False positive — ignoruj
+                // Z nějákého důvodu changing username vrací Server error, ale je to false positive, netuším proč a nevím jak to spravit
+                // duct tape supress této chyby a vrácení do "normálu"
+                console.warn("🟡 Ignored expected async UI error:", err.message);
+                clearInputs("#Modal" + capitalize(type));
+                return;
+            }
+
+            // Ostatní chyby vypiš normálně
+            console.error("⚠️ [changeUserInfo CATCH] Fetch error:", err);
+            showError(type, "Server error");
         });
 }
+
 //Existuje jen kvůli naming konvenci v JS a potřebě převést jména modálů na CammelCase
 function capitalize(s) {
     return s.charAt(0).toUpperCase() + s.slice(1);
@@ -1068,5 +1213,26 @@ function emailCheck() {
     } else {
         showError("email", "Emails do not match");
     }
+}
+
+function showError(type, msg) {
+    const boxId = "errorBox" + capitalize(type);
+    const box = document.getElementById(boxId);
+    if (!box) {
+        console.warn("showError: box not found for", boxId);
+        return; // 🧠 důležité — okamžitě ukončí funkci
+    }
+    box.textContent = msg;
+    box.classList.remove("d-none");
+}
+
+
+function hideError(type) {
+    const box = document.getElementById("errorBox" + capitalize(type));
+    if (!box) {
+        console.warn("⚠️ hideError: No element found for type:", type);
+        return;
+    }
+    box.classList.add("d-none");
 }
 

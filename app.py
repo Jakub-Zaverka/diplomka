@@ -588,9 +588,9 @@ def change_user_info():
             db.execute("UPDATE USERS SET username = ? WHERE user_id = ?", (data["data"],current_user.id))
         db.commit()
 
-        return {"status": "OK", "received": data}
+        return jsonify(status="OK", received=data)
     else:
-        return {"status": "Incorrect Password", "received": data}
+        return jsonify(status="Incorrect Password", received=data)
     
 
 

@@ -10,21 +10,6 @@
     <link rel="stylesheet" href="{{ url_for('static',filename='styles.css') }}">
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
     <script>
-        function showError(type, msg) {
-            const box = document.getElementById("errorBox" + capitalize(type));
-            if (box) {
-                box.textContent = msg;
-                box.classList.remove("d-none");
-            }
-        }
-
-        function hideError(type) {
-            const box = document.getElementById("errorBox" + capitalize(type));
-            if (box) {
-                box.classList.add("d-none");
-            }
-        }
-
     </script>
 
 </head>
@@ -168,41 +153,54 @@
                 </div>
 
                 <!-- Modal body -->
-                <div class="modal-body">
-                    <div id="errorBoxEmail" class="alert alert-danger d-none" role="alert"></div>
-                    <div class="row container p-1 my-1 ">
-                        <p class="h3">New email</p>
-                        <div class="input-group">
-                            <input class="form-control" id="newEmail">
-                        </div>
-                        <p class="h3">Repeat New email</p>
-                        <div class="input-group">
-                            <input class="form-control" id="repeatEmail">
-                        </div>
-                        <p class="h3">Current Password</p>
-                        <div class="input-group ">
-                            <input class="form-control" id="pass_email" type="password">
-                            <button onclick="showPassword(this)" class="btn btn-outline-warning"><svg
-                                    xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                    class="bi bi-eye-fill" viewBox="0 0 16 16">
-                                    <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
-                                    <path
-                                        d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
-                                </svg></button>
+                <form class="needs-validation" id="changeEmailForm" novalidate>
+                    <div class="modal-body">
+                        <div id="errorBoxEmail" class="alert alert-danger d-none" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label for="newEmail" class="form-label h3">New email</label>
+                            <input id="newEmail" type="email" class="form-control" required>
+                            <div class="invalid-feedback">Please enter a valid email address.</div>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="repeatEmail" class="form-label h3">Repeat new email</label>
+                            <input id="repeatEmail" type="email" class="form-control" required>
+                            <div class="invalid-feedback">Emails must match.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="pass_email" class="form-label h3">Current password</label>
+                            <div class="input-group">
+                                <input id="pass_email" type="password" class="form-control" required>
+                                <button type="button" onclick="showPassword(this)" class="btn btn-outline-warning">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
+                                        <path
+                                            d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
+                                    </svg>
+                                </button>
+                                <div class="invalid-feedback">Please enter your current password.</div>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Modal footer -->
-                <div class="modal-footer">
-                    <button type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" onclick="emailCheck()">Change Email</button>
-                </div>
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" onclick="emailCheck()">Change Email</button>
+                    </div>
+                </form>
+
 
             </div>
         </div>
     </div>
+
+    <script>
+
+    </script>
 
     <!-- Modal Username -->
     <div class="modal fade" id="ModalUsername">
