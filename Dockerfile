@@ -11,8 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # proměnné prostředí
-ENV FLASK_CONFIG_SECRET=change_me
-ENV PYTHONUNBUFFERED=1
+
 
 # otevři port
 EXPOSE 5000
