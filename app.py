@@ -1262,3 +1262,10 @@ tools = [
 if __name__ == '__main__':
     init_db()
     app.run(debug=True, host='0.0.0.0', port=5000)
+
+
+def run_waitress():
+    # inicializuj DB pokud je potřeba
+    init_db()
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=5000)

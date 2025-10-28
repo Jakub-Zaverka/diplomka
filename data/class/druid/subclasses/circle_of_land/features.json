@@ -12,7 +12,7 @@
         "UUID": "c65dbd7a-1656-48e0-986e-75168151a556",
         "name": "Natural Recovery",
         "description": "Once per day when you finish a short rest, you can recover expended spell slots. The spell slots can have a combined level that is equal to or less than half your druid level (rounded up).",
-        "max_charges": "level/2",
+        "max_charges": "25",
         "type": "feature",
         "source": "circle_of_land",
         "level": 2

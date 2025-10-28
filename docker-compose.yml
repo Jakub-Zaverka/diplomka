@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  diplomka:
+    build: .
+    container_name: diplomka_app
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./main.db:/app/main.db
+    restart: unless-stopped

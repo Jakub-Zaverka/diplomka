@@ -313,7 +313,7 @@
                                                 data-bs-target="#Collapse{{ feature['UUID'] }}" aria-expanded="false"
                                                 aria-controls="Collapse{{ feature['UUID'] }}">^</button>
                                         </div>
-                                        <div class="d-flex" id="{{ feature['UUID'] }}_div">
+                                        <div class="d-flex flex-wrap" id="{{ feature['UUID'] }}_div">
                                             {% set current_charger = feature["charges"] | int if feature["charges"] is
                                             not none else 0 %}
 
@@ -387,7 +387,7 @@
                                                 aria-expanded="false"
                                                 aria-controls="Collapse{{ trait['UUID'] }}">^</button>
                                         </div>
-                                        <div class="d-flex" id="{{ trait['UUID'] }}_div">
+                                        <div class="d-flex flex-wrap" id="{{ trait['UUID'] }}_div">
                                             {% if trait["max_charges"] != 0 %}
                                             <button class="btn btn-primary m-1"
                                                 id="{{ trait['UUID'] }}">UseAbility</button>
@@ -737,15 +737,15 @@
                     <h5 class="modal-title">Edit Inventory</h5>
                 </div>
                 <div class="modal-body container">
-                    <div class="row"><input placeholder="Search..." class="form-control" data-table="spells"></div>
+                    <div class="row"><input placeholder="Search..." class="form-control border border-primary" data-table="spells"></div>
                     <div class="row">
-                        <div class="bg-primary" style="max-height: 400px; overflow-y: auto;">
+                        <div class="" style="max-height: 400px; overflow-y: auto;">
                             <table class="table" id="spell-edit-table" data-table="spells">
                                 <thead>
                                     <tr>
                                         <th scope="col">Spell Level</th>
                                         <th scope="col">Name</th>
-                                        <th scope="col">Prepared</th>
+                                        <th scope="col" class="text-center">Prepared</th>
                                         <th scope="col"></th>
                                     </tr>
                                 </thead>
@@ -753,9 +753,9 @@
 
                                     {% for item in data_page_template["spells"].values() %}
                                     <tr>
-                                        <td scope="row">{{ item['level'] }}</td>
+                                        <td scope="row" class="ps-3">{{ item['level'] }}</td>
                                         <td data-id="{{ item['UUID'] }}">{{ item['name'] }}</td>
-                                        <td><input class="form-check-input" type="checkbox" id="{{ item['UUID'] }}" {%
+                                        <td class="text-center"><input class="form-check-input" type="checkbox" id="{{ item['UUID'] }}" {%
                                                 if item["checked"] %} checked {% endif %}></td>
                                         </td>
                                         <td>
@@ -800,25 +800,25 @@
                     </button> -->
                 </div>
                 <div class="modal-body container">
-                    <div class="row"><input placeholder="Search..." class="form-control" data-table="inventory"></div>
+                    <div class="row"><input placeholder="Search..." class="form-control border border-primary" data-table="inventory"></div>
                     <div class="row">
-                        <div class="bg-primary" style="max-height: 400px; overflow-y: auto;">
+                        <div class="" style="max-height: 400px; overflow-y: auto;">
                             <table class="table" id="edit-table" data-table="inventory">
                                 <thead>
                                     <tr>
                                         <th scope="col">Ammount</th>
                                         <th scope="col">Name</th>
-                                        <th scope="col">In inventory</th>
+                                        <th scope="col" class="text-center">In Inventory</th>
                                         <th scope="col"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for item in data_page_template["items"] %}
                                     <tr>
-                                        <th scope="row"><input style="max-width: 50px;" value="{{ item['count'] }}">
+                                        <th scope="row"><input style="max-width: 50px;" value="{{ item['count'] }}" class="ps-2 form-control border border-primary">
                                         </th>
                                         <td data-id="{{ item['UUID'] }}">{{ item['name'] }}</td>
-                                        <td><input class="form-check-input" type="checkbox" id="{{ item['UUID'] }}" {%
+                                        <td class="text-center"><input class="form-check-input" type="checkbox" id="{{ item['UUID'] }}" {%
                                                 if item["checked"] %} checked {% endif %}>
                                         </td>
                                         <td>
