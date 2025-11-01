@@ -101,19 +101,19 @@
                             <div class="row gx-0">
                                 <div class="col-12 d-flex justify-content-between flex-wrap gap-1">
                                     <button class="btn btn-primary btn-sm flex-fill"
-                                        onclick="setDiceRoll('1d4')">1d4</button>
+                                        onclick="setDiceRoll('1d4',document.getElementById('dice-roll-input'))">1d4</button>
                                     <button class="btn btn-primary btn-sm flex-fill"
-                                        onclick="setDiceRoll('1d6')">1d6</button>
+                                        onclick="setDiceRoll('1d6',document.getElementById('dice-roll-input'))">1d6</button>
                                     <button class="btn btn-primary btn-sm flex-fill"
-                                        onclick="setDiceRoll('1d8')">1d8</button>
+                                        onclick="setDiceRoll('1d8',document.getElementById('dice-roll-input'))">1d8</button>
                                     <button class="btn btn-primary btn-sm flex-fill"
-                                        onclick="setDiceRoll('1d10')">1d10</button>
+                                        onclick="setDiceRoll('1d10',document.getElementById('dice-roll-input'))">1d10</button>
                                     <button class="btn btn-primary btn-sm flex-fill"
-                                        onclick="setDiceRoll('1d12')">1d12</button>
+                                        onclick="setDiceRoll('1d12',document.getElementById('dice-roll-input'))">1d12</button>
                                     <button class="btn btn-primary btn-sm flex-fill"
-                                        onclick="setDiceRoll('1d20')">1d20</button>
+                                        onclick="setDiceRoll('1d20',document.getElementById('dice-roll-input'))">1d20</button>
                                     <button class="btn btn-primary btn-sm flex-fill"
-                                        onclick="setDiceRoll('1d100')">1d100</button>
+                                        onclick="setDiceRoll('1d100',document.getElementById('dice-roll-input'))">1d100</button>
                                 </div>
                             </div>
 
@@ -121,9 +121,9 @@
                             <div class="row mt-1 gx-0">
                                 <div class="col-12 input-group">
                                     <input id="dice-roll-input" type="text" class="form-control text-center"
-                                        placeholder="Manual Roll (např. 2d6+3)"
-                                        style=" font-size: 0.9rem;">
-                                    <button class="btn btn-outline-secondary" onclick="showToast(document.getElementById('dice-roll-input'), 'Manual Roll')">Roll</button>
+                                        placeholder="Manual Roll (např. 2d6+3)" style=" font-size: 0.9rem;">
+                                    <button class="btn btn-outline-secondary"
+                                        onclick="showToast(document.getElementById('dice-roll-input'), 'Manual Roll')">Roll</button>
                                 </div>
                             </div>
 
@@ -133,8 +133,8 @@
 
 
                 <script>
-                    function setDiceRoll(value) {
-                        const input = document.getElementById('dice-roll-input');
+                    function setDiceRoll(value, input) {
+                        // const input = document.getElementById('dice-roll-input');
                         if (!input) return;
 
                         // odstraní přebytečné mezery na začátku/konci
@@ -290,6 +290,9 @@
                         <button class="nav-link d-block d-lg-none" id="nav-stats-tab" data-bs-toggle="tab"
                             data-bs-target="#nav-stats" type="button" role="tab" aria-controls="nav-stats"
                             aria-selected="false">Stats</button>
+                        <button class="nav-link d-block d-lg-none" id="nav-dice-tab" data-bs-toggle="tab"
+                            data-bs-target="#nav-dice" type="button" role="tab" aria-controls="nav-dice"
+                            aria-selected="false">Dices</button>
                     </div>
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
@@ -649,79 +652,96 @@
                                 <!-- Atributes -->
                                 {% for item in data_page_template["atributes"] %}
                                 <div class="row">
-                                    <div class="bg-light row shadow ">
+                                    <div class="bg-light row align-items-center">
                                         {% set bonus = ((character[item["name"]] - 10) / 2)|int %}
-                                        <div class="col-2 px-4 px-md-2 px-lg-4 px-sm-3 clickable_div"
-                                            data-modifier="{{ bonus }}" onclick="showToast(this,'Dice Roll {{ item["
-                                            name"] }}')">
-                                            <div class="row">
-                                                <p class="h3 my-0 mx-1">
-
-                                                    {% if bonus >= 0 %}
-                                                    +{{ bonus }}
-                                                    {% else %}
-                                                    {{ bonus }}
-                                                    {% endif %}
-                                                </p>
-                                            </div>
-                                            <div class="row">
-                                                <p class="h4 px-4 small">{{ character[item["name"]] }}</p>
-                                            </div>
+                                        <div class="col-2 text-center clickable_div" data-modifier="{{ bonus }}"
+                                            onclick="showToast(this,'Dice Roll {{ item['name'] }}')">
+                                            <p class="h3 my-0">
+                                                {% if bonus >= 0 %}+{{ bonus }}{% else %}{{ bonus }}{% endif %}
+                                            </p>
+                                            <p class="h6 my-0">{{ character[item["name"]] }}</p>
                                         </div>
-                                        <div class="col-10 align-self-center">
-                                            <p class="h3 w-100 word-wrap: break-word px-3">{{ item["name"] }}</p>
+                                        <div class="col-10">
+                                            <p class="h4 mb-1 px-3">{{ item["name"] }}</p>
                                             {% set stat_prof_bonus = proficiencies.get(item["name"] | lower, 0) %}
                                             {% if stat_prof_bonus == 2 %}
-                                            {% set stat_prof_bonus_value = prof_bonus%}
-                                            {%else%}
+                                            {% set stat_prof_bonus_value = prof_bonus %}
+                                            {% else %}
                                             {% set stat_prof_bonus_value = 0 %}
-                                            {%endif%}
-                                            {% set bonus = (((character[item["name"]] - 10) / 2) +
-                                            stat_prof_bonus_value) |
-                                            int %}
-
-                                            <p class="h6 px-3 clickable_div" data-modifier="{{ bonus }}"" onclick="
-                                                showToast(this,'Dice Roll {{ item["name"] }} Saving Throw')">
-                                                {% if bonus >= 0 %}
-                                                +{{ bonus }}
-                                                {% else %}
-                                                {{ bonus }}
-                                                {% endif %}
-                                                Saving Throw</p>
+                                            {% endif %}
+                                            {% set save_bonus = (((character[item["name"]] - 10) / 2) +
+                                            stat_prof_bonus_value) | int %}
+                                            <p class="h6 mb-0 px-3 clickable_div" data-modifier="{{ save_bonus }}"
+                                                onclick="showToast(this,'Dice Roll {{ item['name'] }} Saving Throw')">
+                                                {% if save_bonus >= 0 %}+{{ save_bonus }}{% else %}{{ save_bonus }}{%
+                                                endif %} Saving Throw
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
                                 {% endfor %}
                             </div>
-                            <div>
+                            <br>
+                            <div class="mt-2">
                                 <!-- Skills -->
                                 {% for item in data_page_template["skills"] %}
                                 {% for atribute in data_page_template["atributes"] %}
                                 {% if atribute["name"] == item["parent"] %}
                                 {% set skill_key = item["name"] | lower | replace(' ', '_') %}
                                 {% set level = proficiencies.get(skill_key, 1) %}
-                                <div class="bg-light row shadow px-2">
-                                    {% set bonus = (((character[atribute["name"]] - 10) / 2) + prof_bonus*(level-1))|int
-                                    %}
-                                    <div class="col-1 clickable_div px-0" data-modifier="{{ bonus }}"
-                                        onclick="showToast(this,'Dice Roll {{ item[" name"] }}')">
-                                        <div class="row">
-                                            <p class="h5 my-0">
-                                                {% if bonus >= 0 %}
-                                                +{{ bonus }}
-                                                {% else %}
-                                                {{ bonus }}
-                                                {% endif %}</p>
-                                        </div>
+                                {% set bonus = (((character[atribute["name"]] - 10) / 2) + prof_bonus*(level-1))|int %}
+                                <div class="bg-light row align-items-center">
+                                    <div class="col-2 text-center clickable_div" data-modifier="{{ bonus }}"
+                                        onclick="showToast(this,'Dice Roll {{ item['name'] }}')">
+                                        <p class="h5 my-0">
+                                            {% if bonus >= 0 %}+{{ bonus }}{% else %}{{ bonus }}{% endif %}
+                                        </p>
                                     </div>
-                                    <div class="col-9 align-self-center ">
-                                        <p class="h5 w-100 text-wrap px-3">{{ item["name"] }}</p>
+                                    <div class="col-10">
+                                        <p class="h5 mb-0 px-3">{{ item["name"] }}</p>
                                     </div>
                                 </div>
                                 {% endif %}
                                 {% endfor %}
                                 {% endfor %}
                             </div>
+
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="nav-dice" role="tabpanel" aria-labelledby="nav-dice-tab">
+                        <div class="bg-light p-2"
+                            style="height: 15vh; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
+
+                            <!-- Řádek s tlačítky -->
+                            <div class="row gx-0">
+                                <div class="col-12 d-flex justify-content-between flex-wrap gap-1">
+                                    <button class="btn btn-primary btn-sm flex-fill"
+                                        onclick="setDiceRoll('1d4',document.getElementById('dice-roll-input-mobile'))">1d4</button>
+                                    <button class="btn btn-primary btn-sm flex-fill"
+                                        onclick="setDiceRoll('1d6',document.getElementById('dice-roll-input-mobile'))">1d6</button>
+                                    <button class="btn btn-primary btn-sm flex-fill"
+                                        onclick="setDiceRoll('1d8',document.getElementById('dice-roll-input-mobile'))">1d8</button>
+                                    <button class="btn btn-primary btn-sm flex-fill"
+                                        onclick="setDiceRoll('1d10',document.getElementById('dice-roll-input-mobile'))">1d10</button>
+                                    <button class="btn btn-primary btn-sm flex-fill"
+                                        onclick="setDiceRoll('1d12',document.getElementById('dice-roll-input-mobile'))">1d12</button>
+                                    <button class="btn btn-primary btn-sm flex-fill"
+                                        onclick="setDiceRoll('1d20',document.getElementById('dice-roll-input-mobile'))">1d20</button>
+                                    <button class="btn btn-primary btn-sm flex-fill"
+                                        onclick="setDiceRoll('1d100',document.getElementById('dice-roll-input-mobile'))">1d100</button>
+                                </div>
+                            </div>
+
+                            <!-- Řádek s inputem -->
+                            <div class="row mt-1 gx-0">
+                                <div class="col-12 input-group">
+                                    <input id="dice-roll-input-mobile" type="text" class="form-control text-center"
+                                        placeholder="Manual Roll (např. 2d6+3)" style=" font-size: 0.9rem;">
+                                    <button class="btn btn-outline-secondary"
+                                        onclick="showToast(document.getElementById('dice-roll-input-mobile'), 'Manual Roll')">Roll</button>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -737,7 +757,8 @@
                     <h5 class="modal-title">Edit Inventory</h5>
                 </div>
                 <div class="modal-body container">
-                    <div class="row"><input placeholder="Search..." class="form-control border border-primary" data-table="spells"></div>
+                    <div class="row"><input placeholder="Search..." class="form-control border border-primary"
+                            data-table="spells"></div>
                     <div class="row">
                         <div class="" style="max-height: 400px; overflow-y: auto;">
                             <table class="table" id="spell-edit-table" data-table="spells">
@@ -755,8 +776,9 @@
                                     <tr>
                                         <td scope="row" class="ps-3">{{ item['level'] }}</td>
                                         <td data-id="{{ item['UUID'] }}">{{ item['name'] }}</td>
-                                        <td class="text-center"><input class="form-check-input" type="checkbox" id="{{ item['UUID'] }}" {%
-                                                if item["checked"] %} checked {% endif %}></td>
+                                        <td class="text-center"><input class="form-check-input" type="checkbox"
+                                                id="{{ item['UUID'] }}" {% if item["checked"] %} checked {% endif %}>
+                                        </td>
                                         </td>
                                         <td>
                                             <button class="btn btn-primary m-1" type="button" data-bs-toggle="collapse"
@@ -800,7 +822,8 @@
                     </button> -->
                 </div>
                 <div class="modal-body container">
-                    <div class="row"><input placeholder="Search..." class="form-control border border-primary" data-table="inventory"></div>
+                    <div class="row"><input placeholder="Search..." class="form-control border border-primary"
+                            data-table="inventory"></div>
                     <div class="row">
                         <div class="" style="max-height: 400px; overflow-y: auto;">
                             <table class="table" id="edit-table" data-table="inventory">
@@ -815,11 +838,12 @@
                                 <tbody>
                                     {% for item in data_page_template["items"] %}
                                     <tr>
-                                        <th scope="row"><input style="max-width: 50px;" value="{{ item['count'] }}" class="ps-2 form-control border border-primary">
+                                        <th scope="row"><input style="max-width: 50px;" value="{{ item['count'] }}"
+                                                class="ps-2 form-control border border-primary">
                                         </th>
                                         <td data-id="{{ item['UUID'] }}">{{ item['name'] }}</td>
-                                        <td class="text-center"><input class="form-check-input" type="checkbox" id="{{ item['UUID'] }}" {%
-                                                if item["checked"] %} checked {% endif %}>
+                                        <td class="text-center"><input class="form-check-input" type="checkbox"
+                                                id="{{ item['UUID'] }}" {% if item["checked"] %} checked {% endif %}>
                                         </td>
                                         <td>
                                             <button class="btn btn-primary m-1" type="button" data-bs-toggle="collapse"
