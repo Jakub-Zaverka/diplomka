@@ -826,18 +826,19 @@ def inventory_api():
     char_stats = db.execute("SELECT strength,dexterity,constitution,intelligence,wisdom,charisma FROM characters WHERE char_id = ? AND user_id = ?",(session.get("current_character_id"), current_user.id)).fetchone()
 
     inventory_list = []
+
     for row in rows:
         gear_item = gear_dict.get(row["item_id"], {})
+        bonus = None  # resetuj pro každý item zvlášť
 
         # výpočet bonusu pro vybavení
-        bonus = None
         if gear_item.get("damage") and gear_item.get("damage_modifier"):
-            damage_mods = [char_stats[mod] for mod in gear_item["damage_modifier"] if mod in char_stats.keys()]
-            if damage_mods:  # aby nespadlo, když je prázdný list
+            damage_mods = [
+                char_stats[mod] for mod in gear_item["damage_modifier"] if mod in char_stats.keys()
+            ]
+            if damage_mods:
                 bonus = int((max(damage_mods) - 10) / 2)
 
-    for row in rows:
-        gear_item = gear_dict.get(row["item_id"], {})
         inventory_list.append({
             "UUID": row["item_id"],
             "count": row["count"],
@@ -845,12 +846,10 @@ def inventory_api():
             "name": gear_item.get("name", row["item_id"]),
             "description": gear_item.get("description", ""),
             "damage": gear_item.get("damage"),
-            "damage_modifier":gear_item.get("damage_modifier"),
+            "damage_modifier": gear_item.get("damage_modifier"),
             "damage_type": gear_item.get("damage_type"),
             "bonus": bonus
         })
-
-        #TODO: OPravit situaci, kdy nefunguje změna počtu, když uživatel má equiped item
 
     return {"status": "OK", "inventory": inventory_list}
     
