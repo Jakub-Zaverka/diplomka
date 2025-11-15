@@ -52,30 +52,28 @@
             <a class="navbar-text" href="">Edit mode</a>
         </div>
     </nav> -->
-
-    <div class="row container mx-auto my-3 py-1 bg-secondary shadow-lg rounded-2">
-        <div class="row container p-1 my-1 ">
-            <p class="h2">Username</p>
-            <div class="input-group">
-                <input id="usernameInput" class="form-control" disabled value="{{ data.username }}">
-                <button class="btn btn-outline-warning" data-bs-toggle="modal"
-                    data-bs-target="#ModalUsername">Edit</button>
+    <div class="row">
+        <div class="row container mx-auto my-3 py-1 bg-light shadow-lg rounded-2 col-12 col-md-10 col-lg-6">
+            <div class="row container p-1 my-1 ">
+                <p class="h2">Username</p>
+                <div class="input-group">
+                    <input id="usernameInput" class="form-control" disabled value="{{ data.username }}">
+                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalUsername">Edit</button>
+                </div>
             </div>
-        </div>
-        <div class="row container p-1 my-1 ">
-            <p class="h2">Password</p>
-            <div class="input-group">
-                <input id="passwordInput" class="form-control" disabled value="************">
-                <button class="btn btn-outline-warning" data-bs-toggle="modal"
-                    data-bs-target="#ModalPassword">Edit</button>
+            <div class="row container p-1 my-1 ">
+                <p class="h2">Password</p>
+                <div class="input-group">
+                    <input id="passwordInput" class="form-control" disabled value="************">
+                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalPassword">Edit</button>
+                </div>
             </div>
-        </div>
-        <div class="row container p-1 my-1 ">
-            <p class="h2">Email</p>
-            <div class="input-group">
-                <input id="emailInput" class="form-control" disabled value="{{ data.email }}">
-                <button class="btn btn-outline-warning" data-bs-toggle="modal"
-                    data-bs-target="#ModalEmail">Edit</button>
+            <div class="row container p-1 my-1 ">
+                <p class="h2">Email</p>
+                <div class="input-group">
+                    <input id="emailInput" class="form-control" disabled value="{{ data.email }}">
+                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalEmail">Edit</button>
+                </div>
             </div>
         </div>
     </div>

@@ -70,8 +70,8 @@
                             <th scope="col" class="text-wrap" style="width: 35%;">Character Name</th>
                             <th scope="col">Level</th>
                             <th scope="col">Character Class</th>
-                            <th scope="col" style="width: 5%;"></th>
-                            <th scope="col" style="width: 30%;"></th>
+                            <th scope="col" style="width: 5%;" class="text-end"></th>
+                            <th scope="col" style="width: 30%;" class="text-end"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -80,13 +80,13 @@
                             <td class="text-wrap" style="width: 35%;">{{ char['name'] }}</td>
                             <td>{{ char['level'] }}</td>
                             <td>{{ char['char_class'] | capitalize}}</td>
-                            <td><a href="{{ url_for('sheet', char_id=char['char_id']) }}"><svg
+                            <td class="text-end"><a href="{{ url_for('sheet', char_id=char['char_id']) }}"><svg
                                         xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                         class="bi bi-play-fill" viewBox="0 0 16 16">
                                         <path
                                             d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393" />
                                     </svg></a></td>
-                            <td> <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <td class="text-end"><a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                     Edit
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
