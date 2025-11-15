@@ -55,7 +55,8 @@ body {
 
 /* On hover clickable div */
 .clickable_div:hover {
-    background-color: var(--bs-secondary)
+    background-color: var(--bs-primary);
+    border-radius: 25px;
 }
 
 .inventory-equip-table tbody[data-uuid] {
@@ -64,11 +65,16 @@ body {
 }
 
 .inventory-equip-table td.item-name {
-    white-space: normal;         /* dovolí textu normálně se zalamovat */
-    word-break: keep-all;        /* neřeže slova zbytečně */
-    overflow-wrap: break-word;   /* zalomí až když musí */
-    vertical-align: middle;      /* zarovná text na střed buňky */
-    width: 100%;                 /* využije celý prostor sloupce */
+    white-space: normal;
+    /* dovolí textu normálně se zalamovat */
+    word-break: keep-all;
+    /* neřeže slova zbytečně */
+    overflow-wrap: break-word;
+    /* zalomí až když musí */
+    vertical-align: middle;
+    /* zarovná text na střed buňky */
+    width: 100%;
+    /* využije celý prostor sloupce */
 }
 
 .inventory-equip-table {

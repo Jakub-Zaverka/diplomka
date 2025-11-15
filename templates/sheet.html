@@ -50,9 +50,9 @@
                     <!-- Individual Atribute -->
                     {% for item in data_page_template["atributes"] %}
                     <div class="row">
-                        <div class="bg-light row shadow ">
+                        <div class="bg-light row shadow">
                             {% set bonus = ((character[item["name"]] - 10) / 2)|int %}
-                            <div class="col-2 px-4 px-md-2 px-lg-4 px-sm-3 clickable_div" data-modifier="{{ bonus }}"
+                            <div class="col-2 px-4 px-md-2 px-lg-4 px-sm-3 clickable_div p-2" data-modifier="{{ bonus }}"
                                 onclick="showToast(this,'Dice Roll {{ item[" name"] }}')">
                                 <div class="row">
                                     <p class="h3 my-0 mx-1">
@@ -68,7 +68,7 @@
                                     <p class="h4 px-4 small">{{ character[item["name"]] }}</p>
                                 </div>
                             </div>
-                            <div class="col-10 align-self-center">
+                            <div class="col-10 align-self-center w-auto">
                                 <p class="h3 w-100 word-wrap: break-word px-3">{{ item["name"] }}</p>
                                 {% set stat_prof_bonus = proficiencies.get(item["name"] | lower, 0) %}
                                 {% if stat_prof_bonus == 2 %}
@@ -121,8 +121,8 @@
                             <div class="row mt-1 gx-0">
                                 <div class="col-12 input-group">
                                     <input id="dice-roll-input" type="text" class="form-control text-center"
-                                        placeholder="Manual Roll (např. 2d6+3)" style=" font-size: 0.9rem;">
-                                    <button class="btn btn-outline-secondary"
+                                        placeholder="Manual Roll (2d6+3)" style=" font-size: 0.9rem;">
+                                    <button class="btn btn-primary"
                                         onclick="showToast(document.getElementById('dice-roll-input'), 'Manual Roll')">Roll</button>
                                 </div>
                             </div>
